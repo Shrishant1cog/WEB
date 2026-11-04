@@ -41,15 +41,16 @@ const mustContain = (file, fragment) => {
   }
 };
 
-mustContain("docs/phase-0/FINANCIAL_DESIGN.md", "PAID_REGISTRATION_ENABLED=false");
-mustContain("docs/phase-0/FINANCIAL_DESIGN.md", "ORGANIZER_SETTLEMENT_ENABLED=false");
-mustContain("docs/phase-0/FINANCIAL_DESIGN.md", "PRIZE_PAYOUT_ENABLED=false");
 mustContain("docs/phase-0/FINANCIAL_DESIGN.md", "DYNAMIC_QR");
-mustContain("docs/phase-0/FINANCIAL_DESIGN.md", "beneficiary snapshot");
+mustContain("docs/phase-0/FINANCIAL_DESIGN.md", "beneficiary snapshots");
 mustContain("docs/phase-0/FINANCIAL_DESIGN.md", "provider payment ID");
-mustContain("docs/phase-0/ARCHITECTURE.md", "one Firebase identity");
+mustContain("docs/phase-0/ARCHITECTURE.md", "One Firebase Authentication project");
 mustContain("docs/phase-0/ARCHITECTURE.md", "Clash Squad is team-only");
-mustContain("docs/phase-0/ARCHITECTURE.md", "another organizer");
+mustContain("docs/phase-0/ARCHITECTURE.md", "Idempotency-Key");
+mustContain("docs/phase-0/ARCHITECTURE.md", "Other organizer finance");
+mustContain("docs/phase-0/SECURITY_COMPLIANCE_DEPLOYMENT.md", "PAID_REGISTRATION_ENABLED=false");
+mustContain("docs/phase-0/SECURITY_COMPLIANCE_DEPLOYMENT.md", "ORGANIZER_SETTLEMENT_ENABLED=false");
+mustContain("docs/phase-0/SECURITY_COMPLIANCE_DEPLOYMENT.md", "CASH_PRIZE_FEATURES_ENABLED=false");
 mustContain("docs/phase-0/SECURITY_COMPLIANCE_DEPLOYMENT.md", "PLAY_STORE_PAID_FEATURES_APPROVED=false");
 mustContain("docs/phase-0/SECURITY_COMPLIANCE_DEPLOYMENT.md", "GARENA_COMMERCIAL_PERMISSION_CONFIRMED=false");
 mustContain("docs/phase-0/SECURITY_COMPLIANCE_DEPLOYMENT.md", "PROG Act");
@@ -72,6 +73,6 @@ if (failures.length > 0) {
   process.exitCode = 1;
 } else {
   console.log(
-    \`Phase 0 validation PASSED: \${required.length} files, relative links, product/permission invariants, paid-mode gates and double-entry arithmetic.\`
+    \`Phase 0 validation PASSED: \${required.length} files, relative links, product/permission invariants, compliance gates and double-entry arithmetic.\`
   );
 }
