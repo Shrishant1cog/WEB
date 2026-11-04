@@ -1,0 +1,46 @@
+{
+  "name": "fft",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FFT - Independent Free Fire India Tournament Management Platform",
+  "scripts": {
+    "install:all": "pnpm install --frozen-lockfile",
+    "dev:web": "pnpm --filter @fft/web dev",
+    "dev:mobile": "cd apps/mobile && flutter run",
+    "build:web": "pnpm --filter @fft/web build",
+    "build:mobile:apk": "cd apps/mobile && flutter build apk --release",
+    "build:mobile:aab": "cd apps/mobile && flutter build appbundle --release",
+    "lint:web": "pnpm --filter @fft/web lint",
+    "lint:mobile": "cd apps/mobile && flutter analyze",
+    "typecheck:web": "pnpm --filter @fft/web typecheck",
+    "test:web": "pnpm --filter @fft/web test",
+    "test:web:e2e": "pnpm --filter @fft/web test:e2e",
+    "test:mobile": "cd apps/mobile && flutter test",
+    "test:mobile:integration": "cd apps/mobile && flutter test integration_test/",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset",
+    "supabase:migrate": "supabase migration new",
+    "supabase:push": "supabase db push",
+    "supabase:types:web": "pnpm --filter @fft/web supabase:types",
+    "supabase:types:mobile": "cd apps/mobile && dart run build_runner build --delete-conflicting-outputs",
+    "db:test": "supabase test db",
+    "check:all": "pnpm lint:web && pnpm typecheck:web && pnpm lint:mobile && pnpm test:web && pnpm test:mobile && pnpm db:test",
+    "clean": "pnpm --filter @fft/web clean && cd apps/mobile && flutter clean"
+  },
+  "keywords": [
+    "flutter",
+    "nextjs",
+    "supabase",
+    "tournament",
+    "esports",
+    "free-fire"
+  ],
+  "author": "FFT Team",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=26.0.0",
+    "pnpm": ">=12.0.0"
+  },
+  "packageManager": "pnpm@12.16.1"
+}

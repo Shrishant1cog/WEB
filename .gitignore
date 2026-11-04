@@ -1,0 +1,89 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+apps/web/.next/
+apps/web/out/
+apps/web/build/
+apps/mobile/build/
+apps/mobile/.dart_tool/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+apps/mobile/.packages
+apps/mobile/pubspec.lock
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# Android
+apps/mobile/android/app/key.properties
+apps/mobile/android/app/*.jks
+apps/mobile/android/app/*.keystore
+apps/mobile/android/local.properties
+apps/mobile/android/gradle.properties
+
+# iOS (future)
+apps/mobile/ios/Podfile.lock
+apps/mobile/ios/.symlinks/
+apps/mobile/ios/Flutter/Generated.xcconfig
+apps/mobile/ios/Flutter/flutter_export_environment.sh
+
+# Secrets (never commit)
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets*.json
+secrets*.json.gpg
+
+# Supabase Vault backup
+secrets_backup_*.json
+secrets_backup_*.json.gpg
+
+# Database backups
+*.dump
+*.sql.gz
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Turbo (if used)
+.turbo/
+
+# Vercel
+.vercel
+
+# Sentry
+.sentryclirc
