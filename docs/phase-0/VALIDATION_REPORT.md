@@ -33,7 +33,7 @@ The GitHub integration supports files, branches, trees and commits but does not 
 
 ## Automated validation result
 
-<badge>CI PASS</badge>
+**CI result: PASS**
 
 GitHub Actions workflow: [Phase 0 documentation validation — run #3](https://github.com/Shrishant1cog/WEB/actions/runs/41807816637)
 
