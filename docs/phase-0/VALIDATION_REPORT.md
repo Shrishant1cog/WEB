@@ -7,68 +7,66 @@
 
 ## Initial repository audit
 
-The connected GitHub repository was inspected before creating project documentation. Its initial state was a public repository with 0 KB content, no README, no source code, package manifests, framework, database schema/migrations, tests, CI or deployment files. A root README has been added to identify the project and link Phase 0. No existing app or user data was deleted.
+The connected GitHub repository was inspected before project documents were added. Its initial state was a public repository with 0 KB content, no README, source code, package manifests, framework, database schema/migrations, tests, CI or deployment files. A root README was added to identify the project and link Phase 0. No existing application files or user data were deleted.
 
-This is a remote repository-content audit only; it does not inspect local untracked files, the user's computer or private cloud/payment accounts. The application is not implemented.
+This is a remote repository-content audit only; it does not inspect local untracked files, the user's computer or private cloud/payment accounts. No application code exists, so no code/build audit is claimed.
 
-The GitHub integration supports files, trees, commits and branches but does not expose a repository rename operation. The repo slug remains \`WEB\`; the project content is branded **Free Fire Tournament Platform**. Use GitHub Settings → General → Repository name to rename the URL slug if desired. The repo is public, so no secrets, KYC/PII, payment identifiers or production config belong in it.
+The GitHub integration supports files, branches, trees and commits but does not expose a repository rename operation. The slug remains \`WEB\`; project content is branded **Free Fire Tournament Platform**. Rename the URL slug through GitHub Settings → General → Repository name. The repository is public; do not commit secrets, KYC/PII, payment identifiers or production configuration.
 
 ## Phase 0 deliverables
 
-- System topology and module boundaries.
-- Cloud-only authoritative data model.
-- Logical ERD and table-level fields, constraints, indexes and deletion/security rules.
-- Cross-platform identity and account linking.
-- Role/permission and organizer ownership model.
-- Versioned tournament, registration and scoring lifecycle.
-- Payment-link/dynamic-QR flow and duplicate-payment protection.
-- Provider shortlist and written-underwriting requirements.
-- Double-entry ledger, commission and worked arithmetic example.
-- Organizer KYC/settlement model and immutable beneficiary snapshots.
-- Organizer-funded prize commitment and verification model.
-- Security threat model.
-- Indian legal, Garena, PSP and app-store gates.
-- Cloud deployment proposal.
-- Animation/design system specification.
-- Phased implementation roadmap.
+- System topology, bounded contexts and deployment boundaries.
+- Logical ERD and database table design with fields, constraints, indexes and retention/security rules.
+- Cross-platform Firebase identity and account-linking design.
+- Player, organizer, moderator, finance and admin permission boundaries.
+- Tournament lifecycle, ownership, versioning, roster snapshots and scoring model.
+- Payment-link and dynamic-QR flow with backend-authoritative amounts.
+- Duplicate-payment, webhook, late-payment and excess-capture handling.
+- Provider shortlist and written underwriting requirements.
+- Commission model and double-entry ledger with balanced worked arithmetic.
+- Organizer KYC/settlement and immutable beneficiary snapshots.
+- Organizer-funded prize commitment and independent verification model.
+- Threat model and fraud controls.
+- India law, Garena, payment-provider and Google Play gates.
+- Cloud deployment proposal, animation specification and phased roadmap.
 - Automated documentation consistency validator and GitHub Actions workflow.
 
-## Documentation acceptance checks
+## Automated validation result
 
-The repository validator must check:
-1. All required Phase 0 documents exist and are non-empty.
-2. Every relative Markdown link resolves.
-3. Paid, settlement and prize flags default false.
-4. Amounts are backend-derived, not client supplied.
-5. Webhook and payment IDs are idempotent.
-6. Dynamic QR is required; static QR is not treated as transaction truth.
-7. Organizer beneficiary snapshot is immutable for existing orders.
-8. One registration cannot be paid/credited twice.
-9. Cross-organizer financial access is denied.
-10. Example collection and double-entry journals balance arithmetically.
+<badge>CI PASS</badge>
 
-The validator is not a live application test, PSP certification, legal opinion, penetration test or production acceptance.
+GitHub Actions workflow: [Phase 0 documentation validation — run #3](https://github.com/Shrishant1cog/WEB/actions/runs/41807816637)
 
-## Explicitly not completed
+- Commit tested: \`533182e79dc7b87241aa2b2e6cab7da4bdbfba43\`
+- Branch: \`phase-0/architecture\`
+- Result: **completed / success**
+- Validator: \`node scripts/validate-phase0.mjs\`
+- Checks: seven required baseline files exist and are non-empty; relative Markdown links resolve; product/permission/payment/compliance invariants are present; paid features default false; illustrative collection allocation and double-entry arithmetic balance.
 
-- No Flutter, Next.js or NestJS application source.
-- No Prisma schema/migration.
+Two earlier workflow attempts failed (a validator syntax error and mismatched assertion paths); both were corrected. The successful run is the corrected third run. No failure is being presented as a pass.
+
+This validator is a documentation consistency test only. It is not an application test, provider certification, legal opinion, penetration test, production security review or load test.
+
+## Not completed by Phase 0
+
+- No Flutter, Next.js or NestJS application code.
+- No Prisma schema or migration.
 - No Firebase project or credentials.
 - No cloud resources provisioned.
-- No PSP merchant account, sandbox credentials or written underwriting.
+- No payment-provider merchant account, sandbox credentials or written underwriting.
 - No real UPI beneficiary verification.
-- No payment collection, organizer settlement or prize payout.
+- No payment collection, marketplace settlement or prize payout.
 - No Garena commercial permission.
-- No esports determination/registration proof.
+- No esports determination/registration evidence.
 - No Google Play approval.
 - No production deployment, load test or penetration test.
 
 ## Blockers/open decisions
 
-1. Repository slug remains WEB due unavailable rename operation.
+1. Repository slug remains WEB; connected GitHub integration cannot rename it.
 2. Legal entity, organizer agreement and merchant-of-record model unresolved.
-3. Whether this exact Free Fire event/fee/commission/prize model meets esports requirements is unconfirmed.
-4. Garena commercial permission not obtained.
+3. Exact title/event/fee/commission/prize classification and registration path unconfirmed.
+4. Garena written commercial permission not obtained.
 5. PSP underwriting not obtained; dynamic QR + commission split compatibility not proven.
 6. Commission percentage, tax basis, gateway-fee bearer and cancellation/refund policy not finalized.
 7. Prize funding evidence, tax treatment and independent verification channel not finalized.
@@ -76,4 +74,4 @@ The validator is not a live application test, PSP certification, legal opinion, 
 
 ## Acceptance status
 
-**Architecture baseline prepared; code implementation has not started.** Mark documentation checks passed only after running \`node scripts/validate-phase0.mjs\` on the committed branch. Paid launch remains **BLOCKED / NOT APPROVED**. Phase 1 begins only after owner review and acceptance.
+**Phase 0 architecture documents are committed and the documentation CI passes.** This does not mean the platform is implemented or cleared for paid launch. Paid launch status remains **BLOCKED / NOT APPROVED**. Phase 1 begins only after owner review and acceptance of the architecture and open gates.
