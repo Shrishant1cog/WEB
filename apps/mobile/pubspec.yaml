@@ -1,0 +1,90 @@
+name: fft_mobile
+description: FFT - Independent Free Fire India Tournament Management Platform (Mobile)
+version: 0.1.0+1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.13.0 <4.0.0'
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Core
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+  equatable: ^2.0.5
+  dartz: ^0.10.1
+
+  # State Management
+  flutter_bloc: ^8.1.6
+  hydrated_bloc: ^9.1.5
+
+  # Dependency Injection
+  get_it: ^7.7.0
+  injectable: ^2.5.0
+
+  # Navigation
+  go_router: ^14.2.7
+
+  # Supabase
+  supabase_flutter: ^2.5.6
+
+  # Secure Storage
+  flutter_secure_storage: ^9.2.2
+
+  # Network
+  dio: ^5.7.0
+  connectivity_plus: ^6.1.0
+
+  # Utilities
+  intl: ^0.19.0
+  uuid: ^4.5.1
+  url_launcher: ^6.3.1
+  share_plus: ^10.1.0
+  package_info_plus: ^8.3.0
+  device_info_plus: ^11.3.0
+
+  # UI
+  material_symbols_icons: ^4.2900.0
+  cached_network_image: ^3.4.1
+  photo_view: ^0.15.0
+  flutter_svg: ^2.0.17
+
+  # Permissions
+  permission_handler: ^11.3.1
+
+  # Logging
+  logger: ^2.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.13
+  freezed: ^2.5.7
+  json_serializable: ^6.8.0
+  injectable_generator: ^2.6.2
+  bloc_test: ^9.1.7
+  mocktail: ^1.0.4
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
