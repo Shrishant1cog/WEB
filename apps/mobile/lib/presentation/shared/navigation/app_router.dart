@@ -1055,23 +1055,23 @@ class ScaffoldWithNavBar extends StatelessWidget {
         onDestinationSelected: (index) => _onDestinationSelected(context, index),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Symbols.sports_esports_outlined),
-            selectedIcon: Icon(Symbols.sports_esports),
+            icon: Icon(Icons.sports_esports_outlined),
+            selectedIcon: Icon(Icons.sports_esports),
             label: 'Tournaments',
           ),
           NavigationDestination(
-            icon: Icon(Symbols.groups_outlined),
-            selectedIcon: Icon(Symbols.groups),
+            icon: Icon(Icons.groups_outlined),
+            selectedIcon: Icon(Icons.groups),
             label: 'Teams',
           ),
           NavigationDestination(
-            icon: Icon(Symbols.event_outlined),
-            selectedIcon: Icon(Symbols.event),
+            icon: Icon(Icons.event_outlined),
+            selectedIcon: Icon(Icons.event),
             label: 'Matches',
           ),
           NavigationDestination(
-            icon: Icon(Symbols.person_outlined),
-            selectedIcon: Icon(Symbols.person),
+            icon: Icon(Icons.person_outlined),
+            selectedIcon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],

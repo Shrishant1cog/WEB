@@ -146,10 +146,10 @@ extension ResultX<T> on Result<T> {
   }
 
   /// Checks if this is a success
-  bool get isSuccess => this is Right<T>;
+  bool get isSuccess => fold((_) => false, (_) => true);
 
   /// Checks if this is a failure
-  bool get isFailure => this is Left<T>;
+  bool get isFailure => fold((_) => true, (_) => false);
 
   /// Gets the failure if any
   Failure? get failure => fold((f) => f, (_) => null);

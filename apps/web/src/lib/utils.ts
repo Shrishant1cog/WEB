@@ -188,10 +188,17 @@ export function groupBy<T>(array: T[], key: keyof T | ((item: T) => string)): Re
 /**
  * Sort array by multiple keys
  */
-export function sortBy<T>(array: T[], keys: (keyof T | { key: keyof T; order: 'asc' | 'desc' })[]): T[] {
+export function sortBy<T>(array: T[], keys: Array<keyof T | { key: keyof T; order: 'asc' | 'desc' }>): T[] {
   return [...array].sort((a, b) => {
     for (const key of keys) {
-      const { key: k, order } = typeof key === 'string' ? { key: k, order: 'asc' } : key;
+      let k: keyof T;
+      let order: 'asc' | 'desc' = 'asc';
+      if (isKeyObject(key)) {
+        k = key.key;
+        order = key.order;
+      } else {
+        k = key;
+      }
       const aVal = a[k];
       const bVal = b[k];
       if (aVal < bVal) return order === 'asc' ? -1 : 1;
@@ -199,4 +206,8 @@ export function sortBy<T>(array: T[], keys: (keyof T | { key: keyof T; order: 'a
     }
     return 0;
   });
+}
+
+function isKeyObject<T>(key: keyof T | { key: keyof T; order: 'asc' | 'desc' }): key is { key: keyof T; order: 'asc' | 'desc' } {
+  return typeof key === 'object' && key !== null && 'key' in key;
 }

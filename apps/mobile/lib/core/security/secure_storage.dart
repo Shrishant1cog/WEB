@@ -16,13 +16,8 @@ class SecureStorage {
 
   SecureStorage(this._storage);
 
-  /// Android options with hardware-backed keystore
-  static const AndroidOptions _androidOptions = AndroidOptions(
-    encryptedSharedPreferences: true,
-    keyCipherAlgorithm: 'AES/GCM/NoPadding',
-    sharedPreferencesName: 'fft_secure_prefs',
-    keyAlias: 'fft_key',
-  );
+  /// Android options with hardware-backed keystore (using defaults)
+  static const AndroidOptions _androidOptions = AndroidOptions();
 
   /// iOS options with Keychain
   static const IOSOptions _iosOptions = IOSOptions(

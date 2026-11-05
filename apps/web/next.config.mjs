@@ -31,19 +31,8 @@ const nextConfig = {
     // serverActions: { bodySizeLimit: '2mb' }, // Default
   },
 
-  // Webpack configuration
-  webpack: (config, { isServer }) => {
-    // Handle Supabase realtime
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-    return config;
-  },
+  // Turbopack configuration (empty to disable webpack config error)
+  turbopack: {},
 };
 
 export default nextConfig;

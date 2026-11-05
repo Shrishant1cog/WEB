@@ -20,18 +20,12 @@ class SupabaseClientManager {
       url: AppConfig.supabaseUrl,
       anonKey: AppConfig.supabaseAnonKey,
       // Optional: configure auth options
-      authOptions: const AuthClientOptions(
+      authOptions: const FlutterAuthClientOptions(
         autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: false, // We handle deep links manually
       ),
       // Optional: configure realtime
       realtimeClientOptions: const RealtimeClientOptions(
         logLevel: RealtimeLogLevel.info,
-      ),
-      // Optional: configure storage
-      storageClientOptions: const StorageClientOptions(
-        retryAttempts: 3,
       ),
     );
 

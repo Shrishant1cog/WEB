@@ -2,10 +2,8 @@
 /// Uses GetIt for service location with Injectable for code generation
 
 import 'package:get_it/get_it.dart';
-import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'core/config/app_config.dart';
 import 'core/network/supabase_client.dart';
 import 'core/security/secure_storage.dart';
 
@@ -28,9 +26,6 @@ Future<void> init() async {
 
   // BLoCs / Cubits
   _registerBlocs();
-
-  // Initialize generated dependencies
-  await getIt.init();
 }
 
 void _registerCore() {
@@ -167,15 +162,13 @@ Future<void> reset() async {
 
 /// Check if all required dependencies are registered
 bool validate() {
-  final required = [
-    SupabaseClient,
-    SecureStorage,
-  ];
-
-  for (final type in required) {
-    if (!getIt.isRegistered(type)) {
-      return false;
-    }
+  // In GetIt 9.x, isRegistered() doesn't take type parameters
+  // We'll just check if the instances can be retrieved
+  try {
+    getIt<SupabaseClient>();
+    getIt<SecureStorage>();
+    return true;
+  } catch (_) {
+    return false;
   }
-  return true;
 }

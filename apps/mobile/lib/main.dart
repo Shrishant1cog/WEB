@@ -2,15 +2,11 @@
 /// Independent Free Fire India Tournament Management Platform
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:get_it/get_it.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/config/app_config.dart';
 import 'core/network/supabase_client.dart';
-import 'core/security/secure_storage.dart';
 import 'presentation/shared/themes/app_theme.dart';
 import 'presentation/shared/navigation/app_router.dart';
 import 'injection_container.dart' as di;
@@ -21,21 +17,18 @@ void main() async {
 
   // Initialize HydratedBloc storage for state persistence
   final storage = await HydratedStorage.build(
-    storageDirectory: await getApplicationDocumentsDirectory(),
+    storageDirectory: HydratedStorageDirectory((await getApplicationDocumentsDirectory()).path),
   );
-  HydratedBlocOverrides.runZoned(
-    () async {
-      // Initialize Supabase
-      await SupabaseClientManager.initialize();
+  HydratedBloc.storage = storage;
 
-      // Initialize dependency injection
-      await di.init();
+  // Initialize Supabase
+  await SupabaseClientManager.initialize();
 
-      // Run app
-      runApp(const FFTApp());
-    },
-    storage: storage,
-  );
+  // Initialize dependency injection
+  await di.init();
+
+  // Run app
+  runApp(const FFTApp());
 }
 
 /// Root application widget
@@ -44,27 +37,23 @@ class FFTApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        // Add global BLoCs here (auth, theme, etc.)
-        // BlocProvider(create: (_) => di.sl<AuthBloc>()),
+    // MultiBlocProvider requires at least one provider
+    // For now, we don't have any global BLoCs, so use MaterialApp.router directly
+    return MaterialApp.router(
+      title: AppConfig.appName,
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system, // Respect system preference
+      routerConfig: AppRouter.router,
+      // Localization
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('hi', 'IN'),
       ],
-      child: MaterialApp.router(
-        title: AppConfig.appName,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system, // Respect system preference
-        routerConfig: AppRouter.router,
-        // Localization
-        supportedLocales: const [
-          Locale('en', 'US'),
-          Locale('hi', 'IN'),
-        ],
-        localizationsDelegates: const [
-          // Add localization delegates here
-        ],
-      ),
+      localizationsDelegates: const [
+        // Add localization delegates here
+      ],
     );
   }
 }

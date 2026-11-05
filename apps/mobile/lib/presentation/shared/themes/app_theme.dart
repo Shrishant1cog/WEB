@@ -2,7 +2,6 @@
 /// Professional esports operations aesthetic with strong visual hierarchy
 
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 class AppTheme {
   // ===========================================================================
@@ -177,7 +176,6 @@ class AppTheme {
   static TextTheme _textTheme({required bool isDark}) => TextTheme(
         // Display
         displayLarge: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 57,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.25,
@@ -185,7 +183,6 @@ class AppTheme {
           color: isDark ? Colors.white : const Color(0xFF0F172A),
         ),
         displayMedium: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 45,
           fontWeight: FontWeight.w700,
           letterSpacing: 0,
@@ -193,7 +190,6 @@ class AppTheme {
           color: isDark ? Colors.white : const Color(0xFF0F172A),
         ),
         displaySmall: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 36,
           fontWeight: FontWeight.w600,
           letterSpacing: 0,
@@ -203,7 +199,6 @@ class AppTheme {
 
         // Headline
         headlineLarge: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 32,
           fontWeight: FontWeight.w600,
           letterSpacing: 0,
@@ -211,7 +206,6 @@ class AppTheme {
           color: isDark ? Colors.white : const Color(0xFF0F172A),
         ),
         headlineMedium: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 28,
           fontWeight: FontWeight.w600,
           letterSpacing: 0,
@@ -219,7 +213,6 @@ class AppTheme {
           color: isDark ? Colors.white : const Color(0xFF0F172A),
         ),
         headlineSmall: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 24,
           fontWeight: FontWeight.w600,
           letterSpacing: 0,
@@ -229,7 +222,6 @@ class AppTheme {
 
         // Title
         titleLarge: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 22,
           fontWeight: FontWeight.w600,
           letterSpacing: 0,
@@ -237,7 +229,6 @@ class AppTheme {
           color: isDark ? Colors.white : const Color(0xFF0F172A),
         ),
         titleMedium: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 16,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.15,
@@ -245,7 +236,6 @@ class AppTheme {
           color: isDark ? Colors.white : const Color(0xFF0F172A),
         ),
         titleSmall: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 14,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.1,
@@ -255,7 +245,6 @@ class AppTheme {
 
         // Body
         bodyLarge: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 16,
           fontWeight: FontWeight.w400,
           letterSpacing: 0.5,
@@ -263,7 +252,6 @@ class AppTheme {
           color: isDark ? Colors.white : const Color(0xFF1E293B),
         ),
         bodyMedium: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 14,
           fontWeight: FontWeight.w400,
           letterSpacing: 0.25,
@@ -271,7 +259,6 @@ class AppTheme {
           color: isDark ? Colors.white : const Color(0xFF334155),
         ),
         bodySmall: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 12,
           fontWeight: FontWeight.w400,
           letterSpacing: 0.4,
@@ -281,7 +268,6 @@ class AppTheme {
 
         // Label
         labelLarge: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 14,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.1,
@@ -289,7 +275,6 @@ class AppTheme {
           color: isDark ? Colors.white : const Color(0xFF0F172A),
         ),
         labelMedium: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 12,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.5,
@@ -297,7 +282,6 @@ class AppTheme {
           color: isDark ? Colors.white : const Color(0xFF1E293B),
         ),
         labelSmall: TextStyle(
-          fontFamily: 'Inter',
           fontSize: 11,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.5,
@@ -836,7 +820,6 @@ class AppTheme {
 
   static DatePickerThemeData _datePickerTheme({required bool isDark}) => DatePickerThemeData(
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-        surfaceTintColor: Colors.transparent,
         headerBackgroundColor: _primaryBase,
         headerForegroundColor: Colors.white,
         dayBackgroundColor: WidgetStateProperty.resolveWith<Color?>(
@@ -870,23 +853,8 @@ class AppTheme {
 
   static TimePickerThemeData _timePickerTheme({required bool isDark}) => TimePickerThemeData(
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-        surfaceTintColor: Colors.transparent,
-        hourMinuteTextColor: WidgetStateProperty.resolveWith<Color?>(
-          (states) {
-            if (states.contains(WidgetState.selected)) {
-              return Colors.white;
-            }
-            return isDark ? Colors.white : const Color(0xFF1E293B);
-          },
-        ),
-        dayPeriodTextColor: WidgetStateProperty.resolveWith<Color?>(
-          (states) {
-            if (states.contains(WidgetState.selected)) {
-              return Colors.white;
-            }
-            return isDark ? Colors.white : const Color(0xFF1E293B),
-          },
-        ),
+        hourMinuteTextColor: isDark ? Colors.white : const Color(0xFF1E293B),
+        dayPeriodTextColor: isDark ? Colors.white : const Color(0xFF1E293B),
         dialHandColor: _primaryBase,
         dialBackgroundColor: _primaryBase.withValues(alpha: 0.1),
         entryModeIconColor: _primaryBase,

@@ -77,7 +77,7 @@
 /* Focus visible styles for accessibility */
 @layer base {
   *:focus-visible {
-    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-background;
   }
 }
 
