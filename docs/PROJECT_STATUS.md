@@ -1,8 +1,8 @@
 # Project Status — FFT
 
-**Version:** 3.0  
+**Version:** 4.0  
 **Date:** 7 November 2026  
-**Status:** Phase 3 — Tournament & Participation Management (VERIFIED COMPLETE)
+**Status:** Phase 4 — Match, Results & Competition Operations (DATABASE MIGRATION APPLIED, PARTIALLY COMPLETE)
 
 ---
 
@@ -138,16 +138,39 @@
 - [x] 19/19 RPC happy-path checks PASS
 - [x] 31/31 RLS/security checks PASS (visibility, authorization, roster freeze, invitation security, waitlist FIFO, atomic promotion)
 
-### Phase 4: Match, Results & Competition Operations ⏳
+### Phase 4: Match, Results & Competition Operations 🟡 MIGRATION APPLIED, PARTIALLY COMPLETE
 *Combines former Phase 5 (Match Management) and Phase 6 (Results & Disputes)*
-- [ ] Match creation
-- [ ] Credential storage
-- [ ] Release enforcement
-- [ ] Participant access
-- [ ] Result entry
-- [ ] Dispute workflow
-- [ ] Finalization
-- [ ] Audit corrections
+
+**Database (Migration 7):**
+- [x] Match entries canonical model (`match_entries` linking matches ↔ tournament_registrations)
+- [x] Extended `matches` table (round/group/mode, dispute window)
+- [x] `match_room_secrets` with encrypted credentials + server-side release enforcement
+- [x] `match_credential_access` audit log (no secrets)
+- [x] Extended `results` table (entry-based scoring, status lifecycle: draft→provisional→disputed→finalized)
+- [x] `disputes` table (evidence, moderator review, resolution)
+- [x] `tournaments` extensions (dispute window, scoring config JSONB)
+- [x] Trusted `SECURITY DEFINER` RPCs with fixed `search_path` for all operations
+
+**Security:**
+- [x] Server-side release enforcement in `get_match_credentials`
+- [x] Moderator conflict-of-interest checks
+- [x] Dispute deadline enforced by database time
+- [x] Credential encryption (simple XOR dev / pgcrypto+Vault prod)
+- [x] Audit logging via `log_audit`
+
+**Testing:**
+- [x] Migration applies cleanly
+- [x] Phase 3 regression: 19/19 RPC + 31/31 security = 50/50 PASS
+- [x] Web typecheck + build + Vitest 90/90 PASS
+- [x] Flutter analyzer 0 errors | Tests 20/20 PASS | APK build PASS
+
+**Known Issues (to complete):**
+- [ ] Match entries query returns null in test
+- [ ] Duplicate assignment constraint not enforced
+- [ ] Match status visibility timing
+- [ ] `team_id` NOT NULL constraint violation
+- [ ] PostgREST schema cache refresh for `submit_dispute`
+- [ ] Unique constraint for `results` ON CONFLICT
 
 ### Phase 5: Platform Administration, Notifications & Release Readiness ⏳
 *Combines former Phase 7 (Notifications & Admin) and Phase 8 (Quality & Release)*
