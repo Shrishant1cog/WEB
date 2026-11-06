@@ -154,7 +154,7 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
                       }
                       return null;
                     },
-                    onSubmitted: (_) => _onVerify(),
+                    onFieldSubmitted: (_) => _onVerify(),
                   ),
                 ),
 

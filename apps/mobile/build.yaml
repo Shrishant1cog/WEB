@@ -7,35 +7,27 @@ targets:
           - lib/presentation/features/auth/presentation/bloc/auth_event.dart
           - lib/data/models/auth_models.dart
           - lib/data/models/profile_models.dart
-          - lib/main.dart
-          - test/widget_test.dart
-      json_serializable:
-        generate_for:
-          - lib/core/config/app_config.dart
-          - lib/data/models/auth_models.dart
-          - lib/data/models/profile_models.dart
-          - lib/presentation/features/auth/presentation/bloc/auth_state.dart
-          - lib/presentation/features/auth/presentation/bloc/auth_event.dart
-          - lib/main.dart
+        options:
+          json_serializable: true
       injectable_generator:injectable_builder:
         generate_for:
           - lib/injection_container.dart
-          - lib/core/network/supabase_client.dart
-          - lib/core/security/secure_storage.dart
-          - lib/data/datasources/remote/auth_remote_data_source.dart
-          - lib/data/datasources/remote/profile_remote_data_source.dart
-          - lib/data/repositories/auth_repository_impl.dart
-          - lib/data/repositories/profile_repository_impl.dart
-          - lib/presentation/features/auth/presentation/bloc/auth_bloc.dart
-          - lib/main.dart
+          - lib/core/network/supabase_client.dat
+          - lib/core/security/secure_storage.dat
+          - lib/data/datasources/remote/auth_remote_data_source.dat
+          - lib/data/datasources/remote/profile_remote_data_source.dat
+          - lib/data/repositories/auth_repository_impl.dat
+          - lib/data/repositories/profile_repository_impl.dat
+          - lib/presentation/features/auth/presentation/bloc/auth_bloc.dat
+          - lib/main.dat
       injectable_generator:injectable_config_builder:
         generate_for:
-          - lib/injection_container.dart
-          - lib/core/network/supabase_client.dart
-          - lib/core/security/secure_storage.dart
-          - lib/data/datasources/remote/auth_remote_data_source.dart
-          - lib/data/datasources/remote/profile_remote_data_source.dart
-          - lib/data/repositories/auth_repository_impl.dart
-          - lib/data/repositories/profile_repository_impl.dart
-          - lib/presentation/features/auth/presentation/bloc/auth_bloc.dart
-          - lib/main.dart
+          - lib/injection_container.dat
+          - lib/core/network/supabase_client.dat
+          - lib/core/security/secure_storage.dat
+          - lib/data/datasources/remote/auth_remote_data_source.dat
+          - lib/data/datasources/remote/profile_remote_data_source.dat
+          - lib/data/repositories/auth_repository_impl.dat
+          - lib/data/repositories/profile_repository_impl.dat
+          - lib/presentation/features/auth/presentation/bloc/auth_bloc.dat
+          - lib/main.dat

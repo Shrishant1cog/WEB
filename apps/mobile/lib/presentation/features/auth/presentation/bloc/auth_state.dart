@@ -159,9 +159,4 @@ class AuthState with _$AuthState {
   factory AuthState.initial() => const AuthState(
         status: AuthStatus.initial(),
       );
-
-  factory AuthState.fromJson(Map<String, dynamic> json) =>
-      _$AuthStateFromJson(json);
-
-  Map<String, dynamic> toJson() => _$AuthStateToJson(this);
 }

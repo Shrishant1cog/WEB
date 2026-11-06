@@ -27,6 +27,7 @@ class FFTTextField extends StatelessWidget {
   final Color? focusedBorderColor;
   final Color? errorBorderColor;
   final double borderRadius;
+  final bool autofocus;
 
   const FFTTextField({
     super.key,
@@ -53,6 +54,7 @@ class FFTTextField extends StatelessWidget {
     this.focusedBorderColor,
     this.errorBorderColor,
     this.borderRadius = 12,
+    this.autofocus = false,
   });
 
   @override
@@ -72,6 +74,7 @@ class FFTTextField extends StatelessWidget {
       maxLength: maxLength,
       textCapitalization: textCapitalization,
       textAlign: textAlign,
+      autofocus: autofocus,
       style: TextStyle(
         fontSize: 16,
         fontFamily: 'Inter',

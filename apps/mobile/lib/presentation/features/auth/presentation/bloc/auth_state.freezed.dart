@@ -508,7 +508,6 @@ String toString() {
 
 
 
-
 /// @nodoc
 mixin _$AuthState {
 
@@ -519,8 +518,6 @@ mixin _$AuthState {
 @pragma('vm:prefer-inline')
 $AuthStateCopyWith<AuthState> get copyWith => _$AuthStateCopyWithImpl<AuthState>(this as AuthState, _$identity);
 
-  /// Serializes this AuthState to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -529,7 +526,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthState&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.userId, _this.userId) || other.userId == _this.userId)&&(identical(other.email, _this.email) || other.email == _this.email)&&(identical(other.accessToken, _this.accessToken) || other.accessToken == _this.accessToken)&&(identical(other.refreshToken, _this.refreshToken) || other.refreshToken == _this.refreshToken)&&(identical(other.emailVerified, _this.emailVerified) || other.emailVerified == _this.emailVerified)&&(identical(other.mfaRequired, _this.mfaRequired) || other.mfaRequired == _this.mfaRequired)&&(identical(other.aalLevel, _this.aalLevel) || other.aalLevel == _this.aalLevel)&&(identical(other.error, _this.error) || other.error == _this.error)&&(identical(other.authResponse, _this.authResponse) || other.authResponse == _this.authResponse)&&(identical(other.profile, _this.profile) || other.profile == _this.profile)&&(identical(other.mfaEnrollment, _this.mfaEnrollment) || other.mfaEnrollment == _this.mfaEnrollment)&&(identical(other.mfaChallenge, _this.mfaChallenge) || other.mfaChallenge == _this.mfaChallenge)&&const DeepCollectionEquality().equals(other.mfaFactors, _this.mfaFactors)&&(identical(other.isPasswordResetSent, _this.isPasswordResetSent) || other.isPasswordResetSent == _this.isPasswordResetSent)&&(identical(other.isPasswordChanged, _this.isPasswordChanged) || other.isPasswordChanged == _this.isPasswordChanged)&&(identical(other.isEmailChangePending, _this.isEmailChangePending) || other.isEmailChangePending == _this.isEmailChangePending)&&(identical(other.isDeletingAccount, _this.isDeletingAccount) || other.isDeletingAccount == _this.isDeletingAccount)&&(identical(other.isLoading, _this.isLoading) || other.isLoading == _this.isLoading));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
   final _this = this as AuthState;
@@ -783,11 +780,11 @@ return $default(_that.status,_that.userId,_that.email,_that.accessToken,_that.re
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _AuthState implements AuthState {
   const _AuthState({@AuthStatusConverter() this.status = const AuthStatus.initial(), this.userId, this.email, this.accessToken, this.refreshToken, this.emailVerified = false, this.mfaRequired = false, this.aalLevel = 'aal1', this.error, @AuthResponseConverter() this.authResponse, @ProfileConverter() this.profile, @MfaEnrollResponseConverter() this.mfaEnrollment, @MfaChallengeResponseConverter() this.mfaChallenge, @MfaFactorModelConverter()  List<MfaFactorModel> mfaFactors = const [], this.isPasswordResetSent = false, this.isPasswordChanged = false, this.isEmailChangePending = false, this.isDeletingAccount = false, this.isLoading = false}): _mfaFactors = mfaFactors;
-  factory _AuthState.fromJson(Map<String, dynamic> json) => _$AuthStateFromJson(json);
+  
 
 @override@JsonKey()@AuthStatusConverter() final  AuthStatus status;
 @override final  String? userId;
@@ -821,17 +818,14 @@ class _AuthState implements AuthState {
 @pragma('vm:prefer-inline')
 _$AuthStateCopyWith<_AuthState> get copyWith => __$AuthStateCopyWithImpl<_AuthState>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$AuthStateToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
     return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthState&&(identical(other.status, status) || other.status == status)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.email, email) || other.email == email)&&(identical(other.accessToken, accessToken) || other.accessToken == accessToken)&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&(identical(other.emailVerified, emailVerified) || other.emailVerified == emailVerified)&&(identical(other.mfaRequired, mfaRequired) || other.mfaRequired == mfaRequired)&&(identical(other.aalLevel, aalLevel) || other.aalLevel == aalLevel)&&(identical(other.error, error) || other.error == error)&&(identical(other.authResponse, authResponse) || other.authResponse == authResponse)&&(identical(other.profile, profile) || other.profile == profile)&&(identical(other.mfaEnrollment, mfaEnrollment) || other.mfaEnrollment == mfaEnrollment)&&(identical(other.mfaChallenge, mfaChallenge) || other.mfaChallenge == mfaChallenge)&&const DeepCollectionEquality().equals(other.mfaFactors, _mfaFactors)&&(identical(other.isPasswordResetSent, isPasswordResetSent) || other.isPasswordResetSent == isPasswordResetSent)&&(identical(other.isPasswordChanged, isPasswordChanged) || other.isPasswordChanged == isPasswordChanged)&&(identical(other.isEmailChangePending, isEmailChangePending) || other.isEmailChangePending == isEmailChangePending)&&(identical(other.isDeletingAccount, isDeletingAccount) || other.isDeletingAccount == isDeletingAccount)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
     return Object.hashAll([runtimeType,status,userId,email,accessToken,refreshToken,emailVerified,mfaRequired,aalLevel,error,authResponse,profile,mfaEnrollment,mfaChallenge,const DeepCollectionEquality().hash(_mfaFactors),isPasswordResetSent,isPasswordChanged,isEmailChangePending,isDeletingAccount,isLoading]);

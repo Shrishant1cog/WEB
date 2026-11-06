@@ -28,6 +28,7 @@ import '../../../../../data/models/profile_models.dart';
 
 import 'auth_event.dart';
 import 'auth_state.dart';
+import 'auth_state.g.dart';
 
 @injectable
 class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
@@ -558,11 +559,11 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
 
   @override
   AuthState fromJson(Map<String, dynamic> json) {
-    return AuthState.fromJson(json);
+    return _$AuthStateFromJson(json);
   }
 
   @override
   Map<String, dynamic>? toJson(AuthState state) {
-    return state.toJson();
+    return _$AuthStateToJson(state as _AuthState);
   }
 }
