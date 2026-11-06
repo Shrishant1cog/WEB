@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../../core/utils/validators.dart';
+import '../../../../../../presentation/shared/widgets/fft_button.dart';
+import '../../../../../../presentation/shared/widgets/fft_text_field.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -26,6 +28,14 @@ class _PasswordResetRequestPageState extends State<PasswordResetRequestPage> {
   void dispose() {
     _emailController.dispose();
     super.dispose();
+  }
+
+  void _onSubmit() {
+    if (!_formKey.currentState!.validate()) return;
+
+    context.read<AuthBloc>().add(AuthResetPasswordRequested(
+      email: _emailController.text.trim(),
+    ));
   }
 
   @override
@@ -77,29 +87,19 @@ class _PasswordResetRequestPageState extends State<PasswordResetRequestPage> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        TextFormField(
+                        FFTTextField(
                           controller: _emailController,
-                          decoration: InputDecoration(
-                            labelText: 'Email',
-                            hintText: 'you@example.com',
-                            prefixIcon: const Icon(Icons.email_outlined),
-                          ),
+                          label: 'Email',
+                          hint: 'you@example.com',
                           keyboardType: TextInputType.emailAddress,
+                          prefixIcon: Icons.email_outlined,
                           validator: Validators.validateEmail,
                         ),
                         const SizedBox(height: 24),
-                        FilledButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              context.read<AuthBloc>().add(AuthResetPasswordRequested(
-                                email: _emailController.text.trim(),
-                              ));
-                            }
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            child: Text('Send Reset Link'),
-                          ),
+                        FFTButton(
+                          text: 'Send Reset Link',
+                          onPressed: _onSubmit,
+                          size: ButtonSize.lg,
                         ),
                       ],
                     ),
@@ -136,9 +136,11 @@ class _PasswordResetRequestPageState extends State<PasswordResetRequestPage> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
-                  FilledButton(
+                  FFTButton(
+                    text: 'Back to Login',
                     onPressed: () => context.go('/login'),
-                    child: const Text('Back to Login'),
+                    variant: ButtonVariant.outlined,
+                    size: ButtonSize.lg,
                   ),
                 ],
               ],
@@ -149,4 +151,3 @@ class _PasswordResetRequestPageState extends State<PasswordResetRequestPage> {
     );
   }
 }
-

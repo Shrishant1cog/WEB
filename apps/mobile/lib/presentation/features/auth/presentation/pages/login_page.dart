@@ -49,6 +49,8 @@ class _LoginPageState extends State<LoginPage> {
       listener: (context, state) {
         if (state.status == const AuthStatus.authenticated()) {
           context.go('/my-tournaments');
+        } else if (state.status == const AuthStatus.verificationPending()) {
+          context.go('/email-verify');
         } else if (state.status == const AuthStatus.failure() && state.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

@@ -32,7 +32,7 @@ serve(async (req) => {
     }
 
     const body = await req.json()
-    const { password, provider } = body
+    const { password } = body
 
     // For OAuth users, require recent session (no password)
     // For email/password users, require password
@@ -79,6 +79,7 @@ serve(async (req) => {
     }
 
     // Delete user's storage objects first (avatars, etc.)
+    // This must happen before auth user deletion due to FK RESTRICT
     const { error: storageError } = await supabase.storage
       .from('avatars')
       .remove([`avatars/${user.id}`])

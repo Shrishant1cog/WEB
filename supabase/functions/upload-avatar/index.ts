@@ -148,15 +148,22 @@ serve(async (req) => {
       )
     }
 
-    // Get public URL (bucket is now private, so this returns a signed URL or path)
-    const { data: urlData } = supabase.storage
+    // Generate signed URL for private access (valid for 1 hour)
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
       .from('avatars')
-      .getPublicUrl(uploadData.path)
+      .createSignedUrl(uploadData.path, 3600)
 
-    // Update profile with new avatar URL
+    if (signedUrlError) {
+      return new Response(
+        JSON.stringify({ error: signedUrlError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Update profile with new avatar URL (store the path, not the signed URL)
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ avatar_url: urlData.publicUrl, updated_at: new Date().toISOString() })
+      .update({ avatar_url: uploadData.path, updated_at: new Date().toISOString() })
       .eq('id', user.id)
 
     if (profileError) {
@@ -168,15 +175,8 @@ serve(async (req) => {
       )
     }
 
-    // Generate signed URL for private access (valid for 1 hour)
-    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-      .from('avatars')
-      .createSignedUrl(uploadData.path, 3600)
-
-    const avatarUrl = signedUrlError ? urlData.publicUrl : signedUrlData.signedUrl
-
     return new Response(
-      JSON.stringify({ avatarUrl }),
+      JSON.stringify({ avatarUrl: signedUrlData.signedUrl }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
