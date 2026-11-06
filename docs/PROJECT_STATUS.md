@@ -1,14 +1,14 @@
 # Project Status — FFT
 
-**Version:** 1.0  
-**Date:** 5 November 2026  
-**Status:** Phase 0 — Project Baseline
+**Version:** 2.0  
+**Date:** 6 November 2026  
+**Status:** Phase 2 — Authentication & Profiles (Implementation Complete, Test Runner Issues Documented)
 
 ---
 
 ## 1. Current Phase
 
-**Phase 0: Project Baseline** — Documentation and environment setup
+**Phase 2: Authentication & Profiles** — Implementation complete, verification in progress
 
 | Milestone | Status | Target Date | Notes |
 |-----------|--------|-------------|-------|
@@ -94,52 +94,55 @@
 - [ ] Environment templates
 
 ### Phase 2: Authentication & Profiles ⏳
-- [ ] Supabase Auth integration
-- [ ] Email verification
-- [ ] Password recovery
-- [ ] Player profile CRUD
-- [ ] Account deletion flow
-- [ ] RLS policies
-- [ ] Authz tests
+- [x] Supabase Auth integration (email/password, email verification, password recovery)
+- [x] Secure session handling (refresh, revocation, logout)
+- [x] Player profile CRUD (display name, avatar, in-game name, UID)
+- [x] Privacy settings (profile visibility, notification prefs)
+- [x] Account deletion flow (in-app + web page)
+- [x] Role/organization membership model (DB + RLS)
+- [x] RLS policies for profiles, auth, roles
+- [ ] Unauthorized access tests (player→organizer, organizer→other org, etc.)
 
-### Phase 3: Tournament Management ⏳
+**Known Issues (Phase 2):**
+- Flutter test runner fails to resolve generated Freezed files (known Freezed 4.x limitation)
+- HydratedBloc serialization needs additional Freezed 4.x configuration
+- flutter analyze shows 3 errors in auth_bloc.dart (missing _$AuthStateFromJson/_$AuthStateToJson)
+- flutter build apk fails due to auth_bloc.dart errors
+
+### Phase 3: Tournament & Participation Management ⏳
+*Combines former Phase 3 (Tournament Management) and Phase 4 (Teams & Registration)*
 - [ ] Tournament CRUD
 - [ ] Rules/configuration
 - [ ] Publication lifecycle
 - [ ] Public discovery
 - [ ] Organizer dashboard
-
-### Phase 4: Teams & Registration ⏳
 - [ ] Team creation
 - [ ] Invitations
 - [ ] Registration (race-safe)
 - [ ] Waitlist + promotion
 - [ ] Concurrency tests
 
-### Phase 5: Match Management ⏳
+### Phase 4: Match, Results & Competition Operations ⏳
+*Combines former Phase 5 (Match Management) and Phase 6 (Results & Disputes)*
 - [ ] Match creation
 - [ ] Credential storage
 - [ ] Release enforcement
 - [ ] Participant access
-
-### Phase 6: Results & Disputes ⏳
 - [ ] Result entry
 - [ ] Dispute workflow
 - [ ] Finalization
 - [ ] Audit corrections
 
-### Phase 7: Notifications & Admin ⏳
+### Phase 5: Platform Administration, Notifications & Release Readiness ⏳
+*Combines former Phase 7 (Notifications & Admin) and Phase 8 (Quality & Release)*
 - [ ] In-app notifications
 - [ ] Push (FCM)
 - [ ] Admin dashboard
 - [ ] Abuse reporting
-
-### Phase 8: Quality & Release ⏳
 - [ ] Full test suite
 - [ ] Security testing
 - [ ] Release builds
 - [ ] Documentation sync
-- [ ] Launch readiness report
 
 ---
 
@@ -148,7 +151,7 @@
 | Decision | Status | Impact |
 |----------|--------|--------|
 | Shared types package | Deferred | Phase 1+ |
-| Real-time subscriptions scope | Deferred | Phase 7 |
+| Real-time subscriptions scope | Deferred | Phase 4 (was Phase 7) |
 | Analytics implementation | Deferred | Post-MVP |
 | Multi-language support | Deferred | Post-MVP |
 | Organizer tiered verification | Deferred | Phase 3+ |
@@ -165,6 +168,8 @@
 | Google Play rejection | Low | High | Pre-launch checklist, account deletion |
 | Supabase region unavailable | Low | Medium | Document alternative regions |
 | Flutter/Next.js breaking changes | Low | Medium | Pin versions, test upgrades in CI |
+| Freezed 4.x test runner issues | High | Medium | Documented workaround; monitor upstream |
+| HydratedBloc + Freezed 4.x serialization | Medium | Medium | Requires additional Freezed config |
 
 ---
 
@@ -184,6 +189,12 @@
 5. Set up CI workflows
 6. Create design system foundations
 
+### Phase 2 Verification (Current Focus)
+1. Fix Freezed 4.x HydratedBloc serialization (add @JsonSerializable to AuthState)
+2. Fix Flutter test runner Freezed resolution (investigate package_config.json)
+6. Run flutter build apk --debug successfully
+7. Run flutter test successfully
+
 ---
 
 ## 9. Metrics Dashboard (Placeholder)
@@ -191,9 +202,9 @@
 | Metric | Current | Target | Trend |
 |--------|---------|--------|-------|
 | Documentation pages | 17 | 17 (Phase 0) | ✅ |
-| Test coverage (backend) | 0% | >80% (Phase 8) | — |
-| Test coverage (mobile) | 0% | >80% (Phase 8) | — |
-| Test coverage (web) | 0% | >80% (Phase 8) | — |
+| Test coverage (backend) | 0% | >80% (Phase 5) | — |
+| Test coverage (mobile) | 0% | >80% (Phase 5) | — |
+| Test coverage (web) | 0% | >80% (Phase 5) | — |
 | Security findings (critical) | 0 | 0 | — |
 | Legal gates cleared | 0/8 | 8/8 | — |
 | CI pipeline status | Not configured | All green | — |

@@ -44,12 +44,26 @@ FFT/
 - Docker Desktop (for local Supabase)
 - GitHub CLI (authenticated)
 
+## Roadmap (6 Phases)
+
+| Phase | Name | Status |
+|-------|------|--------|
+| 0 | Project Baseline | ✅ Complete |
+| 1 | Foundation | ⏳ Planned |
+| 2 | Authentication & Profiles | ⏳ Implementation Complete, Verification In Progress |
+| 3 | Tournament & Participation Management | ⏳ Planned |
+| 4 | Match, Results & Competition Operations | ⏳ Planned |
+| 5 | Platform Administration, Notifications & Release Readiness | ⏳ Planned |
+
+**Total: 6 phases (restructured from 9 phases)**
+
 ## Current Status (Phase 2)
 
 ✅ **Flutter Mobile App**: Authentication, profiles, MFA, avatar upload complete
 ✅ **Next.js Web App**: Auth pages, organizer/admin dashboards complete
 ✅ **Supabase Backend**: 4 migrations, 2 Edge Functions, RLS policies complete
 ⚠️ **Test Runner**: Known issue with generated freezed files (build passes, test runner fails)
+⚠️ **HydratedBloc**: Freezed 4.x serialization needs additional config
 🔄 **GitHub**: Repository needs creation at `https://github.com/hosam/FFT.git`
 
 ## Getting Started

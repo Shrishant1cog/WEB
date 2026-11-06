@@ -1,8 +1,25 @@
 # MVP Scope — FFT
 
-**Version:** 1.0  
-**Date:** 5 November 2026  
-**Status:** Baseline for Phase 1-4 implementation
+**Version:** 2.0  
+**Date:** 6 November 2026  
+**Status:** Restructured to 6 official phases (was 9 phases)
+
+---
+
+## Phase Mapping (Old → New)
+
+| Previous Phase | New Official Phase |
+|----------------|-------------------|
+| Phase 0: Project Baseline | **Phase 0: Project Baseline** |
+| Phase 1: Foundation | **Phase 1: Foundation** |
+| Phase 2: Authentication & Profiles | **Phase 2: Authentication & Profiles** |
+| Phase 3: Tournament Management + Phase 4: Teams & Registration | **Phase 3: Tournament & Participation Management** |
+| Phase 5: Match Management + Phase 6: Results & Disputes | **Phase 4: Match, Results & Competition Operations** |
+| Phase 7: Notifications & Admin + Phase 8: Quality & Release | **Phase 5: Platform Administration, Notifications & Release Readiness** |
+
+**Official roadmap now contains exactly 6 phases: Phase 0, 1, 2, 3, 4, 5.**
+
+Historical references to 9 phases remain in past reports only when clearly identified as historical. Active roadmap references updated.
 
 ---
 
@@ -10,10 +27,12 @@
 
 ### Phase 0: Project Baseline ✅
 - [x] Repository structure
-- [x] Documentation baseline
+- [x] Documentation baseline (17 documents)
 - [x] Research baseline recorded
 - [x] Legal launch gates documented
 - [x] Open owner decisions recorded
+- [ ] GitHub authentication + repository creation
+- [ ] Initial commit + push to `agent/fft-development`
 
 ### Phase 1: Foundation
 - [ ] Flutter Android app shell (Material 3, navigation, theming)
@@ -37,7 +56,9 @@
 - [ ] RLS policies for profiles, auth, roles
 - [ ] Unauthorized access tests (player→organizer, organizer→other org, etc.)
 
-### Phase 3: Tournament Management
+### Phase 3: Tournament & Participation Management
+*Combines former Phase 3 (Tournament Management) and Phase 4 (Teams & Registration)*
+
 - [ ] Tournament CRUD (organizer dashboard)
 - [ ] Tournament rules/configuration (format, roster size, eligibility, dates)
 - [ ] Publication lifecycle (draft → published → registration open/closed)
@@ -45,8 +66,6 @@
 - [ ] Search and filtering (status, mode, date)
 - [ ] Organizer dashboard tournament management UI
 - [ ] Tournament detail pages (public + organizer views)
-
-### Phase 4: Teams & Registration
 - [ ] Team creation (captain = creator)
 - [ ] Invitation generation (secure tokens, hash stored, expiry, rate limits)
 - [ ] Invitation acceptance/decline
@@ -58,15 +77,15 @@
 - [ ] FIFO waitlist with atomic promotion
 - [ ] Concurrency tests (simultaneous registrations at capacity)
 
-### Phase 5: Match Management
+### Phase 4: Match, Results & Competition Operations
+*Combines former Phase 5 (Match Management) and Phase 6 (Results & Disputes)*
+
 - [ ] Match creation (organizer: round, bracket, schedule)
 - [ ] Room credential storage (encrypted at rest, restricted access)
 - [ ] Release-time enforcement (server-side)
 - [ ] Participant access checks (confirmed + eligible only)
 - [ ] Organizer match management UI
 - [ ] Audit logging for credential access
-
-### Phase 6: Results & Disputes
 - [ ] Result entry (organizer)
 - [ ] Provisional results publication
 - [ ] Dispute submission (player, evidence upload)
@@ -75,7 +94,9 @@
 - [ ] Audited corrections (reason, original, corrected, moderator, timestamp)
 - [ ] Result history view
 
-### Phase 7: Notifications & Administration
+### Phase 5: Platform Administration, Notifications & Release Readiness
+*Combines former Phase 7 (Notifications & Admin) and Phase 8 (Quality & Release)*
+
 - [ ] In-app notification system (persisted events)
 - [ ] Notification event persistence + retry
 - [ ] Push notification integration (FCM)
@@ -84,8 +105,6 @@
 - [ ] Organizer oversight tools
 - [ ] Abuse reporting (player + organizer)
 - [ ] Operational logs
-
-### Phase 8: Final Quality & Release Readiness
 - [ ] Full test suite passing
 - [ ] Security testing (authz boundaries, IDOR, RLS, secrets)
 - [ ] Android release build (AAB, signed)
@@ -144,17 +163,24 @@ Phase 1 (Foundation) ───────────────────�
    ↓                                        │
 Phase 2 (Auth/Profiles) ◄──────────────────┤
    ↓                                        │
-Phase 3 (Tournaments) ◄────────────────────┤
+Phase 3 (Tournament & Participation) ◄─────┤
    ↓                                        │
-Phase 4 (Teams/Reg) ◄──────────────────────┤
+Phase 4 (Match, Results & Competition) ◄───┤
    ↓                                        │
-Phase 5 (Matches) ◄────────────────────────┤
-   ↓                                        │
-Phase 6 (Results/Disputes) ◄───────────────┤
-   ↓                                        │
-Phase 7 (Notifications/Admin) ◄────────────┘
-   ↓
-Phase 8 (Quality/Release)
+Phase 5 (Platform Admin, Notifications & Release)
 ```
 
 **Parallelizable:** Design system, CI workflows, documentation can progress alongside any phase.
+
+---
+
+## Roadmap Restructuring Notes
+
+- **No scope removed:** All features from original 9 phases preserved in consolidated 6 phases
+- **No engineering steps skipped:** Each consolidated phase retains all original quality gates, testing requirements, and acceptance criteria
+- **Internal milestones:** Each consolidated phase uses smaller internal work packages
+- **Dependency gates unchanged:** Phase N must pass before Phase N+1 begins
+- **Historical reports preserved:** Past progress reports reference original 9-phase structure but are clearly marked historical
+- **Active references updated:** MVP_SCOPE.md, PROJECT_STATUS.md, README.md, PROJECT_DECISIONS.md updated to 6-phase structure
+
+**Documentation Updated:** MVP_SCOPE.md, PROJECT_STATUS.md, README.md, PROJECT_DECISIONS.md, ROADMAP_RESTRUCTURING.md

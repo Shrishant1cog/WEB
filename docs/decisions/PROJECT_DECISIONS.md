@@ -460,6 +460,47 @@ LIMIT 1
 
 ---
 
+## DEC-021: Roadmap Restructuring — 9 Phases → 6 Phases
+
+**Date:** 6 Nov 2026  
+**Status:** Accepted
+
+**Context:** Original roadmap had 9 phases (0–8). Phase boundaries created overhead without clear domain separation.
+
+**Decision:** Restructure to exactly 6 official phases:
+
+| New Phase | Name | Combines |
+|-----------|------|----------|
+| Phase 0 | Project Baseline | Phase 0 |
+| Phase 1 | Foundation | Phase 1 |
+| Phase 2 | Authentication & Profiles | Phase 2 |
+| Phase 3 | Tournament & Participation Management | Phase 3 + Phase 4 |
+| Phase 4 | Match, Results & Competition Operations | Phase 5 + Phase 6 |
+| Phase 5 | Platform Administration, Notifications & Release Readiness | Phase 7 + Phase 8 |
+
+**Constraints:**
+- Phases 0, 1, 2 unchanged in scope, requirements, deliverables, acceptance criteria
+- All features preserved — no scope removed
+- All engineering steps retained — no quality gates skipped
+- Internal milestones used within consolidated phases
+- Dependency gates unchanged (Phase N → Phase N+1)
+- Historical reports preserve 9-phase references; active references updated
+
+**Documentation Updated:** MVP_SCOPE.md, PROJECT_STATUS.md, README.md, ROADMAP_RESTRUCTURING.md, PROJECT_DECISIONS.md
+
+**Alternatives:**
+- Keep 9 phases — higher overhead, thinner slices
+- Merge differently (e.g., Auth+Foundation) — weaker domain boundaries
+
+**Consequences:**
+- ✅ Fewer phase boundaries = fewer handoffs
+- ✅ Natural domain groupings (Tournament+Registration, Match+Results, Admin+Release)
+- ✅ All scope, engineering steps, quality gates preserved
+- ⚠️ Larger phases need internal milestone discipline
+- ⚠️ Historical reports reference 9 phases (preserved as historical)
+
+---
+
 ## DEC-020: Substitute System — Deferred
 
 **Date:** 5 Nov 2026  
