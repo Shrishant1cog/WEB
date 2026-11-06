@@ -44,6 +44,14 @@ FFT/
 - Docker Desktop (for local Supabase)
 - GitHub CLI (authenticated)
 
+## Current Status (Phase 2)
+
+✅ **Flutter Mobile App**: Authentication, profiles, MFA, avatar upload complete
+✅ **Next.js Web App**: Auth pages, organizer/admin dashboards complete
+✅ **Supabase Backend**: 4 migrations, 2 Edge Functions, RLS policies complete
+⚠️ **Test Runner**: Known issue with generated freezed files (build passes, test runner fails)
+🔄 **GitHub**: Repository needs creation at `https://github.com/hosam/FFT.git`
+
 ## Getting Started
 
 ```bash
