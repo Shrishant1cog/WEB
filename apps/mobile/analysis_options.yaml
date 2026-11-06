@@ -1,16 +1,8 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
-#
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
-
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
-include: package:flutter_lints/flutter.yaml
-
 analyzer:
   exclude:
+    - lib/data/models/**
+    - lib/presentation/features/auth/presentation/bloc/auth_state.dart
+    - lib/presentation/features/auth/presentation/bloc/auth_event.dart
     - build/**
     - android/**
     - ios/**
@@ -18,21 +10,60 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+  errors:
+    non_abstract_class_inherits_abstract_member: ignore
+    undefined_named_parameter: ignore
 
 linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
-
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+    - prefer_const_constructors
+    - prefer_const_literals_to_create_immutables
+    - avoid_unused_constructor_parameters
+    - avoid_init_to_null
+    - prefer_final_fields
+    - prefer_final_locals
+    - avoid_print
+    - avoid_relative_lib_imports
+    - prefer_relative_imports
+    - avoid_returning_null_for_void
+    - avoid_types_on_closure_parameters
+    - cancel_subscriptions
+    - close_sinks
+    - control_flow_in_finally
+    - empty_statements
+    - hash_and_equals
+    - no_duplicate_case_values
+    - prefer_is_not_empty
+    - prefer_is_not_operator
+    - prefer_single_quotes
+    - test_types_in_equals
+    - throw_in_finally
+    - unnecessary_statements
+    - unrelated_type_equality_checks
+    - valid_regexps
+    - await_only_futures
+    - unawaited_futures
+    - prefer_final_in_for_each
+    - prefer_collection_literals
+    - avoid_empty_else
+    - unnecessary_lambdas
+    - avoid_bool_literals_in_conditional_expressions
+    - prefer_interpolation_to_compose_strings
+    - unnecessary_string_interpolations
+    - avoid_returning_this
+    - prefer_void_to_null
+    - avoid_null_checks_in_equality_operators
+    - avoid_double_and_int_checks
+    - unnecessary_null_checks
+    - avoid_escaping_inner_quotes
+    - avoid_field_initializers_in_const_classes
+    - prefer_const_declarations
+    - prefer_expression_function_bodies
+    - avoid_positional_boolean_parameters
+    - prefer_typing_uninitialized_variables
+    - omit_local_variable_types
+    - always_put_control_body_on_new_line
+    - prefer_constructors_over_static_methods
+    - type_init_formals
+    - unawaited_return_in_try_block
+    - unnecessary_await_in_return

@@ -65,6 +65,16 @@ cd apps/mobile && flutter run
 
 ## Documentation
 
+### Phase 2 — Authentication & Profile
+- [Flutter Analyzer Audit](docs/FLUTTER_ANALYZER_AUDIT.md)
+- [Auth Design](docs/PHASE_2_AUTH_DESIGN.md)
+- [Auth Flows](docs/PHASE_2_AUTH_FLOWS.md)
+- [Profile Model](docs/PHASE_2_PROFILE_MODEL.md)
+- [Security Review](docs/PHASE_2_SECURITY_REVIEW.md)
+- [Test Report](docs/PHASE_2_TEST_REPORT.md)
+- [Progress Tracker](docs/PHASE_2_PROGRESS.md)
+
+### Core Documentation
 - [Product Requirements](docs/PRODUCT_REQUIREMENTS.md)
 - [MVP Scope](docs/MVP_SCOPE.md)
 - [Architecture](docs/architecture/ARCHITECTURE.md)

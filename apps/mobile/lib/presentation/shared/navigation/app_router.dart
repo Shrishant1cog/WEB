@@ -3,7 +3,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Feature imports (will be created in Phase 2+)
 // import 'package:fft_mobile/presentation/features/auth/presentation/pages/login_page.dart';
@@ -353,24 +352,6 @@ class AppRouter {
     final isAdmin = false; // TODO: Check admin role
 
     final location = state.uri.toString();
-
-    // Public routes that don't require auth
-    final publicRoutes = [
-      AppRoutes.home,
-      AppRoutes.tournaments,
-      AppRoutes.tournamentDetail,
-      AppRoutes.privacy,
-      AppRoutes.terms,
-      AppRoutes.support,
-      AppRoutes.accountDeletion,
-      AppRoutes.login,
-      AppRoutes.register,
-      AppRoutes.passwordReset,
-      AppRoutes.passwordResetConfirm,
-      AppRoutes.emailVerify,
-    ];
-
-    final isPublicRoute = publicRoutes.any((route) => location.startsWith(route));
 
     // Auth routes - redirect to home if already logged in
     final authRoutes = [
