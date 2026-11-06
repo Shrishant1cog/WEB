@@ -56,7 +56,7 @@ extension AuthEventPatterns on AuthEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthSignUpRequested value)?  signUpRequested,TResult Function( AuthSignInRequested value)?  signInRequested,TResult Function( AuthSignOutRequested value)?  signOutRequested,TResult Function( AuthResetPasswordRequested value)?  resetPasswordRequested,TResult Function( AuthVerifyEmailRequested value)?  verifyEmailRequested,TResult Function( AuthResendVerificationRequested value)?  resendVerificationRequested,TResult Function( AuthDeleteAccountRequested value)?  deleteAccountRequested,TResult Function( AuthChangePasswordRequested value)?  changePasswordRequested,TResult Function( AuthUpdateEmailRequested value)?  updateEmailRequested,TResult Function( AuthEnrollMfaTotpRequested value)?  enrollMfaTotpRequested,TResult Function( AuthChallengeMfaTotpRequested value)?  challengeMfaTotpRequested,TResult Function( AuthVerifyMfaTotpRequested value)?  verifyMfaTotpRequested,TResult Function( AuthListMfaFactorsRequested value)?  listMfaFactorsRequested,TResult Function( AuthUnenrollMfaFactorRequested value)?  unenrollMfaFactorRequested,TResult Function( AuthUpdatePasswordRequested value)?  updatePasswordRequested,TResult Function( AuthRestoreSession value)?  restoreSession,TResult Function( AuthUpdateProfileRequested value)?  updateProfileRequested,TResult Function( AuthUpdatePrivacySettingsRequested value)?  updatePrivacySettingsRequested,TResult Function( AuthLoadProfile value)?  loadProfile,TResult Function( AuthSessionExpired value)?  sessionExpired,TResult Function( AuthMfaRequired value)?  mfaRequired,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthSignUpRequested value)?  signUpRequested,TResult Function( AuthSignInRequested value)?  signInRequested,TResult Function( AuthSignOutRequested value)?  signOutRequested,TResult Function( AuthResetPasswordRequested value)?  resetPasswordRequested,TResult Function( AuthVerifyEmailRequested value)?  verifyEmailRequested,TResult Function( AuthResendVerificationRequested value)?  resendVerificationRequested,TResult Function( AuthDeleteAccountRequested value)?  deleteAccountRequested,TResult Function( AuthChangePasswordRequested value)?  changePasswordRequested,TResult Function( AuthUpdateEmailRequested value)?  updateEmailRequested,TResult Function( AuthEnrollMfaTotpRequested value)?  enrollMfaTotpRequested,TResult Function( AuthChallengeMfaTotpRequested value)?  challengeMfaTotpRequested,TResult Function( AuthVerifyMfaTotpRequested value)?  verifyMfaTotpRequested,TResult Function( AuthListMfaFactorsRequested value)?  listMfaFactorsRequested,TResult Function( AuthUnenrollMfaFactorRequested value)?  unenrollMfaFactorRequested,TResult Function( AuthUpdatePasswordRequested value)?  updatePasswordRequested,TResult Function( AuthRestoreSession value)?  restoreSession,TResult Function( AuthUpdateProfileRequested value)?  updateProfileRequested,TResult Function( AuthUpdatePrivacySettingsRequested value)?  updatePrivacySettingsRequested,TResult Function( AuthLoadProfile value)?  loadProfile,TResult Function( AuthSessionExpired value)?  sessionExpired,TResult Function( AuthMfaRequired value)?  mfaRequired,TResult Function( AuthAuthCallback value)?  authCallback,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case AuthSignUpRequested() when signUpRequested != null:
@@ -80,7 +80,8 @@ return updateProfileRequested(_that);case AuthUpdatePrivacySettingsRequested() w
 return updatePrivacySettingsRequested(_that);case AuthLoadProfile() when loadProfile != null:
 return loadProfile(_that);case AuthSessionExpired() when sessionExpired != null:
 return sessionExpired(_that);case AuthMfaRequired() when mfaRequired != null:
-return mfaRequired(_that);case _:
+return mfaRequired(_that);case AuthAuthCallback() when authCallback != null:
+return authCallback(_that);case _:
   return orElse();
 
 }
@@ -98,7 +99,7 @@ return mfaRequired(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthSignUpRequested value)  signUpRequested,required TResult Function( AuthSignInRequested value)  signInRequested,required TResult Function( AuthSignOutRequested value)  signOutRequested,required TResult Function( AuthResetPasswordRequested value)  resetPasswordRequested,required TResult Function( AuthVerifyEmailRequested value)  verifyEmailRequested,required TResult Function( AuthResendVerificationRequested value)  resendVerificationRequested,required TResult Function( AuthDeleteAccountRequested value)  deleteAccountRequested,required TResult Function( AuthChangePasswordRequested value)  changePasswordRequested,required TResult Function( AuthUpdateEmailRequested value)  updateEmailRequested,required TResult Function( AuthEnrollMfaTotpRequested value)  enrollMfaTotpRequested,required TResult Function( AuthChallengeMfaTotpRequested value)  challengeMfaTotpRequested,required TResult Function( AuthVerifyMfaTotpRequested value)  verifyMfaTotpRequested,required TResult Function( AuthListMfaFactorsRequested value)  listMfaFactorsRequested,required TResult Function( AuthUnenrollMfaFactorRequested value)  unenrollMfaFactorRequested,required TResult Function( AuthUpdatePasswordRequested value)  updatePasswordRequested,required TResult Function( AuthRestoreSession value)  restoreSession,required TResult Function( AuthUpdateProfileRequested value)  updateProfileRequested,required TResult Function( AuthUpdatePrivacySettingsRequested value)  updatePrivacySettingsRequested,required TResult Function( AuthLoadProfile value)  loadProfile,required TResult Function( AuthSessionExpired value)  sessionExpired,required TResult Function( AuthMfaRequired value)  mfaRequired,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthSignUpRequested value)  signUpRequested,required TResult Function( AuthSignInRequested value)  signInRequested,required TResult Function( AuthSignOutRequested value)  signOutRequested,required TResult Function( AuthResetPasswordRequested value)  resetPasswordRequested,required TResult Function( AuthVerifyEmailRequested value)  verifyEmailRequested,required TResult Function( AuthResendVerificationRequested value)  resendVerificationRequested,required TResult Function( AuthDeleteAccountRequested value)  deleteAccountRequested,required TResult Function( AuthChangePasswordRequested value)  changePasswordRequested,required TResult Function( AuthUpdateEmailRequested value)  updateEmailRequested,required TResult Function( AuthEnrollMfaTotpRequested value)  enrollMfaTotpRequested,required TResult Function( AuthChallengeMfaTotpRequested value)  challengeMfaTotpRequested,required TResult Function( AuthVerifyMfaTotpRequested value)  verifyMfaTotpRequested,required TResult Function( AuthListMfaFactorsRequested value)  listMfaFactorsRequested,required TResult Function( AuthUnenrollMfaFactorRequested value)  unenrollMfaFactorRequested,required TResult Function( AuthUpdatePasswordRequested value)  updatePasswordRequested,required TResult Function( AuthRestoreSession value)  restoreSession,required TResult Function( AuthUpdateProfileRequested value)  updateProfileRequested,required TResult Function( AuthUpdatePrivacySettingsRequested value)  updatePrivacySettingsRequested,required TResult Function( AuthLoadProfile value)  loadProfile,required TResult Function( AuthSessionExpired value)  sessionExpired,required TResult Function( AuthMfaRequired value)  mfaRequired,required TResult Function( AuthAuthCallback value)  authCallback,}){
 final _that = this;
 switch (_that) {
 case AuthSignUpRequested():
@@ -122,7 +123,8 @@ return updateProfileRequested(_that);case AuthUpdatePrivacySettingsRequested():
 return updatePrivacySettingsRequested(_that);case AuthLoadProfile():
 return loadProfile(_that);case AuthSessionExpired():
 return sessionExpired(_that);case AuthMfaRequired():
-return mfaRequired(_that);case _:
+return mfaRequired(_that);case AuthAuthCallback():
+return authCallback(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -139,7 +141,7 @@ return mfaRequired(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthSignUpRequested value)?  signUpRequested,TResult? Function( AuthSignInRequested value)?  signInRequested,TResult? Function( AuthSignOutRequested value)?  signOutRequested,TResult? Function( AuthResetPasswordRequested value)?  resetPasswordRequested,TResult? Function( AuthVerifyEmailRequested value)?  verifyEmailRequested,TResult? Function( AuthResendVerificationRequested value)?  resendVerificationRequested,TResult? Function( AuthDeleteAccountRequested value)?  deleteAccountRequested,TResult? Function( AuthChangePasswordRequested value)?  changePasswordRequested,TResult? Function( AuthUpdateEmailRequested value)?  updateEmailRequested,TResult? Function( AuthEnrollMfaTotpRequested value)?  enrollMfaTotpRequested,TResult? Function( AuthChallengeMfaTotpRequested value)?  challengeMfaTotpRequested,TResult? Function( AuthVerifyMfaTotpRequested value)?  verifyMfaTotpRequested,TResult? Function( AuthListMfaFactorsRequested value)?  listMfaFactorsRequested,TResult? Function( AuthUnenrollMfaFactorRequested value)?  unenrollMfaFactorRequested,TResult? Function( AuthUpdatePasswordRequested value)?  updatePasswordRequested,TResult? Function( AuthRestoreSession value)?  restoreSession,TResult? Function( AuthUpdateProfileRequested value)?  updateProfileRequested,TResult? Function( AuthUpdatePrivacySettingsRequested value)?  updatePrivacySettingsRequested,TResult? Function( AuthLoadProfile value)?  loadProfile,TResult? Function( AuthSessionExpired value)?  sessionExpired,TResult? Function( AuthMfaRequired value)?  mfaRequired,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthSignUpRequested value)?  signUpRequested,TResult? Function( AuthSignInRequested value)?  signInRequested,TResult? Function( AuthSignOutRequested value)?  signOutRequested,TResult? Function( AuthResetPasswordRequested value)?  resetPasswordRequested,TResult? Function( AuthVerifyEmailRequested value)?  verifyEmailRequested,TResult? Function( AuthResendVerificationRequested value)?  resendVerificationRequested,TResult? Function( AuthDeleteAccountRequested value)?  deleteAccountRequested,TResult? Function( AuthChangePasswordRequested value)?  changePasswordRequested,TResult? Function( AuthUpdateEmailRequested value)?  updateEmailRequested,TResult? Function( AuthEnrollMfaTotpRequested value)?  enrollMfaTotpRequested,TResult? Function( AuthChallengeMfaTotpRequested value)?  challengeMfaTotpRequested,TResult? Function( AuthVerifyMfaTotpRequested value)?  verifyMfaTotpRequested,TResult? Function( AuthListMfaFactorsRequested value)?  listMfaFactorsRequested,TResult? Function( AuthUnenrollMfaFactorRequested value)?  unenrollMfaFactorRequested,TResult? Function( AuthUpdatePasswordRequested value)?  updatePasswordRequested,TResult? Function( AuthRestoreSession value)?  restoreSession,TResult? Function( AuthUpdateProfileRequested value)?  updateProfileRequested,TResult? Function( AuthUpdatePrivacySettingsRequested value)?  updatePrivacySettingsRequested,TResult? Function( AuthLoadProfile value)?  loadProfile,TResult? Function( AuthSessionExpired value)?  sessionExpired,TResult? Function( AuthMfaRequired value)?  mfaRequired,TResult? Function( AuthAuthCallback value)?  authCallback,}){
 final _that = this;
 switch (_that) {
 case AuthSignUpRequested() when signUpRequested != null:
@@ -163,7 +165,8 @@ return updateProfileRequested(_that);case AuthUpdatePrivacySettingsRequested() w
 return updatePrivacySettingsRequested(_that);case AuthLoadProfile() when loadProfile != null:
 return loadProfile(_that);case AuthSessionExpired() when sessionExpired != null:
 return sessionExpired(_that);case AuthMfaRequired() when mfaRequired != null:
-return mfaRequired(_that);case _:
+return mfaRequired(_that);case AuthAuthCallback() when authCallback != null:
+return authCallback(_that);case _:
   return null;
 
 }
@@ -180,7 +183,7 @@ return mfaRequired(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String email,  String password,  String displayName,  bool termsAccepted,  bool ageAttestation)?  signUpRequested,TResult Function( String email,  String password)?  signInRequested,TResult Function()?  signOutRequested,TResult Function( String email)?  resetPasswordRequested,TResult Function( String email)?  verifyEmailRequested,TResult Function( String email)?  resendVerificationRequested,TResult Function( String password)?  deleteAccountRequested,TResult Function( String currentPassword,  String newPassword)?  changePasswordRequested,TResult Function( String email)?  updateEmailRequested,TResult Function()?  enrollMfaTotpRequested,TResult Function( String factorId)?  challengeMfaTotpRequested,TResult Function( String factorId,  String challengeId,  String code)?  verifyMfaTotpRequested,TResult Function()?  listMfaFactorsRequested,TResult Function( String factorId)?  unenrollMfaFactorRequested,TResult Function( String password)?  updatePasswordRequested,TResult Function()?  restoreSession,TResult Function( String? displayName,  String? username,  String? inGameName,  String? inGameUid,  String? privacyProfileVisibility,  bool? privacyShowInGameInfo,  Map<String, dynamic>? notificationPrefs,  String? avatarUrl)?  updateProfileRequested,TResult Function( String profileVisibility,  bool showInGameInfo)?  updatePrivacySettingsRequested,TResult Function()?  loadProfile,TResult Function()?  sessionExpired,TResult Function()?  mfaRequired,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String email,  String password,  String displayName,  bool termsAccepted,  bool ageAttestation)?  signUpRequested,TResult Function( String email,  String password)?  signInRequested,TResult Function()?  signOutRequested,TResult Function( String email)?  resetPasswordRequested,TResult Function( String email)?  verifyEmailRequested,TResult Function( String email)?  resendVerificationRequested,TResult Function( String password)?  deleteAccountRequested,TResult Function( String currentPassword,  String newPassword)?  changePasswordRequested,TResult Function( String email)?  updateEmailRequested,TResult Function()?  enrollMfaTotpRequested,TResult Function( String factorId)?  challengeMfaTotpRequested,TResult Function( String factorId,  String challengeId,  String code)?  verifyMfaTotpRequested,TResult Function()?  listMfaFactorsRequested,TResult Function( String factorId)?  unenrollMfaFactorRequested,TResult Function( String password)?  updatePasswordRequested,TResult Function()?  restoreSession,TResult Function( String? displayName,  String? username,  String? inGameName,  String? inGameUid,  String? privacyProfileVisibility,  bool? privacyShowInGameInfo,  Map<String, dynamic>? notificationPrefs,  String? avatarUrl)?  updateProfileRequested,TResult Function( String profileVisibility,  bool showInGameInfo)?  updatePrivacySettingsRequested,TResult Function()?  loadProfile,TResult Function()?  sessionExpired,TResult Function()?  mfaRequired,TResult Function( String token,  String type)?  authCallback,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AuthSignUpRequested() when signUpRequested != null:
 return signUpRequested(_that.email,_that.password,_that.displayName,_that.termsAccepted,_that.ageAttestation);case AuthSignInRequested() when signInRequested != null:
@@ -203,7 +206,8 @@ return updateProfileRequested(_that.displayName,_that.username,_that.inGameName,
 return updatePrivacySettingsRequested(_that.profileVisibility,_that.showInGameInfo);case AuthLoadProfile() when loadProfile != null:
 return loadProfile();case AuthSessionExpired() when sessionExpired != null:
 return sessionExpired();case AuthMfaRequired() when mfaRequired != null:
-return mfaRequired();case _:
+return mfaRequired();case AuthAuthCallback() when authCallback != null:
+return authCallback(_that.token,_that.type);case _:
   return orElse();
 
 }
@@ -221,7 +225,7 @@ return mfaRequired();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String email,  String password,  String displayName,  bool termsAccepted,  bool ageAttestation)  signUpRequested,required TResult Function( String email,  String password)  signInRequested,required TResult Function()  signOutRequested,required TResult Function( String email)  resetPasswordRequested,required TResult Function( String email)  verifyEmailRequested,required TResult Function( String email)  resendVerificationRequested,required TResult Function( String password)  deleteAccountRequested,required TResult Function( String currentPassword,  String newPassword)  changePasswordRequested,required TResult Function( String email)  updateEmailRequested,required TResult Function()  enrollMfaTotpRequested,required TResult Function( String factorId)  challengeMfaTotpRequested,required TResult Function( String factorId,  String challengeId,  String code)  verifyMfaTotpRequested,required TResult Function()  listMfaFactorsRequested,required TResult Function( String factorId)  unenrollMfaFactorRequested,required TResult Function( String password)  updatePasswordRequested,required TResult Function()  restoreSession,required TResult Function( String? displayName,  String? username,  String? inGameName,  String? inGameUid,  String? privacyProfileVisibility,  bool? privacyShowInGameInfo,  Map<String, dynamic>? notificationPrefs,  String? avatarUrl)  updateProfileRequested,required TResult Function( String profileVisibility,  bool showInGameInfo)  updatePrivacySettingsRequested,required TResult Function()  loadProfile,required TResult Function()  sessionExpired,required TResult Function()  mfaRequired,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String email,  String password,  String displayName,  bool termsAccepted,  bool ageAttestation)  signUpRequested,required TResult Function( String email,  String password)  signInRequested,required TResult Function()  signOutRequested,required TResult Function( String email)  resetPasswordRequested,required TResult Function( String email)  verifyEmailRequested,required TResult Function( String email)  resendVerificationRequested,required TResult Function( String password)  deleteAccountRequested,required TResult Function( String currentPassword,  String newPassword)  changePasswordRequested,required TResult Function( String email)  updateEmailRequested,required TResult Function()  enrollMfaTotpRequested,required TResult Function( String factorId)  challengeMfaTotpRequested,required TResult Function( String factorId,  String challengeId,  String code)  verifyMfaTotpRequested,required TResult Function()  listMfaFactorsRequested,required TResult Function( String factorId)  unenrollMfaFactorRequested,required TResult Function( String password)  updatePasswordRequested,required TResult Function()  restoreSession,required TResult Function( String? displayName,  String? username,  String? inGameName,  String? inGameUid,  String? privacyProfileVisibility,  bool? privacyShowInGameInfo,  Map<String, dynamic>? notificationPrefs,  String? avatarUrl)  updateProfileRequested,required TResult Function( String profileVisibility,  bool showInGameInfo)  updatePrivacySettingsRequested,required TResult Function()  loadProfile,required TResult Function()  sessionExpired,required TResult Function()  mfaRequired,required TResult Function( String token,  String type)  authCallback,}) {final _that = this;
 switch (_that) {
 case AuthSignUpRequested():
 return signUpRequested(_that.email,_that.password,_that.displayName,_that.termsAccepted,_that.ageAttestation);case AuthSignInRequested():
@@ -244,7 +248,8 @@ return updateProfileRequested(_that.displayName,_that.username,_that.inGameName,
 return updatePrivacySettingsRequested(_that.profileVisibility,_that.showInGameInfo);case AuthLoadProfile():
 return loadProfile();case AuthSessionExpired():
 return sessionExpired();case AuthMfaRequired():
-return mfaRequired();case _:
+return mfaRequired();case AuthAuthCallback():
+return authCallback(_that.token,_that.type);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -261,7 +266,7 @@ return mfaRequired();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String email,  String password,  String displayName,  bool termsAccepted,  bool ageAttestation)?  signUpRequested,TResult? Function( String email,  String password)?  signInRequested,TResult? Function()?  signOutRequested,TResult? Function( String email)?  resetPasswordRequested,TResult? Function( String email)?  verifyEmailRequested,TResult? Function( String email)?  resendVerificationRequested,TResult? Function( String password)?  deleteAccountRequested,TResult? Function( String currentPassword,  String newPassword)?  changePasswordRequested,TResult? Function( String email)?  updateEmailRequested,TResult? Function()?  enrollMfaTotpRequested,TResult? Function( String factorId)?  challengeMfaTotpRequested,TResult? Function( String factorId,  String challengeId,  String code)?  verifyMfaTotpRequested,TResult? Function()?  listMfaFactorsRequested,TResult? Function( String factorId)?  unenrollMfaFactorRequested,TResult? Function( String password)?  updatePasswordRequested,TResult? Function()?  restoreSession,TResult? Function( String? displayName,  String? username,  String? inGameName,  String? inGameUid,  String? privacyProfileVisibility,  bool? privacyShowInGameInfo,  Map<String, dynamic>? notificationPrefs,  String? avatarUrl)?  updateProfileRequested,TResult? Function( String profileVisibility,  bool showInGameInfo)?  updatePrivacySettingsRequested,TResult? Function()?  loadProfile,TResult? Function()?  sessionExpired,TResult? Function()?  mfaRequired,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String email,  String password,  String displayName,  bool termsAccepted,  bool ageAttestation)?  signUpRequested,TResult? Function( String email,  String password)?  signInRequested,TResult? Function()?  signOutRequested,TResult? Function( String email)?  resetPasswordRequested,TResult? Function( String email)?  verifyEmailRequested,TResult? Function( String email)?  resendVerificationRequested,TResult? Function( String password)?  deleteAccountRequested,TResult? Function( String currentPassword,  String newPassword)?  changePasswordRequested,TResult? Function( String email)?  updateEmailRequested,TResult? Function()?  enrollMfaTotpRequested,TResult? Function( String factorId)?  challengeMfaTotpRequested,TResult? Function( String factorId,  String challengeId,  String code)?  verifyMfaTotpRequested,TResult? Function()?  listMfaFactorsRequested,TResult? Function( String factorId)?  unenrollMfaFactorRequested,TResult? Function( String password)?  updatePasswordRequested,TResult? Function()?  restoreSession,TResult? Function( String? displayName,  String? username,  String? inGameName,  String? inGameUid,  String? privacyProfileVisibility,  bool? privacyShowInGameInfo,  Map<String, dynamic>? notificationPrefs,  String? avatarUrl)?  updateProfileRequested,TResult? Function( String profileVisibility,  bool showInGameInfo)?  updatePrivacySettingsRequested,TResult? Function()?  loadProfile,TResult? Function()?  sessionExpired,TResult? Function()?  mfaRequired,TResult? Function( String token,  String type)?  authCallback,}) {final _that = this;
 switch (_that) {
 case AuthSignUpRequested() when signUpRequested != null:
 return signUpRequested(_that.email,_that.password,_that.displayName,_that.termsAccepted,_that.ageAttestation);case AuthSignInRequested() when signInRequested != null:
@@ -284,7 +289,8 @@ return updateProfileRequested(_that.displayName,_that.username,_that.inGameName,
 return updatePrivacySettingsRequested(_that.profileVisibility,_that.showInGameInfo);case AuthLoadProfile() when loadProfile != null:
 return loadProfile();case AuthSessionExpired() when sessionExpired != null:
 return sessionExpired();case AuthMfaRequired() when mfaRequired != null:
-return mfaRequired();case _:
+return mfaRequired();case AuthAuthCallback() when authCallback != null:
+return authCallback(_that.token,_that.type);case _:
   return null;
 
 }
@@ -1507,5 +1513,75 @@ String toString() {
 
 
 
+
+/// @nodoc
+
+
+class AuthAuthCallback implements AuthEvent {
+  const AuthAuthCallback({required this.token, required this.type});
+  
+
+ final  String token;
+ final  String type;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AuthAuthCallbackCopyWith<AuthAuthCallback> get copyWith => _$AuthAuthCallbackCopyWithImpl<AuthAuthCallback>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthAuthCallback&&(identical(other.token, token) || other.token == token)&&(identical(other.type, type) || other.type == type));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,token,type);
+}
+
+@override
+String toString() {
+    return 'AuthEvent.authCallback(token: $token, type: $type)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AuthAuthCallbackCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory $AuthAuthCallbackCopyWith(AuthAuthCallback value, $Res Function(AuthAuthCallback) _then) = _$AuthAuthCallbackCopyWithImpl;
+@useResult
+$Res call({
+ String token, String type
+});
+
+
+
+
+}
+/// @nodoc
+class _$AuthAuthCallbackCopyWithImpl<$Res>
+    implements $AuthAuthCallbackCopyWith<$Res> {
+  _$AuthAuthCallbackCopyWithImpl(this._self, this._then);
+
+  final AuthAuthCallback _self;
+  final $Res Function(AuthAuthCallback) _then;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? token = null,Object? type = null,}) {
+  return _then(AuthAuthCallback(
+token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
 
 // dart format on

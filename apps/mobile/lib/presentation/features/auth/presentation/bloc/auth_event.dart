@@ -92,4 +92,9 @@ class AuthEvent with _$AuthEvent {
   const factory AuthEvent.sessionExpired() = AuthSessionExpired;
 
   const factory AuthEvent.mfaRequired() = AuthMfaRequired;
+
+  const factory AuthEvent.authCallback({
+    required String token,
+    required String type,
+  }) = AuthAuthCallback;
 }

@@ -1,9 +1,11 @@
 /// Auth Bloc
 /// Manages authentication state and operations
 
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'package:injectable/injectable.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
+import '../../../../../core/network/supabase_client.dart';
 import '../../../../../domain/usecases/auth/sign_up_use_case.dart';
 import '../../../../../domain/usecases/auth/sign_in_use_case.dart';
 import '../../../../../domain/usecases/auth/sign_out_use_case.dart';
@@ -89,6 +91,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     on<AuthLoadProfile>(_onLoadProfile);
     on<AuthSessionExpired>(_onSessionExpired);
     on<AuthMfaRequired>(_onMfaRequired);
+    on<AuthAuthCallback>(_onAuthCallback);
   }
 
   Future<void> _onSignUpRequested(
@@ -516,6 +519,41 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       status: AuthStatus.mfaRequired(),
       mfaRequired: true,
     ));
+  }
+
+  Future<void> _onAuthCallback(
+    AuthAuthCallback event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading()));
+    try {
+      final client = Supabase.instance.client;
+      final response = await client.auth.getSessionFromUrl(Uri.parse(event.token));
+      if (response.session != null) {
+        final user = response.session!.user;
+        emit(state.copyWith(
+          status: AuthStatus.authenticated(),
+          userId: user.id,
+          email: user.email,
+          accessToken: response.session!.accessToken,
+          refreshToken: response.session!.refreshToken,
+          emailVerified: user.emailConfirmedAt != null,
+          error: null,
+        ));
+        // Load profile
+        add(AuthLoadProfile());
+      } else {
+        emit(state.copyWith(
+          status: AuthStatus.failure(),
+          error: 'Invalid or expired link',
+        ));
+      }
+    } catch (e) {
+      emit(state.copyWith(
+        status: AuthStatus.failure(),
+        error: 'Failed to verify link: ${e.toString()}',
+      ));
+    }
   }
 
   @override
