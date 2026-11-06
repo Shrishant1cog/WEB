@@ -1,316 +1,186 @@
-/// Homepage for FFT Web Application
-/// Public landing page with tournament listing
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Trophy, Users, Shield, Calendar, ArrowRight } from "lucide-react";
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { LucideIcon, Calendar, Users, Trophy, Shield, ArrowRight, ExternalLink } from 'lucide-react';
-
-export default function HomePage() {
+export default function LandingPage() {
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary-50 to-white dark:from-primary-950 dark:to-primary-900 py-20 lg:py-32">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-medium mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
-              </span>
-              Independent Platform • Not affiliated with Garena
-            </div>
-            
-            <h1 className="text-display-xl lg:text-display-lg font-bold text-foreground mb-6">
-              FFT Tournament Platform
+      <section className="relative bg-gradient-to-b from-indigo-600 to-indigo-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
+          <div className="text-center">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
+              Free Fire Tournament
+              <br />
+              <span className="text-yellow-300">Management Platform</span>
             </h1>
-            
-            <p className="text-body-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Manage and participate in Free Fire India community tournaments.
-              Built for organizers and players with secure registration, team management,
-              and transparent results.
+            <p className="mt-6 text-lg sm:text-xl text-indigo-100 max-w-3xl mx-auto">
+              Organize, manage, and participate in Free Fire tournaments with ease.
+              Built for organizers, players, and the competitive community.
             </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Link href="/tournaments">
-                <Button size="lg" className="gap-2">
-                  Browse Tournaments
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button size="lg" variant="outline" className="gap-2">
-                  Create Account
-                </Button>
-              </Link>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button asChild size="lg" className="w-full sm:w-auto bg-yellow-400 text-indigo-900 hover:bg-yellow-300">
+                <Link href="/register">Get Started Free</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="w-full sm:w-auto border-white text-white hover:bg-indigo-700">
+                <Link href="/tournaments">Browse Tournaments</Link>
+              </Button>
             </div>
-            
-            {/* Legal Disclaimer */}
-            <p className="text-body-sm text-muted-foreground/70">
-              FFT is an independent tournament management platform. It is not affiliated with, endorsed by, or operated by Garena.
-            </p>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 lg:py-24 bg-background">
-        <div className="container mx-auto px-4 lg:px-8">
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-headline-lg font-bold text-foreground mb-4">Built for Tournament Operations</h2>
-            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
-              Professional tools for organizers, clear experience for players
-            </p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">Everything you need to run tournaments</h2>
+            <p className="mt-4 text-lg text-gray-600">Powerful tools for organizers, seamless experience for players</p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature) => (
-              <FeatureCard key={feature.title} feature={feature} />
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Tournament Listing Preview */}
-      <section className="py-20 lg:py-24 bg-muted/30">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-headline-lg font-bold text-foreground mb-2">Upcoming Tournaments</h2>
-              <p className="text-body-md text-muted-foreground">Join the competition</p>
-            </div>
-            <Link href="/tournaments" className="text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
-              View All
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockTournaments.map((tournament) => (
-              <TournamentCard key={tournament.id} tournament={tournament} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Platform Stats */}
-      <section className="py-20 bg-primary-900 text-white">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <div className="text-4xl lg:text-5xl font-bold mb-2">{stat.value}</div>
-                <div className="text-primary-200">{stat.label}</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center p-6">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100">
+                <Trophy className="h-8 w-8 text-indigo-600" />
               </div>
-            ))}
+              <h3 className="mt-6 text-xl font-semibold text-gray-900">Tournament Management</h3>
+              <p className="mt-2 text-gray-600">Create brackets, manage registrations, schedule matches, and track results all in one place.</p>
+            </div>
+
+            <div className="text-center p-6">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                <Users className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="mt-6 text-xl font-semibold text-gray-900">Team & Player Management</h3>
+              <p className="mt-2 text-gray-600">Handle team registrations, player verification, roster changes, and eligibility checks.</p>
+            </div>
+
+            <div className="text-center p-6">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100">
+                <Shield className="h-8 w-8 text-yellow-600" />
+              </div>
+              <h3 className="mt-6 text-xl font-semibold text-gray-900">Secure & Compliant</h3>
+              <p className="mt-2 text-gray-600">DPDP compliant, secure authentication, role-based access control, and audit logging.</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-muted/50 border-t py-12">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+      {/* For Organizers Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h3 className="font-semibold mb-4">FFT</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Independent tournament management platform for Free Fire India.
+              <h2 className="text-3xl font-bold text-gray-900">Built for Tournament Organizers</h2>
+              <p className="mt-4 text-lg text-gray-600">
+                Streamline your tournament operations with powerful tools designed specifically for Free Fire competitions.
               </p>
-              <p className="text-xs text-muted-foreground/70">
-                Not affiliated with, endorsed by, or operated by Garena.
+              <ul className="mt-8 space-y-4">
+                {[
+                  "Create single elimination, double elimination, or round-robin brackets",
+                  "Automated match scheduling and notifications",
+                  "Real-time results and bracket updates",
+                  "Team registration with custom fields",
+                  "Prize pool management and distribution",
+                  "Compliance with DPDP and Google Play policies",
+                ].map((feature) => (
+                  <li key={feature} className="flex items-center text-gray-700">
+                    <Shield className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <Button asChild className="mt-8">
+                <Link href="/register?role=organizer">
+                  Start Organizing <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="bg-indigo-50 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-gray-900">Upcoming Tournament</h3>
+                  <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                    Registration Open
+                  </span>
+                </div>
+                <h4 className="text-xl font-bold text-gray-900">FF India Championship 2024</h4>
+                <p className="mt-2 text-gray-600">₹5,00,000 Prize Pool · 64 Teams · Squad Mode</p>
+                <div className="mt-6 flex items-center text-sm text-gray-500">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  <span>Starts Dec 15, 2024</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* For Players Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+              <div className="bg-green-50 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-gray-900">Your Tournament</h3>
+                  <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                    In Progress
+                  </span>
+                </div>
+                <h4 className="text-xl font-bold text-gray-900">Weekly Squad Showdown</h4>
+                <p className="mt-2 text-gray-600">Round 3 · Match 2 of 8</p>
+                <div className="mt-6 flex items-center text-sm text-gray-500">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  <span>Today at 7:00 PM IST</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900">Compete with Confidence</h2>
+              <p className="mt-4 text-lg text-gray-600">
+                Join tournaments, track your progress, and climb the leaderboards. Built for competitive Free Fire players.
               </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Platform</h3>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/tournaments" className="text-muted-foreground hover:text-foreground">Browse Tournaments</Link></li>
-                <li><Link href="/register" className="text-muted-foreground hover:text-foreground">Create Account</Link></li>
-                <li><Link href="/support" className="text-muted-foreground hover:text-foreground">Support</Link></li>
+              <ul className="mt-8 space-y-4">
+                {[
+                  "Find and join tournaments matching your skill level",
+                  "Track match history, stats, and rankings",
+                  "Real-time match notifications and updates",
+                  "Team management and roster coordination",
+                  "Secure account with MFA support",
+                  "Easy password recovery and account management",
+                ].map((feature) => (
+                  <li key={feature} className="flex items-center text-gray-700">
+                    <Trophy className="h-5 w-5 text-indigo-500 mr-3 flex-shrink-0" />
+                    {feature}
+                  </li>
+                ))}
               </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/privacy" className="text-muted-foreground hover:text-foreground">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="text-muted-foreground hover:text-foreground">Terms of Service</Link></li>
-                <li><Link href="/account-deletion" className="text-muted-foreground hover:text-foreground">Account Deletion</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Contact</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>support@fft.app</li>
-                <li>grievance@fft.app</li>
-              </ul>
+              <Button asChild className="mt-8">
+                <Link href="/register">
+                  Join a Tournament <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
             </div>
           </div>
-          <Separator />
-          <div className="mt-8 text-center text-sm text-muted-foreground">
-            © 2026 FFT. All rights reserved. Independent platform.
+        </div>
+      </section>
+
+      {/* Footer CTA */}
+      <section className="py-16 bg-indigo-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-white">Ready to get started?</h2>
+          <p className="mt-4 text-lg text-indigo-100">Create your free account and join the competitive Free Fire community today.</p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button asChild size="lg" className="w-full sm:w-auto bg-yellow-400 text-indigo-900 hover:bg-yellow-300">
+              <Link href="/register">Create Free Account</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="w-full sm:w-auto border-white text-white hover:bg-indigo-700">
+              <Link href="/tournaments">Browse Tournaments</Link>
+            </Button>
           </div>
         </div>
-      </footer>
-    </main>
+      </section>
+    </div>
   );
 }
-
-// ============================================================================
-// COMPONENTS
-// ============================================================================
-
-interface Feature {
-  title: string;
-  description: string;
-  icon: LucideIcon;
-}
-
-const features: Feature[] = [
-  {
-    title: 'Secure Registration',
-    description: 'Race-safe registration with capacity enforcement and waitlist management',
-    icon: Shield,
-  },
-  {
-    title: 'Team Management',
-    description: 'Create squads, invite members, and register as a team with full roster validation',
-    icon: Users,
-  },
-  {
-    title: 'Match Operations',
-    description: 'Schedule matches, manage room credentials with time-gated release, and track results',
-    icon: Calendar,
-  },
-  {
-    title: 'Transparent Results',
-    description: 'Provisional results, dispute system, moderator review, and audited finalization',
-    icon: Trophy,
-  },
-];
-
-function FeatureCard({ feature }: { feature: Feature }) {
-  const { title, description, icon: Icon } = feature;
-  return (
-    <Card className="h-full transition-shadow hover:shadow-card-hover">
-      <CardHeader>
-        <div className="w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mb-4">
-          <Icon className="h-6 w-6 text-primary-600 dark:text-primary-400" />
-        </div>
-        <CardTitle className="text-title-lg">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-body-md text-muted-foreground">{description}</p>
-      </CardContent>
-    </Card>
-  );
-}
-
-interface Tournament {
-  id: string;
-  title: string;
-  format: 'solo' | 'squad';
-  status: 'registration_open' | 'registration_closed' | 'live' | 'finalized';
-  startsAt: string;
-  capacity: number;
-  registered: number;
-  organization: string;
-}
-
-const mockTournaments: Tournament[] = [
-  {
-    id: '1',
-    title: 'FFT Championship Season 1',
-    format: 'squad',
-    status: 'registration_open',
-    startsAt: '2026-11-15T18:00:00+05:30',
-    capacity: 64,
-    registered: 42,
-    organization: 'FFT Official',
-  },
-  {
-    id: '2',
-    title: 'Community Cup - November',
-    format: 'solo',
-    status: 'registration_open',
-    startsAt: '2026-11-20T19:00:00+05:30',
-    capacity: 100,
-    registered: 67,
-    organization: 'Community Gaming',
-  },
-  {
-    id: '3',
-    title: 'Weekend Warrior Series',
-    format: 'squad',
-    status: 'registration_closed',
-    startsAt: '2026-11-10T18:00:00+05:30',
-    capacity: 32,
-    registered: 32,
-    organization: 'Weekend Warriors',
-  },
-];
-
-function TournamentCard({ tournament }: { tournament: Tournament }) {
-  const statusConfig = {
-    registration_open: { label: 'Open', color: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400' },
-    registration_closed: { label: 'Closed', color: 'bg-muted text-muted-foreground' },
-    live: { label: 'Live', color: 'bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-400' },
-    finalized: { label: 'Finalized', color: 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400' },
-  };
-
-  const config = statusConfig[tournament.status];
-  const startDate = new Date(tournament.startsAt).toLocaleDateString('en-IN', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-  return (
-    <Card className="h-full transition-shadow hover:shadow-card-hover">
-      <CardHeader>
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <Badge variant={tournament.format === 'squad' ? 'default' : 'secondary'}>
-                {tournament.format === 'squad' ? 'Squad (4)' : 'Solo'}
-              </Badge>
-              <Badge className={config.color}>{config.label}</Badge>
-            </div>
-            <CardTitle className="text-title-lg truncate">{tournament.title}</CardTitle>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            {startDate}
-          </span>
-          <span className="flex items-center gap-1">
-            <Users className="h-4 w-4" />
-            {tournament.registered}/{tournament.capacity}
-          </span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">{tournament.organization}</span>
-          <Link
-            href={`/tournaments/${tournament.id}`}
-            className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
-          >
-            View Details
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-const stats = [
-  { value: '50+', label: 'Tournaments Hosted' },
-  { value: '2,000+', label: 'Registered Players' },
-  { value: '150+', label: 'Teams Formed' },
-  { value: '99.9%', label: 'Uptime Guarantee' },
-];

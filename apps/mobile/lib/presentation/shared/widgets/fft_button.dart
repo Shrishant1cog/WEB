@@ -4,7 +4,7 @@
 import 'package:flutter/material.dart';
 
 enum ButtonSize { sm, md, lg, xl }
-enum ButtonVariant { filled, outlined, text, elevated, tonal }
+enum ButtonVariant { filled, outlined, text, elevated, tonal, destructive }
 
 class FFTButton extends StatelessWidget {
   final String text;
@@ -76,6 +76,12 @@ class FFTButton extends StatelessWidget {
         disabledBackgroundColor: theme.colorScheme.secondaryContainer.withValues(alpha: 0.38),
         disabledForegroundColor: theme.colorScheme.onSecondaryContainer.withValues(alpha: 0.38),
       ),
+      ButtonVariant.destructive => FilledButton.styleFrom(
+        backgroundColor: backgroundColor ?? theme.colorScheme.error,
+        foregroundColor: foregroundColor ?? theme.colorScheme.onError,
+        disabledBackgroundColor: theme.colorScheme.error.withValues(alpha: 0.38),
+        disabledForegroundColor: theme.colorScheme.onError.withValues(alpha: 0.38),
+      ),
     };
 
     final button = switch (variant) {
@@ -100,6 +106,11 @@ class FFTButton extends StatelessWidget {
         child: _buildChild(theme, fontSize, iconSize),
       ),
       ButtonVariant.tonal => FilledButton(
+        style: buttonStyle,
+        onPressed: isDisabled ? null : onPressed,
+        child: _buildChild(theme, fontSize, iconSize),
+      ),
+      ButtonVariant.destructive => FilledButton(
         style: buttonStyle,
         onPressed: isDisabled ? null : onPressed,
         child: _buildChild(theme, fontSize, iconSize),

@@ -4,20 +4,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-// Feature imports (will be created in Phase 2+)
-// import 'package:fft_mobile/presentation/features/auth/presentation/pages/login_page.dart';
-// import 'package:fft_mobile/presentation/features/auth/presentation/pages/register_page.dart';
-// import 'package:fft_mobile/presentation/features/auth/presentation/pages/password_reset_page.dart';
-// import 'package:fft_mobile/presentation/features/tournaments/presentation/pages/tournament_list_page.dart';
-// import 'package:fft_mobile/presentation/features/tournaments/presentation/pages/tournament_detail_page.dart';
-// import 'package:fft_mobile/presentation/features/profile/presentation/pages/profile_page.dart';
-// import 'package:fft_mobile/presentation/features/teams/presentation/pages/team_list_page.dart';
-// import 'package:fft_mobile/presentation/features/teams/presentation/pages/team_detail_page.dart';
-// import 'package:fft_mobile/presentation/features/matches/presentation/pages/match_list_page.dart';
-// import 'package:fft_mobile/presentation/features/matches/presentation/pages/match_detail_page.dart';
-// import 'package:fft_mobile/presentation/features/results/presentation/pages/results_page.dart';
-// import 'package:fft_mobile/presentation/features/notifications/presentation/pages/notification_page.dart';
-// import 'package:fft_mobile/presentation/shared/widgets/scaffold_with_nav_bar.dart';
+// Feature imports
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/login_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/register_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/password_reset_request_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/password_reset_confirm_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/email_verify_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/profile_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/profile_edit_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/mfa_enroll_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/mfa_challenge_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/security_settings_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/change_password_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/pages/account_deletion_page.dart';
 
 /// Route names
 class AppRoutes {
@@ -41,6 +40,10 @@ class AppRoutes {
   // Protected (auth required)
   static const String profile = '/profile';
   static const String profileEdit = '/profile/edit';
+  static const String securitySettings = '/profile/security';
+  static const String mfaEnroll = '/security/mfa/enroll';
+  static const String mfaChallenge = '/security/mfa/challenge';
+  static const String changePassword = '/security/password';
   static const String myTournaments = '/my-tournaments';
   static const String myTeams = '/my-teams';
   static const String teamDetail = '/teams/:teamId';
@@ -119,34 +122,34 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.accountDeletion,
         name: 'accountDeletion',
-        builder: (context, state) => const _AccountDeletionPage(),
+        builder: (context, state) => const AccountDeletionPage(),
       ),
 
       // Auth routes
       GoRoute(
         path: AppRoutes.login,
         name: 'login',
-        builder: (context, state) => const _LoginPage(),
+        builder: (context, state) => const LoginPage(),
       ),
       GoRoute(
         path: AppRoutes.register,
         name: 'register',
-        builder: (context, state) => const _RegisterPage(),
+        builder: (context, state) => const RegisterPage(),
       ),
       GoRoute(
         path: AppRoutes.passwordReset,
         name: 'passwordReset',
-        builder: (context, state) => const _PasswordResetRequestPage(),
+        builder: (context, state) => const PasswordResetRequestPage(),
       ),
       GoRoute(
         path: AppRoutes.passwordResetConfirm,
         name: 'passwordResetConfirm',
-        builder: (context, state) => const _PasswordResetConfirmPage(),
+        builder: (context, state) => const PasswordResetConfirmPage(),
       ),
       GoRoute(
         path: AppRoutes.emailVerify,
         name: 'emailVerify',
-        builder: (context, state) => const _EmailVerifyPage(),
+        builder: (context, state) => const EmailVerifyPage(),
       ),
       GoRoute(
         path: AppRoutes.authCallback,
@@ -161,12 +164,35 @@ class AppRouter {
           GoRoute(
             path: AppRoutes.profile,
             name: 'profile',
-            builder: (context, state) => const _ProfilePage(),
+            builder: (context, state) => const ProfilePage(),
           ),
           GoRoute(
             path: AppRoutes.profileEdit,
             name: 'profileEdit',
-            builder: (context, state) => const _ProfileEditPage(),
+            builder: (context, state) => const ProfileEditPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.securitySettings,
+            name: 'securitySettings',
+            builder: (context, state) => const SecuritySettingsPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.mfaEnroll,
+            name: 'mfaEnroll',
+            builder: (context, state) => const MfaEnrollPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.mfaChallenge,
+            name: 'mfaChallenge',
+            builder: (context, state) {
+              final factorId = state.extra as String?;
+              return MfaChallengePage(factorId: factorId);
+            },
+          ),
+          GoRoute(
+            path: AppRoutes.changePassword,
+            name: 'changePassword',
+            builder: (context, state) => const ChangePasswordPage(),
           ),
           GoRoute(
             path: AppRoutes.myTournaments,
