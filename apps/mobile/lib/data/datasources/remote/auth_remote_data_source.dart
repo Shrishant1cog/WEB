@@ -1,7 +1,7 @@
 /// Remote data source for authentication operations
 /// Uses Supabase Flutter SDK directly
 
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthResponse;
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 
@@ -227,7 +227,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       return Right(MfaEnrollResponse(
-        factorId: response.factor.id,
+        factorId: response.id,
         qrCode: response.totp!.qrCode,
         secret: response.totp!.secret,
         uri: response.totp!.uri,
@@ -253,8 +253,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       return Right(MfaChallengeResponse(
-        factorId: response.factorId,
-        challengeId: response.challengeId,
+        factorId: factorId,
+        challengeId: response.id,
       ));
     } on AuthException catch (e) {
       return Left(_mapAuthException(e));
@@ -281,9 +281,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       return Right(MfaVerifyResponse(
-        verified: response.verified,
-        accessToken: response.session?.accessToken,
-        refreshToken: response.session?.refreshToken,
+        verified: true,
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
       ));
     } on AuthException catch (e) {
       return Left(_mapAuthException(e));
@@ -301,7 +301,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final factors = await _client.auth.mfa.listFactors();
 
-      return Right(factors.map((f) => MfaFactorModel(
+      return Right(factors.all.map((f) => MfaFactorModel(
         id: f.id,
         factorType: f.factorType.name,
         status: f.status.name,
@@ -324,7 +324,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String factorId,
   }) async {
     try {
-      await _client.auth.mfa.unenroll(factorId: factorId);
+      await _client.auth.mfa.unenroll(factorId);
       return Right(unit);
     } on AuthException catch (e) {
       return Left(_mapAuthException(e));

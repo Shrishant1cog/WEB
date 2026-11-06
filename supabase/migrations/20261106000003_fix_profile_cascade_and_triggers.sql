@@ -107,9 +107,9 @@ CREATE POLICY "Organizers can read tournament avatars"
     USING (
         bucket_id = 'avatars' AND
         EXISTS (
-            SELECT 1 FROM tournament_organizers to
-            JOIN tournament_registrations tr ON tr.tournament_id = to.tournament_id
-            WHERE to.user_id = auth.uid()
+            SELECT 1 FROM tournament_organizers to_org
+            JOIN tournament_registrations tr ON tr.tournament_id = to_org.tournament_id
+            WHERE to_org.user_id = auth.uid()
             AND tr.user_id::text = (storage.foldername(name))[1]
         )
     );
@@ -133,3 +133,23 @@ BEGIN
     AND (storage.foldername(name))[1] = p_user_id::text;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+-- ============================================
+-- Fix 8: Organizer profile visibility policy
+-- Created here (not in migration 1) because it depends on
+-- tournament_organizers and tournament_registrations.
+-- ============================================
+DROP POLICY IF EXISTS "Organizers can read tournament profiles" ON public.profiles;
+
+CREATE POLICY "Organizers can read tournament profiles"
+    ON public.profiles FOR SELECT
+    USING (
+        privacy_profile_visibility = 'organizers_only' AND
+        EXISTS (
+            SELECT 1 FROM public.tournament_organizers
+            WHERE tournament_organizers.user_id = auth.uid()
+            AND tournament_organizers.tournament_id IN (
+                SELECT tournament_id FROM public.tournament_registrations
+                WHERE tournament_registrations.user_id = profiles.id
+            )
+        )
+    );

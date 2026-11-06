@@ -49,20 +49,10 @@ CREATE POLICY "Public profiles are readable"
     ON profiles FOR SELECT
     USING (privacy_profile_visibility = 'public');
 
--- Organizers can read profiles in their tournaments
-CREATE POLICY "Organizers can read tournament profiles"
-    ON profiles FOR SELECT
-    USING (
-        privacy_profile_visibility = 'organizers_only' AND
-        EXISTS (
-            SELECT 1 FROM tournament_organizers
-            WHERE tournament_organizers.user_id = auth.uid()
-            AND tournament_organizers.tournament_id IN (
-                SELECT tournament_id FROM tournament_registrations
-                WHERE tournament_registrations.user_id = profiles.id
-            )
-        )
-    );
+-- Organizers can read profiles in their tournaments.
+-- This policy depends on tournament_organizers and tournament_registrations,
+-- which are created later in this migration, so it is created in migration 3
+-- (profile fixes) after those tables exist.
 
 -- Users can update their own profile
 CREATE POLICY "Users can update own profile"
@@ -263,15 +253,7 @@ CREATE POLICY "Public teams are readable"
     ON teams FOR SELECT
     USING (is_public = true AND deleted_at IS NULL);
 
-CREATE POLICY "Team members can read"
-    ON teams FOR SELECT
-    USING (
-        EXISTS (
-            SELECT 1 FROM team_members
-            WHERE team_members.team_id = teams.id
-            AND team_members.user_id = auth.uid()
-        )
-    );
+-- "Team members can read" is created after team_members exists (below).
 
 CREATE POLICY "Owner can manage team"
     ON teams FOR ALL
@@ -314,6 +296,17 @@ CREATE POLICY "Owner/Captain can manage members"
             WHERE tm.team_id = team_members.team_id
             AND tm.user_id = auth.uid()
             AND tm.role IN ('owner', 'captain')
+        )
+    );
+
+-- Moved here because it references team_members.
+CREATE POLICY "Team members can read"
+    ON teams FOR SELECT
+    USING (
+        EXISTS (
+            SELECT 1 FROM team_members
+            WHERE team_members.team_id = teams.id
+            AND team_members.user_id = auth.uid()
         )
     );
 

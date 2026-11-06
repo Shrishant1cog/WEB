@@ -146,9 +146,9 @@ CREATE POLICY "Organizers can read tournament avatars"
     USING (
         bucket_id = 'avatars' AND
         EXISTS (
-            SELECT 1 FROM tournament_organizers to
-            JOIN tournament_registrations tr ON tr.tournament_id = to.tournament_id
-            WHERE to.user_id = auth.uid()
+            SELECT 1 FROM tournament_organizers to_org
+            JOIN tournament_registrations tr ON tr.tournament_id = to_org.tournament_id
+            WHERE to_org.user_id = auth.uid()
             AND tr.user_id::text = (storage.foldername(name))[1]
         )
     );
