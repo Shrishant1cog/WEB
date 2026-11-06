@@ -17,6 +17,19 @@ import 'package:fft_mobile/presentation/features/auth/presentation/pages/mfa_cha
 import 'package:fft_mobile/presentation/features/auth/presentation/pages/security_settings_page.dart';
 import 'package:fft_mobile/presentation/features/auth/presentation/pages/change_password_page.dart';
 import 'package:fft_mobile/presentation/features/auth/presentation/pages/account_deletion_page.dart';
+import 'package:fft_mobile/core/network/supabase_client.dart';
+import 'package:fft_mobile/presentation/features/organizer/presentation/pages/create_tournament_page.dart';
+import 'package:fft_mobile/presentation/features/organizer/presentation/pages/organizer_dashboard_page.dart';
+import 'package:fft_mobile/presentation/features/organizer/presentation/pages/organizer_tournament_detail_page.dart';
+import 'package:fft_mobile/presentation/features/organizer/presentation/pages/organizer_tournament_list_page.dart';
+import 'package:fft_mobile/presentation/features/teams/presentation/pages/create_team_page.dart';
+import 'package:fft_mobile/presentation/features/teams/presentation/pages/my_teams_page.dart';
+import 'package:fft_mobile/presentation/features/teams/presentation/pages/team_detail_page.dart';
+import 'package:fft_mobile/presentation/features/teams/presentation/pages/team_invite_page.dart';
+import 'package:fft_mobile/presentation/features/tournaments/presentation/pages/my_tournaments_page.dart';
+import 'package:fft_mobile/presentation/features/tournaments/presentation/pages/tournament_detail_page.dart';
+import 'package:fft_mobile/presentation/features/tournaments/presentation/pages/tournament_list_page.dart';
+import 'package:fft_mobile/data/models/tournament_models.dart';
 
 /// Route names
 class AppRoutes {
@@ -60,6 +73,7 @@ class AppRoutes {
   static const String organizerTournaments = '/organizer/tournaments';
   static const String organizerCreateTournament = '/organizer/tournaments/create';
   static const String organizerTournamentDetail = '/organizer/tournaments/:tournamentId';
+  static const String organizerEditTournament = '/organizer/tournaments/:tournamentId/edit';
   static const String organizerMatches = '/organizer/tournaments/:tournamentId/matches';
   static const String organizerMatchDetail = '/organizer/matches/:matchId';
   static const String organizerResults = '/organizer/tournaments/:tournamentId/results';
@@ -94,14 +108,14 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.tournaments,
         name: 'tournaments',
-        builder: (context, state) => const _TournamentListPage(),
+        builder: (context, state) => const TournamentListPage(),
       ),
       GoRoute(
         path: AppRoutes.tournamentDetail,
         name: 'tournamentDetail',
         builder: (context, state) {
           final tournamentId = state.pathParameters['tournamentId']!;
-          return _TournamentDetailPage(tournamentId: tournamentId);
+          return TournamentDetailPage(tournamentId: tournamentId);
         },
       ),
       GoRoute(
@@ -197,32 +211,32 @@ class AppRouter {
           GoRoute(
             path: AppRoutes.myTournaments,
             name: 'myTournaments',
-            builder: (context, state) => const _MyTournamentsPage(),
+            builder: (context, state) => const MyTournamentsPage(),
           ),
           GoRoute(
             path: AppRoutes.myTeams,
             name: 'myTeams',
-            builder: (context, state) => const _MyTeamsPage(),
+            builder: (context, state) => const MyTeamsPage(),
           ),
           GoRoute(
             path: AppRoutes.teamDetail,
             name: 'teamDetail',
             builder: (context, state) {
               final teamId = state.pathParameters['teamId']!;
-              return _TeamDetailPage(teamId: teamId);
+              return TeamDetailPage(teamId: teamId);
             },
           ),
           GoRoute(
             path: AppRoutes.createTeam,
             name: 'createTeam',
-            builder: (context, state) => const _CreateTeamPage(),
+            builder: (context, state) => const CreateTeamPage(),
           ),
           GoRoute(
             path: AppRoutes.teamInvite,
             name: 'teamInvite',
             builder: (context, state) {
               final token = state.pathParameters['token']!;
-              return _TeamInvitePage(token: token);
+              return TeamInvitePage(token: token);
             },
           ),
           GoRoute(
@@ -263,24 +277,34 @@ class AppRouter {
           GoRoute(
             path: AppRoutes.organizerDashboard,
             name: 'organizerDashboard',
-            builder: (context, state) => const _OrganizerDashboardPage(),
+            builder: (context, state) => const OrganizerDashboardPage(),
           ),
           GoRoute(
             path: AppRoutes.organizerTournaments,
             name: 'organizerTournaments',
-            builder: (context, state) => const _OrganizerTournamentListPage(),
+            builder: (context, state) => const OrganizerTournamentListPage(),
           ),
           GoRoute(
             path: AppRoutes.organizerCreateTournament,
             name: 'organizerCreateTournament',
-            builder: (context, state) => const _OrganizerCreateTournamentPage(),
+            builder: (context, state) => const CreateTournamentPage(),
           ),
           GoRoute(
             path: AppRoutes.organizerTournamentDetail,
             name: 'organizerTournamentDetail',
             builder: (context, state) {
               final tournamentId = state.pathParameters['tournamentId']!;
-              return _OrganizerTournamentDetailPage(tournamentId: tournamentId);
+              return OrganizerTournamentDetailPage(
+                tournamentId: tournamentId,
+              );
+            },
+          ),
+          GoRoute(
+            path: AppRoutes.organizerEditTournament,
+            name: 'organizerEditTournament',
+            builder: (context, state) {
+              final tournament = state.extra as Tournament?;
+              return CreateTournamentPage(tournament: tournament);
             },
           ),
           GoRoute(
@@ -379,9 +403,11 @@ class AppRouter {
 
   /// Route guard for authentication and authorization
   static String? _routeGuard(BuildContext context, GoRouterState state) {
-    final isLoggedIn = false; // TODO: Replace with actual auth state
-    final isOrganizer = false; // TODO: Check organizer role
-    final isAdmin = false; // TODO: Check admin role
+    final isLoggedIn = SupabaseClientManager.currentUser != null;
+    // Phase 3 has no platform-level organizer role: every authenticated user
+    // may open the organizer area and create tournaments. Per-tournament
+    // authorization is enforced by the database RPCs.
+    final isAdmin = false; // Platform admin arrives in Phase 5.
 
     final location = state.uri.toString();
 
@@ -403,7 +429,7 @@ class AppRouter {
       AppRoutes.profile,
       AppRoutes.myTournaments,
       AppRoutes.myTeams,
-      AppRoutes.createTeam,
+      '/teams',
       AppRoutes.matches,
       AppRoutes.results,
       AppRoutes.notifications,
@@ -416,25 +442,11 @@ class AppRouter {
     }
 
     // Organizer routes
-    final organizerPrefixes = [
-      AppRoutes.organizerDashboard,
-      AppRoutes.organizerTournaments,
-      AppRoutes.organizerCreateTournament,
-      AppRoutes.organizerTournamentDetail,
-      AppRoutes.organizerMatches,
-      AppRoutes.organizerMatchDetail,
-      AppRoutes.organizerResults,
-      AppRoutes.organizerAnnouncements,
-      AppRoutes.organizerOrganization,
-    ];
-    final isOrganizerRoute = organizerPrefixes.any((prefix) => location.startsWith(prefix));
+    final isOrganizerRoute = location.startsWith(AppRoutes.organizerDashboard);
 
     if (isOrganizerRoute) {
       if (!isLoggedIn) {
         return '${AppRoutes.login}?redirect=${Uri.encodeComponent(location)}';
-      }
-      if (!isOrganizer) {
-        return AppRoutes.home; // Or show permission denied
       }
     }
 
@@ -510,31 +522,6 @@ class _HomePage extends StatelessWidget {
   }
 }
 
-class _TournamentListPage extends StatelessWidget {
-  const _TournamentListPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Tournaments')),
-      body: const Center(child: Text('Tournament List - Phase 3')),
-    );
-  }
-}
-
-class _TournamentDetailPage extends StatelessWidget {
-  final String tournamentId;
-  const _TournamentDetailPage({required this.tournamentId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Tournament Detail')),
-      body: Center(child: Text('Tournament: $tournamentId - Phase 3')),
-    );
-  }
-}
-
 class _StaticPage extends StatelessWidget {
   final String title;
   final String assetPath;
@@ -561,78 +548,6 @@ class _SupportPage extends StatelessWidget {
   }
 }
 
-class _AccountDeletionPage extends StatelessWidget {
-  const _AccountDeletionPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Account Deletion')),
-      body: const Center(child: Text('Account Deletion - Phase 2')),
-    );
-  }
-}
-
-class _LoginPage extends StatelessWidget {
-  const _LoginPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: const Center(child: Text('Login Page - Phase 2')),
-    );
-  }
-}
-
-class _RegisterPage extends StatelessWidget {
-  const _RegisterPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
-      body: const Center(child: Text('Register Page - Phase 2')),
-    );
-  }
-}
-
-class _PasswordResetRequestPage extends StatelessWidget {
-  const _PasswordResetRequestPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Reset Password')),
-      body: const Center(child: Text('Password Reset Request - Phase 2')),
-    );
-  }
-}
-
-class _PasswordResetConfirmPage extends StatelessWidget {
-  const _PasswordResetConfirmPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Confirm Reset')),
-      body: const Center(child: Text('Password Reset Confirm - Phase 2')),
-    );
-  }
-}
-
-class _EmailVerifyPage extends StatelessWidget {
-  const _EmailVerifyPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Verify Email')),
-      body: const Center(child: Text('Email Verification - Phase 2')),
-    );
-  }
-}
-
 class _AuthenticatedShell extends StatelessWidget {
   final Widget child;
   const _AuthenticatedShell({required this.child});
@@ -640,92 +555,6 @@ class _AuthenticatedShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScaffoldWithNavBar(child: child);
-  }
-}
-
-class _ProfilePage extends StatelessWidget {
-  const _ProfilePage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
-      body: const Center(child: Text('Profile Page - Phase 2')),
-    );
-  }
-}
-
-class _ProfileEditPage extends StatelessWidget {
-  const _ProfileEditPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
-      body: const Center(child: Text('Edit Profile - Phase 2')),
-    );
-  }
-}
-
-class _MyTournamentsPage extends StatelessWidget {
-  const _MyTournamentsPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('My Tournaments')),
-      body: const Center(child: Text('My Tournaments - Phase 4')),
-    );
-  }
-}
-
-class _MyTeamsPage extends StatelessWidget {
-  const _MyTeamsPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('My Teams')),
-      body: const Center(child: Text('My Teams - Phase 4')),
-    );
-  }
-}
-
-class _TeamDetailPage extends StatelessWidget {
-  final String teamId;
-  const _TeamDetailPage({required this.teamId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Team Detail')),
-      body: Center(child: Text('Team: $teamId - Phase 4')),
-    );
-  }
-}
-
-class _CreateTeamPage extends StatelessWidget {
-  const _CreateTeamPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Create Team')),
-      body: const Center(child: Text('Create Team - Phase 4')),
-    );
-  }
-}
-
-class _TeamInvitePage extends StatelessWidget {
-  final String token;
-  const _TeamInvitePage({required this.token});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Team Invitation')),
-      body: Center(child: Text('Invitation Token: $token - Phase 4')),
-    );
   }
 }
 
@@ -796,56 +625,8 @@ class _OrganizerShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Organizer Dashboard')),
-      body: child,
-    );
-  }
-}
-
-class _OrganizerDashboardPage extends StatelessWidget {
-  const _OrganizerDashboardPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Organizer Dashboard - Phase 3'));
-  }
-}
-
-class _OrganizerTournamentListPage extends StatelessWidget {
-  const _OrganizerTournamentListPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('My Tournaments')),
-      body: const Center(child: Text('Organizer Tournament List - Phase 3')),
-    );
-  }
-}
-
-class _OrganizerCreateTournamentPage extends StatelessWidget {
-  const _OrganizerCreateTournamentPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Create Tournament')),
-      body: const Center(child: Text('Create Tournament - Phase 3')),
-    );
-  }
-}
-
-class _OrganizerTournamentDetailPage extends StatelessWidget {
-  final String tournamentId;
-  const _OrganizerTournamentDetailPage({required this.tournamentId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Tournament Management')),
-      body: Center(child: Text('Organizer Tournament: $tournamentId - Phase 3')),
-    );
+    // Organizer pages render their own Scaffold and AppBar.
+    return child;
   }
 }
 

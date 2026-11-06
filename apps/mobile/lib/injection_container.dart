@@ -6,8 +6,22 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/network/supabase_client.dart';
 import 'core/security/secure_storage.dart';
+import 'data/datasources/remote/team_remote_data_source.dart';
+import 'data/datasources/remote/tournament_remote_data_source.dart';
+import 'data/repositories/team_repository_impl.dart';
+import 'data/repositories/tournament_repository_impl.dart';
+import 'domain/repositories/team_repository.dart';
+import 'domain/repositories/tournament_repository.dart';
 
 final getIt = GetIt.instance;
+
+/// Lazily resolve the Phase 3 repositories.
+///
+/// Accessing `SupabaseClientManager.client` through GetIt keeps the client
+/// lazy, so importing these getters never initializes Supabase by itself.
+TournamentRepository get tournamentRepository => getIt<TournamentRepository>();
+
+TeamRepository get teamRepository => getIt<TeamRepository>();
 
 /// Initialize all dependencies
 /// Run this once at app startup before runApp()
@@ -39,25 +53,21 @@ void _registerCore() {
 }
 
 void _registerDataSources() {
-  // TODO: Register data sources when implemented
-  // getIt.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(getIt()));
-  // getIt.registerLazySingleton<TournamentRemoteDataSource>(() => TournamentRemoteDataSourceImpl(getIt()));
-  // getIt.registerLazySingleton<TeamRemoteDataSource>(() => TeamRemoteDataSourceImpl(getIt()));
-  // getIt.registerLazySingleton<MatchRemoteDataSource>(() => MatchRemoteDataSourceImpl(getIt()));
-  // getIt.registerLazySingleton<NotificationRemoteDataSource>(() => NotificationRemoteDataSourceImpl(getIt()));
-  //
-  // // Local data sources
-  // getIt.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(getIt()));
-  // getIt.registerLazySingleton<PreferencesLocalDataSource>(() => PreferencesLocalDataSourceImpl(getIt()));
+  getIt.registerLazySingleton<TournamentRemoteDataSource>(
+    () => TournamentRemoteDataSourceImpl(getIt<SupabaseClient>()),
+  );
+  getIt.registerLazySingleton<TeamRemoteDataSource>(
+    () => TeamRemoteDataSourceImpl(getIt<SupabaseClient>()),
+  );
 }
 
 void _registerRepositories() {
-  // TODO: Register repositories when implemented
-  // getIt.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(getIt(), getIt()));
-  // getIt.registerLazySingleton<TournamentRepository>(() => TournamentRepositoryImpl(getIt()));
-  // getIt.registerLazySingleton<TeamRepository>(() => TeamRepositoryImpl(getIt(), getIt()));
-  // getIt.registerLazySingleton<MatchRepository>(() => MatchRepositoryImpl(getIt()));
-  // getIt.registerLazySingleton<NotificationRepository>(() => NotificationRepositoryImpl(getIt(), getIt()));
+  getIt.registerLazySingleton<TournamentRepository>(
+    () => TournamentRepositoryImpl(getIt<TournamentRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<TeamRepository>(
+    () => TeamRepositoryImpl(getIt<TeamRemoteDataSource>()),
+  );
 }
 
 void _registerUseCases() {

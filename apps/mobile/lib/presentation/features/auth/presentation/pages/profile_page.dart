@@ -140,6 +140,13 @@ class _ProfilePageState extends State<ProfilePage> {
           onTap: () => context.go('/profile/edit'),
         ),
         ListTile(
+          leading: const Icon(Icons.emoji_events_outlined),
+          title: const Text('Organizer Dashboard'),
+          subtitle: const Text('Create and manage your own tournaments'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.go('/organizer'),
+        ),
+        ListTile(
           leading: const Icon(Icons.security_outlined),
           title: const Text('Security'),
           subtitle: const Text('Password, MFA, email'),
