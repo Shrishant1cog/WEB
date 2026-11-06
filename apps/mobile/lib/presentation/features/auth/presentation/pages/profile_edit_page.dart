@@ -194,7 +194,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.authenticated() && state.profile != null) {
+        if (state.status == AuthStatus.authenticated && state.profile != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Profile updated successfully'),
@@ -202,7 +202,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
             ),
           );
           context.pop();
-        } else if (state.status == AuthStatus.failure() && state.error != null) {
+        } else if (state.status == AuthStatus.failure && state.error != null) {
           setState(() {
             _isLoading = false;
             _error = state.error;

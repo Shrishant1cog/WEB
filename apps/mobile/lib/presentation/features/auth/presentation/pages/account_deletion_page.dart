@@ -53,7 +53,7 @@ class _AccountDeletionPageState extends State<AccountDeletionPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.unauthenticated()) {
+        if (state.status == AuthStatus.unauthenticated) {
           // Account deleted successfully
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -62,7 +62,7 @@ class _AccountDeletionPageState extends State<AccountDeletionPage> {
             ),
           );
           context.go('/');
-        } else if (state.status == AuthStatus.failure() && state.error != null) {
+        } else if (state.status == AuthStatus.failure && state.error != null) {
           setState(() {
             _isLoading = false;
             _error = state.error;

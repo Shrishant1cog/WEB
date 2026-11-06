@@ -6,8 +6,8 @@ part of 'auth_models.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_SignUpRequest _$SignUpRequestFromJson(Map<String, dynamic> json) =>
-    _SignUpRequest(
+SignUpRequest _$SignUpRequestFromJson(Map<String, dynamic> json) =>
+    SignUpRequest(
       email: json['email'] as String,
       password: json['password'] as String,
       displayName: json['displayName'] as String,
@@ -15,7 +15,7 @@ _SignUpRequest _$SignUpRequestFromJson(Map<String, dynamic> json) =>
       ageAttestation: json['ageAttestation'] as bool,
     );
 
-Map<String, dynamic> _$SignUpRequestToJson(_SignUpRequest instance) =>
+Map<String, dynamic> _$SignUpRequestToJson(SignUpRequest instance) =>
     <String, dynamic>{
       'email': instance.email,
       'password': instance.password,
@@ -24,48 +24,47 @@ Map<String, dynamic> _$SignUpRequestToJson(_SignUpRequest instance) =>
       'ageAttestation': instance.ageAttestation,
     };
 
-_SignInRequest _$SignInRequestFromJson(Map<String, dynamic> json) =>
-    _SignInRequest(
+SignInRequest _$SignInRequestFromJson(Map<String, dynamic> json) =>
+    SignInRequest(
       email: json['email'] as String,
       password: json['password'] as String,
     );
 
-Map<String, dynamic> _$SignInRequestToJson(_SignInRequest instance) =>
+Map<String, dynamic> _$SignInRequestToJson(SignInRequest instance) =>
     <String, dynamic>{'email': instance.email, 'password': instance.password};
 
-_ResetPasswordRequest _$ResetPasswordRequestFromJson(
+ResetPasswordRequest _$ResetPasswordRequestFromJson(
   Map<String, dynamic> json,
-) => _ResetPasswordRequest(email: json['email'] as String);
+) => ResetPasswordRequest(email: json['email'] as String);
 
 Map<String, dynamic> _$ResetPasswordRequestToJson(
-  _ResetPasswordRequest instance,
+  ResetPasswordRequest instance,
 ) => <String, dynamic>{'email': instance.email};
 
-_UpdatePasswordRequest _$UpdatePasswordRequestFromJson(
+UpdatePasswordRequest _$UpdatePasswordRequestFromJson(
   Map<String, dynamic> json,
-) => _UpdatePasswordRequest(password: json['password'] as String);
+) => UpdatePasswordRequest(password: json['password'] as String);
 
 Map<String, dynamic> _$UpdatePasswordRequestToJson(
-  _UpdatePasswordRequest instance,
+  UpdatePasswordRequest instance,
 ) => <String, dynamic>{'password': instance.password};
 
-_UpdateEmailRequest _$UpdateEmailRequestFromJson(Map<String, dynamic> json) =>
-    _UpdateEmailRequest(email: json['email'] as String);
+UpdateEmailRequest _$UpdateEmailRequestFromJson(Map<String, dynamic> json) =>
+    UpdateEmailRequest(email: json['email'] as String);
 
-Map<String, dynamic> _$UpdateEmailRequestToJson(_UpdateEmailRequest instance) =>
+Map<String, dynamic> _$UpdateEmailRequestToJson(UpdateEmailRequest instance) =>
     <String, dynamic>{'email': instance.email};
 
-_AuthResponse _$AuthResponseFromJson(Map<String, dynamic> json) =>
-    _AuthResponse(
-      userId: json['userId'] as String,
-      email: json['email'] as String?,
-      accessToken: json['accessToken'] as String?,
-      refreshToken: json['refreshToken'] as String?,
-      emailVerified: json['emailVerified'] as bool?,
-      message: json['message'] as String?,
-    );
+AuthResponse _$AuthResponseFromJson(Map<String, dynamic> json) => AuthResponse(
+  userId: json['userId'] as String,
+  email: json['email'] as String?,
+  accessToken: json['accessToken'] as String?,
+  refreshToken: json['refreshToken'] as String?,
+  emailVerified: json['emailVerified'] as bool?,
+  message: json['message'] as String?,
+);
 
-Map<String, dynamic> _$AuthResponseToJson(_AuthResponse instance) =>
+Map<String, dynamic> _$AuthResponseToJson(AuthResponse instance) =>
     <String, dynamic>{
       'userId': instance.userId,
       'email': instance.email,
@@ -75,8 +74,8 @@ Map<String, dynamic> _$AuthResponseToJson(_AuthResponse instance) =>
       'message': instance.message,
     };
 
-_UserProfileModel _$UserProfileModelFromJson(Map<String, dynamic> json) =>
-    _UserProfileModel(
+UserProfileModel _$UserProfileModelFromJson(Map<String, dynamic> json) =>
+    UserProfileModel(
       id: json['id'] as String,
       displayName: json['displayName'] as String,
       avatarUrl: json['avatarUrl'] as String?,
@@ -90,7 +89,7 @@ _UserProfileModel _$UserProfileModelFromJson(Map<String, dynamic> json) =>
       deletedAt: json['deletedAt'] as String?,
     );
 
-Map<String, dynamic> _$UserProfileModelToJson(_UserProfileModel instance) =>
+Map<String, dynamic> _$UserProfileModelToJson(UserProfileModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'displayName': instance.displayName,
@@ -105,15 +104,15 @@ Map<String, dynamic> _$UserProfileModelToJson(_UserProfileModel instance) =>
       'deletedAt': instance.deletedAt,
     };
 
-_MfaEnrollResponse _$MfaEnrollResponseFromJson(Map<String, dynamic> json) =>
-    _MfaEnrollResponse(
+MfaEnrollResponse _$MfaEnrollResponseFromJson(Map<String, dynamic> json) =>
+    MfaEnrollResponse(
       factorId: json['factorId'] as String,
       qrCode: json['qrCode'] as String,
       secret: json['secret'] as String,
       uri: json['uri'] as String,
     );
 
-Map<String, dynamic> _$MfaEnrollResponseToJson(_MfaEnrollResponse instance) =>
+Map<String, dynamic> _$MfaEnrollResponseToJson(MfaEnrollResponse instance) =>
     <String, dynamic>{
       'factorId': instance.factorId,
       'qrCode': instance.qrCode,
@@ -121,48 +120,47 @@ Map<String, dynamic> _$MfaEnrollResponseToJson(_MfaEnrollResponse instance) =>
       'uri': instance.uri,
     };
 
-_MfaChallengeResponse _$MfaChallengeResponseFromJson(
+MfaChallengeResponse _$MfaChallengeResponseFromJson(
   Map<String, dynamic> json,
-) => _MfaChallengeResponse(
+) => MfaChallengeResponse(
   factorId: json['factorId'] as String,
   challengeId: json['challengeId'] as String,
 );
 
 Map<String, dynamic> _$MfaChallengeResponseToJson(
-  _MfaChallengeResponse instance,
+  MfaChallengeResponse instance,
 ) => <String, dynamic>{
   'factorId': instance.factorId,
   'challengeId': instance.challengeId,
 };
 
-_MfaVerifyResponse _$MfaVerifyResponseFromJson(Map<String, dynamic> json) =>
-    _MfaVerifyResponse(
+MfaVerifyResponse _$MfaVerifyResponseFromJson(Map<String, dynamic> json) =>
+    MfaVerifyResponse(
       verified: json['verified'] as bool,
       accessToken: json['accessToken'] as String?,
       refreshToken: json['refreshToken'] as String?,
     );
 
-Map<String, dynamic> _$MfaVerifyResponseToJson(_MfaVerifyResponse instance) =>
+Map<String, dynamic> _$MfaVerifyResponseToJson(MfaVerifyResponse instance) =>
     <String, dynamic>{
       'verified': instance.verified,
       'accessToken': instance.accessToken,
       'refreshToken': instance.refreshToken,
     };
 
-_SessionState _$SessionStateFromJson(Map<String, dynamic> json) =>
-    _SessionState(
-      userId: json['userId'] as String?,
-      email: json['email'] as String?,
-      accessToken: json['accessToken'] as String?,
-      refreshToken: json['refreshToken'] as String?,
-      emailVerified: json['emailVerified'] as bool?,
-      aalLevel: json['aalLevel'] as String?,
-      factors: (json['factors'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
-    );
+SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
+  userId: json['userId'] as String?,
+  email: json['email'] as String?,
+  accessToken: json['accessToken'] as String?,
+  refreshToken: json['refreshToken'] as String?,
+  emailVerified: json['emailVerified'] as bool?,
+  aalLevel: json['aalLevel'] as String?,
+  factors: (json['factors'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
+);
 
-Map<String, dynamic> _$SessionStateToJson(_SessionState instance) =>
+Map<String, dynamic> _$SessionStateToJson(SessionState instance) =>
     <String, dynamic>{
       'userId': instance.userId,
       'email': instance.email,
@@ -173,8 +171,8 @@ Map<String, dynamic> _$SessionStateToJson(_SessionState instance) =>
       'factors': instance.factors,
     };
 
-_MfaFactorModel _$MfaFactorModelFromJson(Map<String, dynamic> json) =>
-    _MfaFactorModel(
+MfaFactorModel _$MfaFactorModelFromJson(Map<String, dynamic> json) =>
+    MfaFactorModel(
       id: json['id'] as String,
       factorType: json['factorType'] as String,
       status: json['status'] as String,
@@ -182,7 +180,7 @@ _MfaFactorModel _$MfaFactorModelFromJson(Map<String, dynamic> json) =>
       updatedAt: json['updatedAt'] as String?,
     );
 
-Map<String, dynamic> _$MfaFactorModelToJson(_MfaFactorModel instance) =>
+Map<String, dynamic> _$MfaFactorModelToJson(MfaFactorModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'factorType': instance.factorType,
@@ -191,10 +189,10 @@ Map<String, dynamic> _$MfaFactorModelToJson(_MfaFactorModel instance) =>
       'updatedAt': instance.updatedAt,
     };
 
-_AccountDeletionRequest _$AccountDeletionRequestFromJson(
+AccountDeletionRequest _$AccountDeletionRequestFromJson(
   Map<String, dynamic> json,
-) => _AccountDeletionRequest(password: json['password'] as String);
+) => AccountDeletionRequest(password: json['password'] as String);
 
 Map<String, dynamic> _$AccountDeletionRequestToJson(
-  _AccountDeletionRequest instance,
+  AccountDeletionRequest instance,
 ) => <String, dynamic>{'password': instance.password};

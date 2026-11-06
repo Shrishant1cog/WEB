@@ -62,9 +62,9 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == const AuthStatus.authenticated()) {
+        if (state.status == AuthStatus.authenticated) {
           context.go('/profile');
-        } else if (state.status == const AuthStatus.failure() && state.error != null) {
+        } else if (state.status == AuthStatus.failure && state.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.error!),

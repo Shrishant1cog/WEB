@@ -74,16 +74,16 @@ class _MfaEnrollPageState extends State<MfaEnrollPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.mfaEnrollment() && state.mfaEnrollment != null) {
+        if (state.status == AuthStatus.mfaEnrollment && state.mfaEnrollment != null) {
           // Enrollment started, show QR code
-        } else if (state.status == AuthStatus.mfaChallenge() && state.mfaChallenge != null) {
+        } else if (state.status == AuthStatus.mfaChallenge && state.mfaChallenge != null) {
           // Challenge created, now verify
           context.read<AuthBloc>().add(AuthVerifyMfaTotpRequested(
             factorId: state.mfaChallenge!.factorId,
             challengeId: state.mfaChallenge!.challengeId,
             code: _codeController.text.trim(),
           ));
-        } else if (state.status == AuthStatus.authenticated() && state.aalLevel == 'aal2') {
+        } else if (state.status == AuthStatus.authenticated && state.aalLevel == 'aal2') {
           // MFA verified successfully
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -92,7 +92,7 @@ class _MfaEnrollPageState extends State<MfaEnrollPage> {
             ),
           );
           context.go('/security-settings');
-        } else if (state.status == AuthStatus.failure() && state.error != null) {
+        } else if (state.status == AuthStatus.failure && state.error != null) {
           setState(() {
             _isLoading = false;
             _error = state.error;
@@ -116,12 +116,12 @@ class _MfaEnrollPageState extends State<MfaEnrollPage> {
                 // Content based on state
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
-                    if (state.status == AuthStatus.initial() ||
-                        state.status == AuthStatus.authenticated() && state.mfaEnrollment == null) {
+                    if (state.status == AuthStatus.initial ||
+                        state.status == AuthStatus.authenticated && state.mfaEnrollment == null) {
                       return _buildStartEnrollment();
-                    } else if (state.status == AuthStatus.mfaEnrollment() && state.mfaEnrollment != null) {
+                    } else if (state.status == AuthStatus.mfaEnrollment && state.mfaEnrollment != null) {
                       return _buildQrCodeStep(state.mfaEnrollment!);
-                    } else if (state.status == AuthStatus.mfaChallenge() && state.mfaChallenge != null) {
+                    } else if (state.status == AuthStatus.mfaChallenge && state.mfaChallenge != null) {
                       return _buildVerifyStep(state.mfaChallenge!.factorId);
                     }
                     return _buildStartEnrollment();
@@ -157,8 +157,8 @@ class _MfaEnrollPageState extends State<MfaEnrollPage> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         int currentStep = 1;
-        if (state.status == AuthStatus.mfaEnrollment()) currentStep = 2;
-        if (state.status == AuthStatus.mfaChallenge()) currentStep = 3;
+        if (state.status == AuthStatus.mfaEnrollment) currentStep = 2;
+        if (state.status == AuthStatus.mfaChallenge) currentStep = 3;
 
         return Row(
           children: [

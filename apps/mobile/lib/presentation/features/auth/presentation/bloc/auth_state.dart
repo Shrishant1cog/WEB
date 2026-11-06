@@ -1,12 +1,11 @@
 /// Auth State
 /// Manages the authentication state of the application
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../../../../../data/models/auth_models.dart';
 import '../../../../../data/models/profile_models.dart';
 
-part 'auth_state.freezed.dart';
 part 'auth_state.g.dart';
 
 // JsonConverters for freezed models used in AuthState
@@ -74,17 +73,16 @@ class ProfileConverter implements JsonConverter<Profile?, Map<String, dynamic>?>
   Map<String, dynamic>? toJson(Profile? object) => object?.toJson();
 }
 
-@freezed
-class AuthStatus with _$AuthStatus {
-  const factory AuthStatus.initial() = _Initial;
-  const factory AuthStatus.unauthenticated() = _Unauthenticated;
-  const factory AuthStatus.loading() = _Loading;
-  const factory AuthStatus.authenticated() = _Authenticated;
-  const factory AuthStatus.verificationPending() = _VerificationPending;
-  const factory AuthStatus.mfaRequired() = _MfaRequired;
-  const factory AuthStatus.mfaEnrollment() = _MfaEnrollment;
-  const factory AuthStatus.mfaChallenge() = _MfaChallenge;
-  const factory AuthStatus.failure() = _Failure;
+enum AuthStatus {
+  initial,
+  unauthenticated,
+  loading,
+  authenticated,
+  verificationPending,
+  mfaRequired,
+  mfaEnrollment,
+  mfaChallenge,
+  failure;
 }
 
 class AuthStatusConverter implements JsonConverter<AuthStatus, String> {
@@ -94,69 +92,199 @@ class AuthStatusConverter implements JsonConverter<AuthStatus, String> {
   AuthStatus fromJson(String json) {
     switch (json) {
       case 'initial':
-        return const AuthStatus.initial();
+        return AuthStatus.initial;
       case 'unauthenticated':
-        return const AuthStatus.unauthenticated();
+        return AuthStatus.unauthenticated;
       case 'loading':
-        return const AuthStatus.loading();
+        return AuthStatus.loading;
       case 'authenticated':
-        return const AuthStatus.authenticated();
+        return AuthStatus.authenticated;
       case 'verificationPending':
-        return const AuthStatus.verificationPending();
+        return AuthStatus.verificationPending;
       case 'mfaRequired':
-        return const AuthStatus.mfaRequired();
+        return AuthStatus.mfaRequired;
       case 'mfaEnrollment':
-        return const AuthStatus.mfaEnrollment();
+        return AuthStatus.mfaEnrollment;
       case 'mfaChallenge':
-        return const AuthStatus.mfaChallenge();
+        return AuthStatus.mfaChallenge;
       case 'failure':
-        return const AuthStatus.failure();
+        return AuthStatus.failure;
       default:
-        return const AuthStatus.initial();
+        return AuthStatus.initial;
     }
   }
 
   @override
   String toJson(AuthStatus object) {
-    return object.when(
-      initial: () => 'initial',
-      unauthenticated: () => 'unauthenticated',
-      loading: () => 'loading',
-      authenticated: () => 'authenticated',
-      verificationPending: () => 'verificationPending',
-      mfaRequired: () => 'mfaRequired',
-      mfaEnrollment: () => 'mfaEnrollment',
-      mfaChallenge: () => 'mfaChallenge',
-      failure: () => 'failure',
-    );
+    switch (object) {
+      case AuthStatus.initial:
+        return 'initial';
+      case AuthStatus.unauthenticated:
+        return 'unauthenticated';
+      case AuthStatus.loading:
+        return 'loading';
+      case AuthStatus.authenticated:
+        return 'authenticated';
+      case AuthStatus.verificationPending:
+        return 'verificationPending';
+      case AuthStatus.mfaRequired:
+        return 'mfaRequired';
+      case AuthStatus.mfaEnrollment:
+        return 'mfaEnrollment';
+      case AuthStatus.mfaChallenge:
+        return 'mfaChallenge';
+      case AuthStatus.failure:
+        return 'failure';
+    }
   }
 }
 
-@freezed
-class AuthState with _$AuthState {
-  const factory AuthState({
-    @Default(AuthStatus.initial()) @AuthStatusConverter() AuthStatus status,
+@JsonSerializable()
+class AuthState {
+  const AuthState({
+    this.status = AuthStatus.initial,
+    this.userId,
+    this.email,
+    this.accessToken,
+    this.refreshToken,
+    this.emailVerified = false,
+    this.mfaRequired = false,
+    this.aalLevel = 'aal1',
+    this.error,
+    this.authResponse,
+    this.profile,
+    this.mfaEnrollment,
+    this.mfaChallenge,
+    this.mfaFactors = const [],
+    this.isPasswordResetSent = false,
+    this.isPasswordChanged = false,
+    this.isEmailChangePending = false,
+    this.isDeletingAccount = false,
+    this.isLoading = false,
+  });
+
+  final AuthStatus status;
+  final String? userId;
+  final String? email;
+  final String? accessToken;
+  final String? refreshToken;
+  final bool emailVerified;
+  final bool mfaRequired;
+  final String aalLevel;
+  final String? error;
+  final AuthResponse? authResponse;
+  final Profile? profile;
+  final MfaEnrollResponse? mfaEnrollment;
+  final MfaChallengeResponse? mfaChallenge;
+  final List<MfaFactorModel> mfaFactors;
+  final bool isPasswordResetSent;
+  final bool isPasswordChanged;
+  final bool isEmailChangePending;
+  final bool isDeletingAccount;
+  final bool isLoading;
+
+  factory AuthState.initial() => const AuthState();
+
+  factory AuthState.fromJson(Map<String, dynamic> json) => _$AuthStateFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AuthStateToJson(this);
+
+  AuthState copyWith({
+    AuthStatus? status,
     String? userId,
     String? email,
     String? accessToken,
     String? refreshToken,
-    @Default(false) bool emailVerified,
-    @Default(false) bool mfaRequired,
-    @Default('aal1') String aalLevel,
+    bool? emailVerified,
+    bool? mfaRequired,
+    String? aalLevel,
     String? error,
-    @AuthResponseConverter() AuthResponse? authResponse,
-    @ProfileConverter() Profile? profile,
-    @MfaEnrollResponseConverter() MfaEnrollResponse? mfaEnrollment,
-    @MfaChallengeResponseConverter() MfaChallengeResponse? mfaChallenge,
-    @MfaFactorModelConverter() @Default([]) List<MfaFactorModel> mfaFactors,
-    @Default(false) bool isPasswordResetSent,
-    @Default(false) bool isPasswordChanged,
-    @Default(false) bool isEmailChangePending,
-    @Default(false) bool isDeletingAccount,
-    @Default(false) bool isLoading,
-  }) = _AuthState;
+    AuthResponse? authResponse,
+    Profile? profile,
+    MfaEnrollResponse? mfaEnrollment,
+    MfaChallengeResponse? mfaChallenge,
+    List<MfaFactorModel>? mfaFactors,
+    bool? isPasswordResetSent,
+    bool? isPasswordChanged,
+    bool? isEmailChangePending,
+    bool? isDeletingAccount,
+    bool? isLoading,
+  }) {
+    return AuthState(
+      status: status ?? this.status,
+      userId: userId ?? this.userId,
+      email: email ?? this.email,
+      accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
+      emailVerified: emailVerified ?? this.emailVerified,
+      mfaRequired: mfaRequired ?? this.mfaRequired,
+      aalLevel: aalLevel ?? this.aalLevel,
+      error: error ?? this.error,
+      authResponse: authResponse ?? this.authResponse,
+      profile: profile ?? this.profile,
+      mfaEnrollment: mfaEnrollment ?? this.mfaEnrollment,
+      mfaChallenge: mfaChallenge ?? this.mfaChallenge,
+      mfaFactors: mfaFactors ?? this.mfaFactors,
+      isPasswordResetSent: isPasswordResetSent ?? this.isPasswordResetSent,
+      isPasswordChanged: isPasswordChanged ?? this.isPasswordChanged,
+      isEmailChangePending: isEmailChangePending ?? this.isEmailChangePending,
+      isDeletingAccount: isDeletingAccount ?? this.isDeletingAccount,
+      isLoading: isLoading ?? this.isLoading,
+    );
+  }
 
-  factory AuthState.initial() => const AuthState(
-        status: AuthStatus.initial(),
-      );
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is AuthState &&
+        other.status == status &&
+        other.userId == userId &&
+        other.email == email &&
+        other.accessToken == accessToken &&
+        other.refreshToken == refreshToken &&
+        other.emailVerified == emailVerified &&
+        other.mfaRequired == mfaRequired &&
+        other.aalLevel == aalLevel &&
+        other.error == error &&
+        other.authResponse == authResponse &&
+        other.profile == profile &&
+        other.mfaEnrollment == mfaEnrollment &&
+        other.mfaChallenge == mfaChallenge &&
+        other.mfaFactors == mfaFactors &&
+        other.isPasswordResetSent == isPasswordResetSent &&
+        other.isPasswordChanged == isPasswordChanged &&
+        other.isEmailChangePending == isEmailChangePending &&
+        other.isDeletingAccount == isDeletingAccount &&
+        other.isLoading == isLoading;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      status,
+      userId,
+      email,
+      accessToken,
+      refreshToken,
+      emailVerified,
+      mfaRequired,
+      aalLevel,
+      error,
+      authResponse,
+      profile,
+      mfaEnrollment,
+      mfaChallenge,
+      mfaFactors,
+      isPasswordResetSent,
+      isPasswordChanged,
+      isEmailChangePending,
+      isDeletingAccount,
+      isLoading,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'AuthState(status: $status, userId: $userId, email: $email, accessToken: $accessToken, refreshToken: $refreshToken, emailVerified: $emailVerified, mfaRequired: $mfaRequired, aalLevel: $aalLevel, error: $error, authResponse: $authResponse, profile: $profile, mfaEnrollment: $mfaEnrollment, mfaChallenge: $mfaChallenge, mfaFactors: $mfaFactors, isPasswordResetSent: $isPasswordResetSent, isPasswordChanged: $isPasswordChanged, isEmailChangePending: $isEmailChangePending, isDeletingAccount: $isDeletingAccount, isLoading: $isLoading)';
+  }
 }

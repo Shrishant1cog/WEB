@@ -1,43 +1,69 @@
 /// Profile data models
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'profile_models.freezed.dart';
 part 'profile_models.g.dart';
 
-@freezed
-class Profile with _$Profile {
-  const factory Profile({
-    required String id,
-    required String displayName,
-    String? username,
-    String? avatarUrl,
-    String? inGameName,
-    String? inGameUid,
-    @Default('public') String privacyProfileVisibility,
-    @Default(false) bool privacyShowInGameInfo,
-    @Default({}) Map<String, dynamic> notificationPrefs,
-    String? createdAt,
-    String? updatedAt,
-    String? deletedAt,
-  }) = _Profile;
+@JsonSerializable()
+class Profile {
+  const Profile({
+    required this.id,
+    required this.displayName,
+    this.username,
+    this.avatarUrl,
+    this.inGameName,
+    this.inGameUid,
+    this.privacyProfileVisibility = 'public',
+    this.privacyShowInGameInfo = false,
+    this.notificationPrefs = const {},
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  });
 
-  factory Profile.fromJson(Map<String, dynamic> json) => _$ProfileFromJson(json);
+  final String id;
+  final String displayName;
+  final String? username;
+  final String? avatarUrl;
+  final String? inGameName;
+  final String? inGameUid;
+  final String privacyProfileVisibility;
+  final bool privacyShowInGameInfo;
+  final Map<String, dynamic> notificationPrefs;
+  final String? createdAt;
+  final String? updatedAt;
+  final String? deletedAt;
+
+  factory Profile.fromJson(Map<String, dynamic> json) =>
+      _$ProfileFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ProfileToJson(this);
 }
 
-@freezed
-class UpdateProfileRequest with _$UpdateProfileRequest {
-  const factory UpdateProfileRequest({
-    String? displayName,
-    String? username,
-    String? inGameName,
-    String? inGameUid,
-    String? privacyProfileVisibility,
-    bool? privacyShowInGameInfo,
-    Map<String, dynamic>? notificationPrefs,
-    String? avatarUrl,
-  }) = _UpdateProfileRequest;
+@JsonSerializable()
+class UpdateProfileRequest {
+  const UpdateProfileRequest({
+    this.displayName,
+    this.username,
+    this.inGameName,
+    this.inGameUid,
+    this.privacyProfileVisibility,
+    this.privacyShowInGameInfo,
+    this.notificationPrefs,
+    this.avatarUrl,
+  });
+
+  final String? displayName;
+  final String? username;
+  final String? inGameName;
+  final String? inGameUid;
+  final String? privacyProfileVisibility;
+  final bool? privacyShowInGameInfo;
+  final Map<String, dynamic>? notificationPrefs;
+  final String? avatarUrl;
 
   factory UpdateProfileRequest.fromJson(Map<String, dynamic> json) =>
       _$UpdateProfileRequestFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UpdateProfileRequestToJson(this);
 }

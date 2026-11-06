@@ -1,3 +1,5 @@
+import { createServerSupabaseClient } from "@/lib/supabase/client";
+
 export type PlatformRole = "player" | "organizer" | "moderator" | "administrator" | null;
 
 export type OrganizerRole = "owner" | "admin" | "staff" | null;
@@ -10,10 +12,8 @@ export interface UserPermissions {
   }>;
 }
 
-export async function getUserPermissions(
-  supabase: ReturnType<typeof createServerSupabaseClient>,
-  userId: string
-): Promise<UserPermissions> {
+export async function getUserPermissions(userId: string): Promise<UserPermissions> {
+  const supabase = await createServerSupabaseClient();
   const { data: profile } = await supabase
     .from("profiles")
     .select(
@@ -28,13 +28,15 @@ export async function getUserPermissions(
     .eq("id", userId)
     .single();
 
+  const platformRole = (profile as any)?.platform_role as PlatformRole;
+  const organizerMemberships = (profile as any)?.organizer_memberships?.map((m: any) => ({
+    tournamentId: m.tournament_id,
+    role: m.role as OrganizerRole,
+  })) || [];
+
   return {
-    platformRole: (profile?.platform_role as PlatformRole) || "player",
-    organizerMemberships:
-      profile?.organizer_memberships?.map((m: any) => ({
-        tournamentId: m.tournament_id,
-        role: m.role as OrganizerRole,
-      })) || [],
+    platformRole: platformRole || "player",
+    organizerMemberships,
   };
 }
 
@@ -70,15 +72,13 @@ export function hasModeratorAccess(permissions: UserPermissions): boolean {
   );
 }
 
-export async function getUserRole(
-  supabase: ReturnType<typeof createServerSupabaseClient>,
-  userId: string
-): Promise<PlatformRole> {
+export async function getUserRole(userId: string): Promise<PlatformRole> {
+  const supabase = await createServerSupabaseClient();
   const { data: profile } = await supabase
     .from("profiles")
     .select("platform_role")
     .eq("id", userId)
     .single();
 
-  return (profile?.platform_role as PlatformRole) || "player";
+  return (profile as any)?.platform_role as PlatformRole || "player";
 }

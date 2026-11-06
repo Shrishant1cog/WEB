@@ -68,17 +68,17 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.mfaChallenge() && state.mfaChallenge != null) {
+        if (state.status == AuthStatus.mfaChallenge && state.mfaChallenge != null) {
           // Challenge created, now verify
           context.read<AuthBloc>().add(AuthVerifyMfaTotpRequested(
             factorId: state.mfaChallenge!.factorId,
             challengeId: state.mfaChallenge!.challengeId,
             code: _codeController.text.trim(),
           ));
-        } else if (state.status == AuthStatus.authenticated() && state.aalLevel == 'aal2') {
+        } else if (state.status == AuthStatus.authenticated && state.aalLevel == 'aal2') {
           // MFA verified successfully
           context.go('/my-tournaments');
-        } else if (state.status == AuthStatus.failure() && state.error != null) {
+        } else if (state.status == AuthStatus.failure && state.error != null) {
           setState(() {
             _isLoading = false;
             _error = state.error;

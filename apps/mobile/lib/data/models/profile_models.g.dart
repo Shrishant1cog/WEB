@@ -6,7 +6,7 @@ part of 'profile_models.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_Profile _$ProfileFromJson(Map<String, dynamic> json) => _Profile(
+Profile _$ProfileFromJson(Map<String, dynamic> json) => Profile(
   id: json['id'] as String,
   displayName: json['displayName'] as String,
   username: json['username'] as String?,
@@ -23,7 +23,7 @@ _Profile _$ProfileFromJson(Map<String, dynamic> json) => _Profile(
   deletedAt: json['deletedAt'] as String?,
 );
 
-Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
+Map<String, dynamic> _$ProfileToJson(Profile instance) => <String, dynamic>{
   'id': instance.id,
   'displayName': instance.displayName,
   'username': instance.username,
@@ -38,9 +38,9 @@ Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
   'deletedAt': instance.deletedAt,
 };
 
-_UpdateProfileRequest _$UpdateProfileRequestFromJson(
+UpdateProfileRequest _$UpdateProfileRequestFromJson(
   Map<String, dynamic> json,
-) => _UpdateProfileRequest(
+) => UpdateProfileRequest(
   displayName: json['displayName'] as String?,
   username: json['username'] as String?,
   inGameName: json['inGameName'] as String?,
@@ -52,7 +52,7 @@ _UpdateProfileRequest _$UpdateProfileRequestFromJson(
 );
 
 Map<String, dynamic> _$UpdateProfileRequestToJson(
-  _UpdateProfileRequest instance,
+  UpdateProfileRequest instance,
 ) => <String, dynamic>{
   'displayName': instance.displayName,
   'username': instance.username,

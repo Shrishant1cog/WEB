@@ -47,11 +47,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == const AuthStatus.authenticated()) {
+        if (state.status == AuthStatus.authenticated) {
           context.go('/my-tournaments');
-        } else if (state.status == const AuthStatus.verificationPending()) {
+        } else if (state.status == AuthStatus.verificationPending) {
           context.go('/email-verify');
-        } else if (state.status == const AuthStatus.failure() && state.error != null) {
+        } else if (state.status == AuthStatus.failure && state.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.error!),
@@ -135,8 +135,8 @@ class _LoginPageState extends State<LoginPage> {
                     builder: (context, state) {
                       return FFTButton(
                         text: 'Sign In',
-                        onPressed: state.status == const AuthStatus.loading() ? null : _onSubmit,
-                        isLoading: state.status == const AuthStatus.loading(),
+                        onPressed: state.status == AuthStatus.loading ? null : _onSubmit,
+                        isLoading: state.status == AuthStatus.loading,
                         size: ButtonSize.lg,
                       );
                     },
@@ -174,4 +174,5 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
 

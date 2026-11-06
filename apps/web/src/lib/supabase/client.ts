@@ -1,8 +1,7 @@
-/// Supabase Client Configuration for Next.js
-/// Creates both server-side and client-side clients
+/// Supabase Server-Side Client Configuration
+/// For use in Server Components, Server Actions, and Route Handlers
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { createBrowserClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import type { Database } from '@/types/supabase';
 
@@ -79,29 +78,7 @@ export function createServiceRoleClient() {
 }
 
 // ============================================================================
-// CLIENT-SIDE CLIENT (Client Components)
-// ============================================================================
-
-let browserClient: ReturnType<typeof createBrowserClient<Database>> | null = null;
-
-/**
- * Creates a Supabase client for use in Client Components.
- * Uses singleton pattern to avoid multiple instances.
- * Only use in client components (with 'use client' directive).
- */
-export function createBrowserSupabaseClient() {
-  if (browserClient) return browserClient;
-
-  browserClient = createBrowserClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
-  return browserClient;
-}
-
-// ============================================================================
-// HELPER FUNCTIONS
+// HELPER FUNCTIONS (Server-side only)
 // ============================================================================
 
 /**
@@ -120,26 +97,6 @@ export async function getServerUser() {
  */
 export async function getServerSession() {
   const supabase = await createServerSupabaseClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  return session;
-}
-
-/**
- * Get the current user on the client side.
- * Returns null if not authenticated.
- */
-export async function getBrowserUser() {
-  const supabase = createBrowserSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
-}
-
-/**
- * Get the current session on the client side.
- * Returns null if no session.
- */
-export async function getBrowserSession() {
-  const supabase = createBrowserSupabaseClient();
   const { data: { session } } = await supabase.auth.getSession();
   return session;
 }

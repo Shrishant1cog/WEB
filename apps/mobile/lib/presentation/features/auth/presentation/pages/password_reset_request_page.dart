@@ -44,7 +44,7 @@ class _PasswordResetRequestPageState extends State<PasswordResetRequestPage> {
       listener: (context, state) {
         if (state.isPasswordResetSent) {
           setState(() => _sent = true);
-        } else if (state.status == const AuthStatus.failure() && state.error != null) {
+        } else if (state.status == AuthStatus.failure && state.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.error!),

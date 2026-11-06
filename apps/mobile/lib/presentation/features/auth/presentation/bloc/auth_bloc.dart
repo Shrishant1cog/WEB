@@ -2,8 +2,8 @@
 /// Manages authentication state and operations
 
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 import '../../../../../core/network/supabase_client.dart';
 import '../../../../../domain/usecases/auth/sign_up_use_case.dart';
@@ -28,10 +28,9 @@ import '../../../../../data/models/profile_models.dart';
 
 import 'auth_event.dart';
 import 'auth_state.dart';
-import 'auth_state.g.dart';
 
 @injectable
-class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
+class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignUpUseCase _signUpUseCase;
   final SignInUseCase _signInUseCase;
   final SignOutUseCase _signOutUseCase;
@@ -99,7 +98,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthSignUpRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _signUpUseCase(
       email: event.email,
       password: event.password,
@@ -109,13 +108,13 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     );
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (response) {
         if (response.emailVerified == true) {
           emit(state.copyWith(
-            status: AuthStatus.authenticated(),
+            status: AuthStatus.authenticated,
             userId: response.userId,
             email: response.email,
             accessToken: response.accessToken,
@@ -125,7 +124,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
           ));
         } else {
           emit(state.copyWith(
-            status: AuthStatus.verificationPending(),
+            status: AuthStatus.verificationPending,
             userId: response.userId,
             email: response.email,
             accessToken: response.accessToken,
@@ -142,19 +141,19 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthSignInRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _signInUseCase(
       email: event.email,
       password: event.password,
     );
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (response) {
         emit(state.copyWith(
-          status: AuthStatus.authenticated(),
+          status: AuthStatus.authenticated,
           userId: response.userId,
           email: response.email,
           accessToken: response.accessToken,
@@ -171,11 +170,11 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthSignOutRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _signOutUseCase();
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (_) => emit(AuthState.initial()),
@@ -186,16 +185,16 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthResetPasswordRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading(), isPasswordResetSent: false));
+    emit(state.copyWith(status: AuthStatus.loading, isPasswordResetSent: false));
     final result = await _resetPasswordUseCase(email: event.email);
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
         isPasswordResetSent: false,
       )),
       (_) => emit(state.copyWith(
-        status: AuthStatus.unauthenticated(),
+        status: AuthStatus.unauthenticated,
         isPasswordResetSent: true,
         error: 'Password reset email sent',
       )),
@@ -208,15 +207,15 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   ) async {
     // Email verification is handled by Supabase via deep link
     // This event is for resending verification
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _verifyEmailUseCase(email: event.email);
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (_) => emit(state.copyWith(
-        status: AuthStatus.verificationPending(),
+        status: AuthStatus.verificationPending,
         error: 'Verification email sent',
       )),
     );
@@ -226,15 +225,15 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthResendVerificationRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _verifyEmailUseCase(email: event.email);
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (_) => emit(state.copyWith(
-        status: AuthStatus.verificationPending(),
+        status: AuthStatus.verificationPending,
         error: 'Verification email resent',
       )),
     );
@@ -244,11 +243,11 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthDeleteAccountRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading(), isDeletingAccount: true));
+    emit(state.copyWith(status: AuthStatus.loading, isDeletingAccount: true));
     final result = await _deleteAccountUseCase(password: event.password);
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
         isDeletingAccount: false,
       )),
@@ -260,19 +259,19 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthChangePasswordRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading(), isPasswordChanged: false));
+    emit(state.copyWith(status: AuthStatus.loading, isPasswordChanged: false));
     final result = await _changePasswordUseCase(
       currentPassword: event.currentPassword,
       newPassword: event.newPassword,
     );
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
         isPasswordChanged: false,
       )),
       (_) => emit(state.copyWith(
-        status: AuthStatus.authenticated(),
+        status: AuthStatus.authenticated,
         isPasswordChanged: true,
         error: 'Password changed successfully',
       )),
@@ -283,16 +282,16 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthUpdateEmailRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading(), isEmailChangePending: true));
+    emit(state.copyWith(status: AuthStatus.loading, isEmailChangePending: true));
     final result = await _updateEmailUseCase(email: event.email);
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
         isEmailChangePending: false,
       )),
       (_) => emit(state.copyWith(
-        status: AuthStatus.authenticated(),
+        status: AuthStatus.authenticated,
         isEmailChangePending: true,
         error: 'Email change requested. Please check your new email to confirm.',
       )),
@@ -303,15 +302,15 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthEnrollMfaTotpRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _enrollMfaTotpUseCase();
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (response) => emit(state.copyWith(
-        status: AuthStatus.mfaEnrollment(),
+        status: AuthStatus.mfaEnrollment,
         mfaEnrollment: response,
         error: null,
       )),
@@ -322,15 +321,15 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthChallengeMfaTotpRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _challengeMfaTotpUseCase(factorId: event.factorId);
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (response) => emit(state.copyWith(
-        status: AuthStatus.mfaChallenge(),
+        status: AuthStatus.mfaChallenge,
         mfaChallenge: response,
         error: null,
       )),
@@ -341,7 +340,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthVerifyMfaTotpRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _verifyMfaTotpUseCase(
       factorId: event.factorId,
       challengeId: event.challengeId,
@@ -349,11 +348,11 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     );
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (response) => emit(state.copyWith(
-        status: AuthStatus.authenticated(),
+        status: AuthStatus.authenticated,
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,
         aalLevel: 'aal2',
@@ -366,15 +365,15 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthListMfaFactorsRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _listMfaFactorsUseCase();
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (factors) => emit(state.copyWith(
-        status: AuthStatus.authenticated(),
+        status: AuthStatus.authenticated,
         mfaFactors: factors,
       )),
     );
@@ -384,15 +383,15 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthUnenrollMfaFactorRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _unenrollMfaFactorUseCase(factorId: event.factorId);
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (_) => emit(state.copyWith(
-        status: AuthStatus.authenticated(),
+        status: AuthStatus.authenticated,
         error: 'MFA factor removed',
       )),
     );
@@ -402,15 +401,15 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthUpdatePasswordRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _updatePasswordUseCase(password: event.password);
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (_) => emit(state.copyWith(
-        status: AuthStatus.authenticated(),
+        status: AuthStatus.authenticated,
         error: 'Password updated successfully',
       )),
     );
@@ -420,13 +419,13 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthRestoreSession event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _getCurrentUserUseCase();
     result.fold(
       (failure) => emit(AuthState.initial()),
       (response) {
         emit(state.copyWith(
-          status: AuthStatus.authenticated(),
+          status: AuthStatus.authenticated,
           userId: response.userId,
           email: response.email,
           accessToken: response.accessToken,
@@ -444,7 +443,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthUpdateProfileRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _updateProfileUseCase(
       displayName: event.displayName,
       username: event.username,
@@ -457,11 +456,11 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     );
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (profile) => emit(state.copyWith(
-        status: AuthStatus.authenticated(),
+        status: AuthStatus.authenticated,
         profile: profile,
         error: 'Profile updated successfully',
       )),
@@ -472,18 +471,18 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthUpdatePrivacySettingsRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     final result = await _updatePrivacySettingsUseCase(
       profileVisibility: event.profileVisibility,
       showInGameInfo: event.showInGameInfo,
     );
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: failure.message,
       )),
       (profile) => emit(state.copyWith(
-        status: AuthStatus.authenticated(),
+        status: AuthStatus.authenticated,
         profile: profile,
         error: 'Privacy settings updated',
       )),
@@ -517,7 +516,7 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(
-      status: AuthStatus.mfaRequired(),
+      status: AuthStatus.mfaRequired,
       mfaRequired: true,
     ));
   }
@@ -526,14 +525,14 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     AuthAuthCallback event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading()));
+    emit(state.copyWith(status: AuthStatus.loading));
     try {
       final client = Supabase.instance.client;
       final response = await client.auth.getSessionFromUrl(Uri.parse(event.token));
       if (response.session != null) {
         final user = response.session!.user;
         emit(state.copyWith(
-          status: AuthStatus.authenticated(),
+          status: AuthStatus.authenticated,
           userId: user.id,
           email: user.email,
           accessToken: response.session!.accessToken,
@@ -545,25 +544,15 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
         add(AuthLoadProfile());
       } else {
         emit(state.copyWith(
-          status: AuthStatus.failure(),
+          status: AuthStatus.failure,
           error: 'Invalid or expired link',
         ));
       }
     } catch (e) {
       emit(state.copyWith(
-        status: AuthStatus.failure(),
+        status: AuthStatus.failure,
         error: 'Failed to verify link: ${e.toString()}',
       ));
     }
-  }
-
-  @override
-  AuthState fromJson(Map<String, dynamic> json) {
-    return _$AuthStateFromJson(json);
-  }
-
-  @override
-  Map<String, dynamic>? toJson(AuthState state) {
-    return _$AuthStateToJson(state as _AuthState);
   }
 }

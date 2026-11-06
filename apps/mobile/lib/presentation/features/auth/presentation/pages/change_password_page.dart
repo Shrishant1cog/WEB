@@ -56,7 +56,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.authenticated() && state.isPasswordChanged) {
+        if (state.status == AuthStatus.authenticated && state.isPasswordChanged) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Password changed successfully'),
@@ -64,7 +64,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             ),
           );
           context.pop();
-        } else if (state.status == AuthStatus.failure() && state.error != null) {
+        } else if (state.status == AuthStatus.failure && state.error != null) {
           setState(() {
             _isLoading = false;
             _error = state.error;
