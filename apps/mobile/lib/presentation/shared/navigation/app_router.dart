@@ -27,6 +27,7 @@ class AppRoutes {
   static const String passwordReset = '/password-reset';
   static const String passwordResetConfirm = '/password-reset/confirm';
   static const String emailVerify = '/email-verify';
+  static const String authCallback = '/auth/callback';
 
   // Public (no auth required)
   static const String home = '/';
@@ -146,6 +147,11 @@ class AppRouter {
         path: AppRoutes.emailVerify,
         name: 'emailVerify',
         builder: (context, state) => const _EmailVerifyPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.authCallback,
+        name: 'authCallback',
+        builder: (context, state) => const _AuthCallbackPage(),
       ),
 
       // Protected routes (require authentication)
@@ -983,6 +989,29 @@ class _AdminSettingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Platform Settings')),
       body: const Center(child: Text('Admin Settings - Phase 7')),
+    );
+  }
+}
+
+class _AuthCallbackPage extends StatelessWidget {
+  const _AuthCallbackPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              'Completing sign in...',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
