@@ -120,11 +120,13 @@ WHERE id = 'avatars';
 DROP POLICY IF EXISTS "Public avatars are readable" ON storage.objects;
 
 -- Add policy for users to read own avatars
+DROP POLICY IF EXISTS "Users can read own avatars" ON storage.objects;
 CREATE POLICY "Users can read own avatars"
     ON storage.objects FOR SELECT
     USING (bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1]);
 
 -- Add policy for public profile avatars (when profile is public)
+DROP POLICY IF EXISTS "Public profile avatars are readable" ON storage.objects;
 CREATE POLICY "Public profile avatars are readable"
     ON storage.objects FOR SELECT
     USING (
@@ -138,6 +140,7 @@ CREATE POLICY "Public profile avatars are readable"
     );
 
 -- Add policy for organizers to read avatars in their tournaments
+DROP POLICY IF EXISTS "Organizers can read tournament avatars" ON storage.objects;
 CREATE POLICY "Organizers can read tournament avatars"
     ON storage.objects FOR SELECT
     USING (

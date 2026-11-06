@@ -6,6 +6,7 @@ node_modules/
 apps/web/.next/
 apps/web/out/
 apps/web/build/
+*.tsbuildinfo
 apps/mobile/build/
 apps/mobile/.dart_tool/
 apps/mobile/.flutter-plugins

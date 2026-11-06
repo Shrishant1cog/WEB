@@ -1,23 +1,52 @@
-# Supabase local configuration
+# Supabase local configuration (CLI 3.x format)
+# See https://supabase.com/docs/guides/local-development/cli/config
+
 project_id = "fft-local"
 
 [api]
+enabled = true
 port = 54321
 schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
 port = 54322
 shadow_port = 54320
 major_version = 17
+health_timeout = "2m"
+
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+
+[db.migrations]
+enabled = true
+
+[db.seed]
+enabled = false
+
+[realtime]
+enabled = true
 
 [studio]
+enabled = true
 port = 54323
+api_url = "http://127.0.0.1"
 
-[inbucket]
+[local_smtp]
+enabled = true
 port = 54324
 smtp_port = 54325
 pop3_port = 54326
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[storage.s3_protocol]
+enabled = true
 
 [auth]
 enabled = true
@@ -26,29 +55,46 @@ additional_redirect_urls = ["fft://auth/callback", "http://localhost:3000/auth/c
 jwt_expiry = 3600
 enable_signup = true
 enable_anonymous_sign_ins = false
-min_password_length = 8
-password_strength_enabled = true
-email_confirm_required = true
-enable_email_autoconfirm = false
-enable_email_change_confirm = true
-enable_phone_autoconfirm = false
-enable_phone_signup = false
-enable_phone_signin = false
-max_frequent_signup_attempts = 3
-rate_limit_email_sent = 3
-rate_limit_sms_sent = 3
-rate_limit_token_refresh = 10
+minimum_password_length = 8
+password_requirements = "lower_upper_letters_digits"
 
-[auth.external]
-google_enabled = false
-apple_enabled = false
-
-[storage]
+[auth.email]
 enabled = true
-file_size_limit = "50MiB"
+double_confirm_changes = true
+enable_confirmations = true
+max_frequency = "5s"
 
-[realtime]
-enabled = true
+[auth.rate_limit]
+email_sent = 30
+sms_sent = 30
+token_refresh = 150
+sign_in_sign_ups = 30
+token_verifications = 30
+
+[auth.mfa]
+max_enrolled_factors = 10
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[auth.external.apple]
+enabled = false
+client_id = ""
+secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+
+[auth.external.google]
+enabled = false
+client_id = ""
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
 
 [edge_runtime]
 enabled = true
+policy = "per_worker"
+inspector_port = 8083
+deno_version = 2
+
+[analytics]
+enabled = false
+port = 54327
+backend = "postgres"
