@@ -1,8 +1,8 @@
 # Project Status — FFT
 
-**Version:** 2.0  
-**Date:** 6 November 2026  
-**Status:** Phase 2 — Authentication & Profiles (Implementation Complete, Test Runner Issues Documented)
+**Version:** 3.0  
+**Date:** 7 November 2026  
+**Status:** Phase 3 — Tournament & Participation Management (VERIFIED COMPLETE)
 
 ---
 
@@ -93,34 +93,50 @@
 - [ ] CI workflows
 - [ ] Environment templates
 
-### Phase 2: Authentication & Profiles ⏳
-- [x] Supabase Auth integration (email/password, email verification, password recovery)
-- [x] Secure session handling (refresh, revocation, logout)
+### Phase 2: Authentication & Profiles ✅ VERIFIED COMPLETE
+- [x] Supabase Auth integration (email/password, email verification, password recovery, MFA TOTP)
+- [x] Secure session handling (refresh, revocation, logout) — Supabase SDK owns persistence
 - [x] Player profile CRUD (display name, avatar, in-game name, UID)
-- [x] Privacy settings (profile visibility, notification prefs)
+- [x] Privacy settings (profile visibility: public/organizers_only/private, notification prefs)
 - [x] Account deletion flow (in-app + web page)
-- [x] Role/organization membership model (DB + RLS)
-- [x] RLS policies for profiles, auth, roles
-- [ ] Unauthorized access tests (player→organizer, organizer→other org, etc.)
+- [x] RLS policies for profiles, auth, tournament_organizers
+- [x] Unauthorized access tests (player→organizer, organizer→other org, cross-tournament)
+- [x] AuthBloc extends plain Bloc (Supabase handles session; no HydratedBloc)
+- [x] Auth models use `@JsonSerializable` (no Freezed for auth_state)
+- [x] Flutter analyze: 0 errors | Flutter test: 20 PASS | `flutter build apk --debug`: EXIT=0
 
-**Known Issues (Phase 2):**
-- Flutter test runner fails to resolve generated Freezed files (known Freezed 4.x limitation)
-- HydratedBloc serialization needs additional Freezed 4.x configuration
-- flutter analyze shows 3 errors in auth_bloc.dart (missing _$AuthStateFromJson/_$AuthStateToJson)
-- flutter build apk fails due to auth_bloc.dart errors
-
-### Phase 3: Tournament & Participation Management ⏳
+### Phase 3: Tournament & Participation Management ✅ VERIFIED COMPLETE
 *Combines former Phase 3 (Tournament Management) and Phase 4 (Teams & Registration)*
-- [ ] Tournament CRUD
-- [ ] Rules/configuration
-- [ ] Publication lifecycle
-- [ ] Public discovery
-- [ ] Organizer dashboard
-- [ ] Team creation
-- [ ] Invitations
-- [ ] Registration (race-safe)
-- [ ] Waitlist + promotion
-- [ ] Concurrency tests
+
+**Database (Migrations 5-6):**
+- [x] Tournament CRUD + configuration (format, mode, capacity, schedule, visibility, eligibility)
+- [x] Publication lifecycle (draft → published → registration_open → registration_closed → in_progress → completed/cancelled)
+- [x] Per-tournament organizer roles (owner, organizer, moderator) via `tournament_organizers`
+- [x] Solo & squad registration with eligibility (in-game UID), capacity, duplicate prevention
+- [x] Waitlist FIFO (`tournament_waitlist_seq`) + atomic promotion on withdrawal
+- [x] Team creation, captaincy, invitations (32-byte token, SHA-256 hash, 1-168h expiry, 20/h/team rate limit)
+- [x] Roster freeze: team mutations blocked while registration live
+- [x] Trusted `SECURITY DEFINER` RPCs with fixed `search_path`; `EXECUTE` to `authenticated` only
+
+**Web (Next.js 16):**
+- [x] Public tournament discovery (search, filters, pagination)
+- [x] Tournament detail with registration/withdrawal
+- [x] Organizer dashboard, tournament list, create, edit, manage (entries, waitlist, lifecycle)
+- [x] Player my-tournaments, my-teams, team CRUD, invitations
+- [x] Server Actions with Zod validation + RPC error mapping
+- [x] Typecheck PASS | Production build PASS (20 routes) | Vitest 90/90 PASS
+
+**Mobile (Flutter 3.47):**
+- [x] Public tournament list/detail, my-tournaments, my-teams
+- [x] Team create/detail/invite/accept/decline
+- [x] Organizer dashboard/list/create/edit/detail
+- [x] Router: `/organizer/*` auth-gated; admin blocked (Phase 5); edit reuses create form
+- [x] Plain Dart models, repositories, DI; no new Freezed targets
+- [x] Analyzer 0 errors | Tests 20/20 PASS | APK build PASS
+
+**Database Integration Tests:**
+- [x] 19/19 RPC happy-path checks PASS
+- [x] 31/31 RLS/security checks PASS (visibility, authorization, roster freeze, invitation security, waitlist FIFO, atomic promotion)
 
 ### Phase 4: Match, Results & Competition Operations ⏳
 *Combines former Phase 5 (Match Management) and Phase 6 (Results & Disputes)*

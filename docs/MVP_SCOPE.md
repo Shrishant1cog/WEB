@@ -1,8 +1,8 @@
 # MVP Scope — FFT
 
-**Version:** 2.0  
-**Date:** 6 November 2026  
-**Status:** Restructured to 6 official phases (was 9 phases)
+**Version:** 3.0  
+**Date:** 7 November 2026  
+**Status:** Phase 3 — Tournament & Participation Management (VERIFIED COMPLETE)
 
 ---
 
@@ -46,36 +46,50 @@ Historical references to 9 phases remain in past reports only when clearly ident
 - [ ] CI workflows (GitHub Actions)
 - [ ] Basic automated tests (unit + widget + integration)
 
-### Phase 2: Authentication & Profiles
-- [ ] Supabase Auth: email/password, email verification, password recovery
-- [ ] Secure session handling (refresh, revocation, logout)
-- [ ] Player profile CRUD (display name, avatar, in-game name, UID)
-- [ ] Privacy settings (profile visibility, notification prefs)
-- [ ] Account deletion flow (in-app + web page)
-- [ ] Role/organization membership model (DB + RLS)
-- [ ] RLS policies for profiles, auth, roles
-- [ ] Unauthorized access tests (player→organizer, organizer→other org, etc.)
+### Phase 2: Authentication & Profiles ✅
+- [x] Supabase Auth: email/password, email verification, password recovery, MFA TOTP
+- [x] Secure session handling (refresh, revocation, logout) — Supabase SDK owns persistence
+- [x] Player profile CRUD (display name, avatar, in-game name, UID)
+- [x] Privacy settings (profile visibility: public/organizers_only/private, notification prefs)
+- [x] Account deletion flow (in-app + web page)
+- [x] RLS policies for profiles, auth, tournament_organizers
+- [x] Unauthorized access tests (player→organizer, organizer→other org, cross-tournament)
+- [x] AuthBloc extends plain Bloc; Supabase handles session
+- [x] Auth models use `@JsonSerializable`; only auth_event uses Freezed
+- [x] Flutter analyze: 0 errors | Flutter test: 20 PASS | `flutter build apk --debug`: EXIT=0
 
-### Phase 3: Tournament & Participation Management
+### Phase 3: Tournament & Participation Management ✅
 *Combines former Phase 3 (Tournament Management) and Phase 4 (Teams & Registration)*
 
-- [ ] Tournament CRUD (organizer dashboard)
-- [ ] Tournament rules/configuration (format, roster size, eligibility, dates)
-- [ ] Publication lifecycle (draft → published → registration open/closed)
-- [ ] Public tournament discovery (listing, filtering, detail pages)
-- [ ] Search and filtering (status, mode, date)
-- [ ] Organizer dashboard tournament management UI
-- [ ] Tournament detail pages (public + organizer views)
-- [ ] Team creation (captain = creator)
-- [ ] Invitation generation (secure tokens, hash stored, expiry, rate limits)
-- [ ] Invitation acceptance/decline
-- [ ] Captain operations (remove member, transfer captaincy, dissolve)
-- [ ] Full-roster validation before registration
-- [ ] Registration submission (solo + squad)
-- [ ] Duplicate prevention (DB constraints)
-- [ ] Capacity enforcement (transactional, race-safe)
-- [ ] FIFO waitlist with atomic promotion
-- [ ] Concurrency tests (simultaneous registrations at capacity)
+**Database (Migrations 5-6):**
+- [x] Tournament CRUD + configuration (format, mode, capacity, schedule, visibility, eligibility)
+- [x] Publication lifecycle (draft → published → registration_open → registration_closed → in_progress → completed/cancelled)
+- [x] Per-tournament organizer roles (owner, organizer, moderator) via `tournament_organizers`
+- [x] Solo & squad registration with eligibility (in-game UID), capacity, duplicate prevention
+- [x] Waitlist FIFO (`tournament_waitlist_seq`) + atomic promotion on withdrawal
+- [x] Team creation, captaincy, invitations (32-byte token, SHA-256 hash, 1-168h expiry, 20/h/team rate limit)
+- [x] Roster freeze: team mutations blocked while registration live
+- [x] Trusted `SECURITY DEFINER` RPCs with fixed `search_path`; `EXECUTE` to `authenticated` only
+
+**Web (Next.js 16):**
+- [x] Public tournament discovery (search, filters, pagination)
+- [x] Tournament detail with registration/withdrawal
+- [x] Organizer dashboard, tournament list, create, edit, manage (entries, waitlist, lifecycle)
+- [x] Player my-tournaments, my-teams, team CRUD, invitations
+- [x] Server Actions with Zod validation + RPC error mapping
+- [x] Typecheck PASS | Production build PASS (20 routes) | Vitest 90/90 PASS
+
+**Mobile (Flutter 3.47):**
+- [x] Public tournament list/detail, my-tournaments, my-teams
+- [x] Team create/detail/invite/accept/decline
+- [x] Organizer dashboard/list/create/edit/detail
+- [x] Router: `/organizer/*` auth-gated; admin blocked (Phase 5); edit reuses create form
+- [x] Plain Dart models, repositories, DI; no new Freezed targets
+- [x] Analyzer 0 errors | Tests 20/20 PASS | APK build PASS
+
+**Database Integration Tests:**
+- [x] 19/19 RPC happy-path checks PASS
+- [x] 31/31 RLS/security checks PASS (visibility, authorization, roster freeze, invitation security, waitlist FIFO, atomic promotion)
 
 ### Phase 4: Match, Results & Competition Operations
 *Combines former Phase 5 (Match Management) and Phase 6 (Results & Disputes)*
