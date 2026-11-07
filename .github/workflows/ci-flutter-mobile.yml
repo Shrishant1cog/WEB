@@ -3,8 +3,6 @@ name: CI - Flutter Mobile
 on:
   push:
     branches: [agent/fft-development]
-  pull_request:
-    branches: [agent/fft-development]
 
 jobs:
   flutter:
