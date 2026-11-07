@@ -81,11 +81,11 @@ EOF
           if [ -f "$APK_PATH" ]; then
             CERT_OUTPUT=$(keytool -list -printcert -jarfile "$APK_PATH" 2>&1)
             if echo "$CERT_OUTPUT" | grep -qi "CN=Android Debug"; then
-              echo "❌ FAIL: Release APK is signed with DEBUG certificate!"
+              echo "FAIL: Release APK is signed with DEBUG certificate!"
               echo "$CERT_OUTPUT"
               exit 1
             else
-              echo "✅ PASS: Release APK is NOT signed with debug certificate"
+              echo "PASS: Release APK is NOT signed with debug certificate"
             fi
           fi
 
