@@ -1,7 +1,9 @@
 /// FFT Text Field Component
-/// Custom text field with consistent styling
+/// Modern text field with consistent styling using design tokens
 
 import 'package:flutter/material.dart';
+
+import '../themes/design_tokens.dart';
 
 class FFTTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -53,13 +55,14 @@ class FFTTextField extends StatelessWidget {
     this.borderColor,
     this.focusedBorderColor,
     this.errorBorderColor,
-    this.borderRadius = 12,
+    this.borderRadius = Radii.md,
     this.autofocus = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return TextFormField(
       controller: controller,
@@ -75,86 +78,80 @@ class FFTTextField extends StatelessWidget {
       textCapitalization: textCapitalization,
       textAlign: textAlign,
       autofocus: autofocus,
-      style: TextStyle(
-        fontSize: 16,
-        fontFamily: 'Inter',
-        color: theme.colorScheme.onSurface,
+      style: TypeScale.bodyLarge.copyWith(
+        color: isDark ? TextColors.darkPrimary : TextColors.lightPrimary,
       ),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         errorText: errorText,
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+        prefixIcon: prefixIcon != null
+            ? Icon(prefixIcon, size: IconSizes.md, color: isDark ? TextColors.darkTertiary : TextColors.lightTertiary)
+            : null,
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: fillColor ?? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        fillColor: fillColor ?? (isDark ? const Color(0xFF1F2735) : const Color(0xFFF8FAFC)),
         contentPadding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(
-            color: borderColor ?? theme.colorScheme.outline,
+            color: borderColor ?? (isDark ? BorderColors.darkPrimary : BorderColors.lightPrimary),
             width: 1,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(
-            color: borderColor ?? theme.colorScheme.outline,
+            color: borderColor ?? (isDark ? BorderColors.darkPrimary : BorderColors.lightPrimary),
             width: 1,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(
-            color: focusedBorderColor ?? theme.colorScheme.primary,
+            color: focusedBorderColor ?? Brand.primaryAmber,
             width: 2,
           ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(
-            color: errorBorderColor ?? theme.colorScheme.error,
+            color: errorBorderColor ?? Semantic.error,
             width: 1,
           ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(
-            color: theme.colorScheme.error,
+            color: Semantic.error,
             width: 2,
           ),
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(
-            color: theme.colorScheme.outline.withValues(alpha: 0.5),
+            color: (isDark ? BorderColors.darkSubtle : BorderColors.lightSubtle),
             width: 1,
           ),
         ),
-        labelStyle: TextStyle(
-          fontSize: 14,
+        labelStyle: TypeScale.bodyMedium.copyWith(
           fontWeight: FontWeight.w400,
-          fontFamily: 'Inter',
-          color: theme.colorScheme.onSurfaceVariant,
+          color: isDark ? TextColors.darkSecondary : TextColors.lightSecondary,
         ),
-        hintStyle: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          fontFamily: 'Inter',
-          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+        hintStyle: TypeScale.bodyMedium.copyWith(
+          color: isDark
+              ? TextColors.darkTertiary.withValues(alpha: 0.6)
+              : TextColors.lightTertiary.withValues(alpha: 0.6),
         ),
-        errorStyle: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-          fontFamily: 'Inter',
-          color: theme.colorScheme.error,
+        errorStyle: TypeScale.bodySmall.copyWith(
+          color: Semantic.error,
         ),
-        floatingLabelStyle: TextStyle(
-          fontSize: 14,
+        floatingLabelStyle: TypeScale.bodyMedium.copyWith(
           fontWeight: FontWeight.w500,
-          fontFamily: 'Inter',
-          color: theme.colorScheme.primary,
+          color: Brand.primaryAmber,
         ),
+        prefixIconColor: isDark ? TextColors.darkTertiary : TextColors.lightTertiary,
+        suffixIconColor: isDark ? TextColors.darkTertiary : TextColors.lightTertiary,
       ),
     );
   }

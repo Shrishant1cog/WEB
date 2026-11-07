@@ -1,7 +1,9 @@
 /// FFT Button Component
-/// Custom button with consistent styling
+/// Modern button with consistent styling using design tokens
 
 import 'package:flutter/material.dart';
+
+import '../themes/design_tokens.dart';
 
 enum ButtonSize { sm, md, lg, xl }
 enum ButtonVariant { filled, outlined, text, elevated, tonal, destructive }
@@ -37,50 +39,137 @@ class FFTButton extends StatelessWidget {
     final theme = Theme.of(context);
     final isDisabled = onPressed == null || isLoading;
 
-    final (horizontalPadding, verticalPadding, fontSize, iconSize) = switch (size) {
-      ButtonSize.sm => (16.0, 8.0, 13.0, 16.0),
-      ButtonSize.md => (24.0, 12.0, 14.0, 18.0),
-      ButtonSize.lg => (32.0, 16.0, 16.0, 20.0),
-      ButtonSize.xl => (40.0, 20.0, 18.0, 24.0),
+    final (horizontalPadding, verticalPadding, fontSize, iconSize, minHeight) = switch (size) {
+      ButtonSize.sm => (12.0, 8.0, 13.0, 14.0, 36.0),
+      ButtonSize.md => (20.0, 12.0, 14.0, 18.0, 44.0),
+      ButtonSize.lg => (28.0, 14.0, 16.0, 20.0, 52.0),
+      ButtonSize.xl => (36.0, 18.0, 18.0, 22.0, 60.0),
     };
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final buttonStyle = switch (variant) {
       ButtonVariant.filled => FilledButton.styleFrom(
-        backgroundColor: backgroundColor ?? theme.colorScheme.primary,
-        foregroundColor: foregroundColor ?? theme.colorScheme.onPrimary,
-        disabledBackgroundColor: theme.colorScheme.primary.withValues(alpha: 0.38),
-        disabledForegroundColor: theme.colorScheme.onPrimary.withValues(alpha: 0.38),
+        backgroundColor: backgroundColor ?? Brand.primaryAmber,
+        foregroundColor: foregroundColor ?? Colors.white,
+        disabledBackgroundColor: isDark
+            ? Brand.primaryAmber.withValues(alpha: 0.38)
+            : Brand.primaryAmber.withValues(alpha: 0.38),
+        disabledForegroundColor: Colors.white.withValues(alpha: 0.38),
+        padding: padding ?? EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: verticalPadding,
+        ),
+        minimumSize: Size(0, minHeight),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.md)),
+        textStyle: TypeScale.titleMedium.copyWith(
+          fontSize: fontSize,
+        ),
+      ).copyWith(
+        overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.pressed)) {
+            return Brand.primaryAmberDark.withValues(alpha: 0.2);
+          }
+          if (states.contains(WidgetState.hovered)) {
+            return Brand.primaryAmberDark.withValues(alpha: 0.1);
+          }
+          return null;
+        }),
       ),
+
       ButtonVariant.outlined => OutlinedButton.styleFrom(
-        foregroundColor: foregroundColor ?? theme.colorScheme.primary,
+        foregroundColor: foregroundColor ?? Brand.primaryAmber,
         side: BorderSide(
-          color: backgroundColor ?? theme.colorScheme.primary,
+          color: backgroundColor ?? Brand.primaryAmber,
           width: 1.5,
         ),
-        disabledForegroundColor: theme.colorScheme.primary.withValues(alpha: 0.38),
+        disabledForegroundColor: isDark
+            ? Brand.primaryAmber.withValues(alpha: 0.38)
+            : Brand.primaryAmber.withValues(alpha: 0.38),
+        padding: padding ?? EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: verticalPadding,
+        ),
+        minimumSize: Size(0, minHeight),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.md)),
+        textStyle: TypeScale.titleMedium.copyWith(fontSize: fontSize),
       ),
+
       ButtonVariant.text => TextButton.styleFrom(
-        foregroundColor: foregroundColor ?? theme.colorScheme.primary,
-        disabledForegroundColor: theme.colorScheme.primary.withValues(alpha: 0.38),
+        foregroundColor: foregroundColor ?? Brand.primaryAmber,
+        disabledForegroundColor: isDark
+            ? Brand.primaryAmber.withValues(alpha: 0.38)
+            : Brand.primaryAmber.withValues(alpha: 0.38),
+        padding: padding ?? EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: verticalPadding,
+        ),
+        minimumSize: Size(0, minHeight),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.md)),
+        textStyle: TypeScale.titleMedium.copyWith(
+          fontSize: fontSize,
+          fontWeight: FontWeight.w600,
+        ),
       ),
+
       ButtonVariant.elevated => ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor ?? theme.colorScheme.primary,
-        foregroundColor: foregroundColor ?? theme.colorScheme.onPrimary,
-        disabledBackgroundColor: theme.colorScheme.primary.withValues(alpha: 0.38),
-        disabledForegroundColor: theme.colorScheme.onPrimary.withValues(alpha: 0.38),
-        elevation: 2,
+        backgroundColor: backgroundColor ?? Brand.primaryAmber,
+        foregroundColor: foregroundColor ?? Colors.white,
+        disabledBackgroundColor: isDark
+            ? Brand.primaryAmber.withValues(alpha: 0.38)
+            : Brand.primaryAmber.withValues(alpha: 0.38),
+        disabledForegroundColor: Colors.white.withValues(alpha: 0.38),
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        padding: padding ?? EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: verticalPadding,
+        ),
+        minimumSize: Size(0, minHeight),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.md)),
+        textStyle: TypeScale.titleMedium.copyWith(fontSize: fontSize),
+      ).copyWith(
+        overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.pressed)) {
+            return Brand.primaryAmberDark.withValues(alpha: 0.2);
+          }
+          if (states.contains(WidgetState.hovered)) {
+            return Brand.primaryAmberDark.withValues(alpha: 0.1);
+          }
+          return null;
+        }),
       ),
+
       ButtonVariant.tonal => FilledButton.styleFrom(
-        backgroundColor: backgroundColor ?? theme.colorScheme.secondaryContainer,
-        foregroundColor: foregroundColor ?? theme.colorScheme.onSecondaryContainer,
-        disabledBackgroundColor: theme.colorScheme.secondaryContainer.withValues(alpha: 0.38),
-        disabledForegroundColor: theme.colorScheme.onSecondaryContainer.withValues(alpha: 0.38),
+        backgroundColor: backgroundColor ?? Brand.secondaryBlue.withValues(alpha: 0.15),
+        foregroundColor: foregroundColor ?? Brand.secondaryBlue,
+        disabledBackgroundColor: isDark
+            ? Brand.secondaryBlue.withValues(alpha: 0.1)
+            : Brand.secondaryBlue.withValues(alpha: 0.05),
+        disabledForegroundColor: isDark
+            ? Brand.secondaryBlue.withValues(alpha: 0.38)
+            : Brand.secondaryBlue.withValues(alpha: 0.38),
+        padding: padding ?? EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: verticalPadding,
+        ),
+        minimumSize: Size(0, minHeight),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.md)),
+        textStyle: TypeScale.titleMedium.copyWith(fontSize: fontSize),
       ),
+
       ButtonVariant.destructive => FilledButton.styleFrom(
-        backgroundColor: backgroundColor ?? theme.colorScheme.error,
-        foregroundColor: foregroundColor ?? theme.colorScheme.onError,
-        disabledBackgroundColor: theme.colorScheme.error.withValues(alpha: 0.38),
-        disabledForegroundColor: theme.colorScheme.onError.withValues(alpha: 0.38),
+        backgroundColor: backgroundColor ?? Semantic.error,
+        foregroundColor: foregroundColor ?? Colors.white,
+        disabledBackgroundColor: Semantic.error.withValues(alpha: 0.38),
+        disabledForegroundColor: Colors.white.withValues(alpha: 0.38),
+        padding: padding ?? EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: verticalPadding,
+        ),
+        minimumSize: Size(0, minHeight),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.md)),
+        textStyle: TypeScale.titleMedium.copyWith(fontSize: fontSize),
       ),
     };
 
@@ -125,16 +214,18 @@ class FFTButton extends StatelessWidget {
 
   Widget _buildChild(ThemeData theme, double fontSize, double iconSize) {
     if (isLoading) {
+      final color = variant == ButtonVariant.filled ||
+              variant == ButtonVariant.elevated ||
+              variant == ButtonVariant.destructive
+          ? Colors.white
+          : Brand.primaryAmber;
+
       return SizedBox(
         height: fontSize + 4,
         width: fontSize + 4,
         child: CircularProgressIndicator(
           strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(
-            variant == ButtonVariant.filled || variant == ButtonVariant.elevated
-                ? theme.colorScheme.onPrimary
-                : theme.colorScheme.primary,
-          ),
+          valueColor: AlwaysStoppedAnimation<Color>(color),
         ),
       );
     }
@@ -151,7 +242,7 @@ class FFTButton extends StatelessWidget {
             style: TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.w600,
-              fontFamily: 'Inter',
+              fontFamily: 'SpaceGrotesk',
             ),
           ),
         ],
@@ -163,7 +254,7 @@ class FFTButton extends StatelessWidget {
       style: TextStyle(
         fontSize: fontSize,
         fontWeight: FontWeight.w600,
-        fontFamily: 'Inter',
+        fontFamily: 'SpaceGrotesk',
       ),
     );
   }

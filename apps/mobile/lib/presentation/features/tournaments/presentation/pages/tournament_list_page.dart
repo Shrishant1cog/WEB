@@ -1,11 +1,15 @@
 /// Public tournament discovery: search, filters, and open registration state.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../data/models/tournament_models.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../presentation/shared/navigation/app_router.dart';
+import '../../../../../presentation/shared/themes/design_tokens.dart';
+import '../../../../../presentation/shared/widgets/widgets.dart';
 import '../tournament_helpers.dart';
 
 class TournamentListPage extends StatefulWidget {
@@ -18,19 +22,34 @@ class TournamentListPage extends StatefulWidget {
 class _TournamentListPageState extends State<TournamentListPage> {
   final _search = TextEditingController();
   late Future<List<TournamentListing>> _future;
-  String _mode = "all";
-  String _status = "all";
+  String _mode = 'all';
+  String _status = 'all';
+
+  // Debounce timer for search
+  Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
     _future = _load();
+    _search.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
+    _search.removeListener(_onSearchChanged);
     _search.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _reload();
+      }
+    });
   }
 
   Future<List<TournamentListing>> _load() async {
@@ -50,15 +69,18 @@ class _TournamentListPageState extends State<TournamentListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Tournaments"),
+        title: const Text('Tournaments'),
         actions: [
           IconButton(
-            tooltip: currentUserId == null ? "Sign in" : "My tournaments",
+            tooltip: currentUserId == null ? 'Sign in' : 'My tournaments',
             icon: Icon(
               currentUserId == null
-                  ? Icons.login
+                  ? Icons.login_rounded
                   : Icons.confirmation_number_outlined,
             ),
             onPressed: () => context.go(
@@ -70,94 +92,116 @@ class _TournamentListPageState extends State<TournamentListPage> {
         ],
       ),
       body: Column(
-        children: [
+        children: <Widget>[
+          // Search field
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: TextField(
+            padding: const EdgeInsets.fromLTRB(Spacing.md, Spacing.md, Spacing.md, Spacing.xs),
+            child: FFTTextField(
               controller: _search,
+              label: 'Search tournaments',
+              hint: 'Search by name...',
+              prefixIcon: Icons.search_rounded,
               textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: "Search tournaments",
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _search.text.isEmpty
-                    ? null
-                    : IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _search.clear();
-                          _reload();
-                        },
-                      ),
-                border: const OutlineInputBorder(),
-              ),
-              onSubmitted: (_) => _reload(),
+              suffixIcon: _search.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear_rounded),
+                      onPressed: () {
+                        _search.clear();
+                        _reload();
+                      },
+                    )
+                  : null,
+              onFieldSubmitted: (_) => _reload(),
+              onChanged: (_) {}, // Handled by listener
             ),
           ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Row(
-              children: [
-                for (final mode in const ["all", "br", "cs"])
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(mode == "all" ? "All modes" : mode.toUpperCase()),
+
+          // Filter chips
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: <Widget>[
+                  // Mode filters
+                  ...['all', 'br', 'cs'].map((mode) => Padding(
+                    padding: const EdgeInsets.only(right: Spacing.sm),
+                    child: FilterChip(
+                      label: Text(mode == 'all' ? 'All modes' : mode.toUpperCase()),
                       selected: _mode == mode,
                       onSelected: (_) {
-                        _mode = mode;
+                        setState(() => _mode = mode);
                         _reload();
                       },
+                      showCheckmark: false,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Spacing.md,
+                        vertical: Spacing.xs,
+                      ),
+                      labelStyle: TypeScale.labelMedium.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                const SizedBox(width: 12),
-                for (final status in const [
-                  "all",
-                  "registration_open",
-                  "published",
-                ])
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(status == "all" ? "Any status" : statusLabel(status)),
+                  )),
+
+                  const SizedBox(width: Spacing.md),
+
+                  // Status filters
+                  ...['all', 'registration_open', 'published'].map((status) => Padding(
+                    padding: const EdgeInsets.only(right: Spacing.sm),
+                    child: FilterChip(
+                      label: Text(status == 'all' ? 'Any status' : statusLabel(status)),
                       selected: _status == status,
                       onSelected: (_) {
-                        _status = status;
+                        setState(() => _status = status);
                         _reload();
                       },
+                      showCheckmark: false,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Spacing.md,
+                        vertical: Spacing.xs,
+                      ),
+                      labelStyle: TypeScale.labelMedium.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-              ],
+                  )),
+                ],
+              ),
             ),
           ),
-          const Divider(height: 1),
+
+          const Divider(height: 1.0),
+
+          // Tournament list
           Expanded(
             child: FutureBuilder<List<TournamentListing>>(
               future: _future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const LoadingView();
+                  return const FFTTournamentListSkeleton();
                 }
                 if (snapshot.hasError) {
-                  return ErrorView(
+                  return FFTErrorState(
                     message: snapshot.error.toString(),
                     onRetry: _reload,
+                    retryLabel: 'Retry',
                   );
                 }
                 final listings = snapshot.data ?? const <TournamentListing>[];
                 if (listings.isEmpty) {
-                  return EmptyView(
+                  return FFTEmptyState(
                     icon: Icons.emoji_events_outlined,
-                    title: "No tournaments found",
-                    message: "Try a different search or filter.",
+                    title: 'No tournaments found',
+                    message: 'Try a different search or filter.',
                     action: TextButton(
                       onPressed: () {
                         _search.clear();
-                        _mode = "all";
-                        _status = "all";
+                        _mode = 'all';
+                        _status = 'all';
                         _reload();
                       },
-                      child: const Text("Reset filters"),
+                      child: const Text('Reset filters'),
                     ),
                   );
                 }
@@ -168,108 +212,20 @@ class _TournamentListPageState extends State<TournamentListPage> {
                     await _future;
                   },
                   child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(Spacing.md),
                     itemCount: listings.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    separatorBuilder: (_, __) => const SizedBox(height: Spacing.sm),
                     itemBuilder: (context, index) =>
-                        _TournamentCard(listing: listings[index]),
+                        FFTTournamentCard(
+                          listing: listings[index],
+                          onTap: () => context.push('/tournaments/${listings[index].id}'),
+                        ),
                   ),
                 );
               },
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _TournamentCard extends StatelessWidget {
-  const _TournamentCard({required this.listing});
-
-  final TournamentListing listing;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => context.push("/tournaments/${listing.id}"),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      listing.title,
-                      style: theme.textTheme.titleMedium,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  StatusChip(status: listing.status),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                [
-                  formatFormat(listing.format, listing.teamSize),
-                  listing.mode.toUpperCase(),
-                  if (listing.map != null && listing.map!.isNotEmpty)
-                    listing.map!,
-                  "by ${listing.organizerName}",
-                ].join(" · "),
-                style: theme.textTheme.bodySmall,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const Icon(Icons.event_outlined, size: 16),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      formatDateTime(listing.tournamentStartsAt),
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ),
-                  const Icon(Icons.groups_outlined, size: 16),
-                  const SizedBox(width: 6),
-                  Text(
-                    "${listing.confirmedEntries}/${listing.maxTeams}",
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  if (listing.isFull)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 8),
-                      child: Text("Full"),
-                    ),
-                  if (listing.prizePool != null &&
-                      listing.prizePool!.isNotEmpty) ...[
-                    const Icon(Icons.workspace_premium_outlined, size: 16),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        listing.prizePool!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
