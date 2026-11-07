@@ -71,15 +71,23 @@ class AppConfig {
       'It is not affiliated with, endorsed by, or operated by Garena.';
 
   /// Validates required configuration
-  static void validate() {
+  /// Returns null if valid, error message if invalid
+  static String? validate() {
     if (supabaseUrl.isEmpty) {
-      throw StateError('SUPABASE_URL is not configured');
+      return 'SUPABASE_URL is not configured';
     }
     if (supabaseAnonKey.isEmpty) {
-      throw StateError('SUPABASE_ANON_KEY is not configured');
+      return 'SUPABASE_ANON_KEY is not configured';
     }
     if (!supabaseUrl.startsWith('http')) {
-      throw StateError('SUPABASE_URL must be a valid HTTP/HTTPS URL');
+      return 'SUPABASE_URL must be a valid HTTP/HTTPS URL';
     }
+    return null;
   }
+
+  /// Whether Supabase is configured (has both URL and anon key)
+  static bool get hasSupabaseConfig =>
+      supabaseUrl.isNotEmpty &&
+      supabaseAnonKey.isNotEmpty &&
+      supabaseUrl.startsWith('http');
 }

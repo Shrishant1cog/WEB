@@ -45,8 +45,12 @@ Future<void> init() async {
 void _registerCore() {
   // AppConfig is static, no registration needed
 
-  // Supabase Client
-  getIt.registerLazySingleton<SupabaseClient>(() => SupabaseClientManager.client);
+  // Supabase Client - only registered if initialized
+  // DI is initialized after Supabase, so client should be available
+  getIt.registerLazySingleton<SupabaseClient>(
+    () => SupabaseClientManager.client ??
+        (throw StateError('SupabaseClient not initialized. Ensure Supabase is configured and initialized before DI.')),
+  );
 
   // Secure Storage
   getIt.registerLazySingleton<SecureStorage>(() => SecureStorage.create());
