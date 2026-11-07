@@ -77,6 +77,6 @@ Copy `.env.example` to `.env.local` (web) or use `--dart-define` (mobile). Use p
 
 Download the release APK from GitHub Releases:
 
-https://github.com/Shrishant1cog/WEB/releases
-
-Current release tag: `v0.1.0` (asset: `app-release.apk`).
+- Release page: https://github.com/Shrishant1cog/WEB/releases/tag/v0.1.0
+- Direct download: https://github.com/Shrishant1cog/WEB/releases/download/v0.1.0/app-release.apk
+- SHA-256: `E696ED5C1B125422FDC804F9AED9B573E38FF9F0FB38E0DB1CA62048A9C855F6`
