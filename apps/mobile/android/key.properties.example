@@ -1,0 +1,8 @@
+# Release signing configuration
+# Copy this file to key.properties and fill in your values
+# NEVER commit this file with real credentials
+
+storeFile=../keystore/release.keystore
+storePassword=YOUR_STORE_PASSWORD
+keyAlias=release
+keyPassword=YOUR_KEY_PASSWORD
