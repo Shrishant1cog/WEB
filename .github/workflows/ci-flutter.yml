@@ -16,6 +16,7 @@ jobs:
         working-directory: ./apps/mobile
     env:
       GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError"
+      # Force workflow refresh - v2
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
