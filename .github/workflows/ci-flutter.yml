@@ -8,11 +8,6 @@ jobs:
   flutter:
     name: Flutter - Analyze, Test, Build
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./apps/mobile
-    env:
-      GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,15 +21,19 @@ jobs:
 
       - name: Get dependencies
         run: flutter pub get
+        working-directory: ./apps/mobile
 
       - name: Run analyzer
         run: flutter analyze --no-fatal-infos
+        working-directory: ./apps/mobile
 
       - name: Run tests
         run: flutter test
+        working-directory: ./apps/mobile
 
       - name: Build debug APK (QA signing)
         run: flutter build apk --debug --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+        working-directory: ./apps/mobile
 
       - name: Create key.properties from secrets (production release)
         if: github.event_name == 'push' && github.ref == 'refs/heads/agent/fft-development'
@@ -52,10 +51,12 @@ EOF
             echo "PRODUCTION SIGNING SECRETS NOT CONFIGURED - release build will fail as expected"
             echo "Required secrets: KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD"
           fi
+        working-directory: ./apps/mobile
 
       - name: Build release APK (production signing required)
         if: github.event_name == 'push' && github.ref == 'refs/heads/agent/fft-development'
         run: flutter build apk --release --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+        working-directory: ./apps/mobile
 
       - name: Verify APK signing certificate
         if: github.event_name == 'push' && github.ref == 'refs/heads/agent/fft-development'
@@ -71,6 +72,7 @@ EOF
             echo "APK not found at $APK_PATH"
             exit 1
           fi
+        working-directory: ./apps/mobile
 
       - name: Fail if debug signing detected on release APK
         if: github.event_name == 'push' && github.ref == 'refs/heads/agent/fft-development'
@@ -86,6 +88,7 @@ EOF
               echo "PASS: Release APK is NOT signed with debug certificate"
             fi
           fi
+        working-directory: ./apps/mobile
 
       - name: Upload debug APK artifact (QA)
         uses: actions/upload-artifact@v4
