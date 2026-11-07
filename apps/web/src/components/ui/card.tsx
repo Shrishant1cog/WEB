@@ -1,5 +1,5 @@
 /// Card Components
-/// Composable card components following shadcn/ui patterns
+/// Composable card components following shadcn/ui patterns - FFT Tactical Slate / Competitive Amber
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
@@ -9,7 +9,7 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
     <div
       ref={ref}
       className={cn(
-        'rounded-xl border bg-card text-card-foreground shadow-sm',
+        'rounded-xl border bg-card text-card-foreground shadow-sm transition-shadow duration-200 hover:shadow-card-hover',
         className
       )}
       {...props}

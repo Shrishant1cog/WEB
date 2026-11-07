@@ -11,19 +11,34 @@ const LABELS: Record<TournamentStatus, string> = {
 };
 
 const STYLES: Record<TournamentStatus, string> = {
-  draft: "bg-gray-100 text-gray-700",
-  published: "bg-indigo-100 text-indigo-800",
-  registration_open: "bg-green-100 text-green-800",
-  registration_closed: "bg-amber-100 text-amber-800",
-  in_progress: "bg-blue-100 text-blue-800",
-  completed: "bg-gray-200 text-gray-800",
-  cancelled: "bg-red-100 text-red-800",
+  draft: "tournament-status-draft",
+  published: "tournament-status-published",
+  registration_open: "tournament-status-registration_open",
+  registration_closed: "tournament-status-registration_closed",
+  in_progress: "tournament-status-in_progress",
+  completed: "tournament-status-completed",
+  cancelled: "tournament-status-cancelled",
 };
 
-export function StatusBadge({ status }: { status: TournamentStatus }) {
+interface StatusBadgeProps {
+  status: TournamentStatus | string;
+  compact?: boolean;
+  className?: string;
+}
+
+export function StatusBadge({ status, compact = false, className }: StatusBadgeProps) {
+  const statusKey = status as TournamentStatus;
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${STYLES[status]}`}>
-      {LABELS[status]}
+    <span
+      className={`
+        inline-flex items-center rounded-full px-2.5 py-0.5 font-medium
+        border transition-colors
+        ${STYLES[statusKey]}
+        ${compact ? 'text-xs px-2 py-0.5' : 'text-sm px-3 py-1'}
+        ${className}
+      `}
+    >
+      {LABELS[statusKey] ?? status}
     </span>
   );
 }
@@ -42,4 +57,12 @@ export function formatFormat(format: string, teamSize: number): string {
   if (format === "duo") return "Duo";
   if (format === "squad") return `Squad (${teamSize})`;
   return "Custom";
+}
+
+export function formatDateOnly(value: string | null | undefined): string {
+  if (!value) return "—";
+  return new Date(value).toLocaleDateString("en-IN", {
+    dateStyle: "medium",
+    timeZone: "UTC",
+  }) + " UTC";
 }

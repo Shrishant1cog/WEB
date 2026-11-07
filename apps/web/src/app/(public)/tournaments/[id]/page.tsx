@@ -30,6 +30,8 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: "Withdrawn",
 };
 
+const now = Date.now();
+
 export default async function TournamentDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params;
   const query = await searchParams;
@@ -54,16 +56,19 @@ export default async function TournamentDetailPage({ params, searchParams }: Pag
     registration !== null &&
     (registration.status === "confirmed" || registration.status === "waitlisted") &&
     tournament.status === "registration_open" &&
-    // eslint-disable-next-line react-hooks/purity
-    Date.parse(withdrawalDeadline) >= Date.now();
+    Date.parse(withdrawalDeadline) >= now;
 
   const hasActiveEntry =
     registration !== null && registration.status !== "cancelled" && registration.status !== "rejected";
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
+      {/* Registration confirmation banner */}
       {query.registered && (
-        <div role="status" className="mb-6 rounded-md bg-green-50 p-4 text-sm text-green-800">
+        <div
+          role="status"
+          className="mb-6 rounded-lg bg-success/10 p-4 text-sm text-success"
+        >
           {query.registered === "waitlisted"
             ? `Tournament is full — you are on the waitlist${
                 query.position ? ` at position ${query.position}` : ""
@@ -72,13 +77,14 @@ export default async function TournamentDetailPage({ params, searchParams }: Pag
         </div>
       )}
 
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+      {/* Header */}
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start mb-8">
         <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-3xl font-bold text-gray-900">{tournament.title}</h1>
-            <StatusBadge status={tournament.status} />
+          <div className="flex flex-wrap items-center gap-3 mb-2">
+            <h1 className="text-headline-lg font-bold text-foreground">{tournament.title}</h1>
+            <StatusBadge status={tournament.status as any} />
           </div>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="text-body-md text-muted-foreground">
             Hosted by {tournament.organizer_name} ·{" "}
             {formatFormat(tournament.format, tournament.team_size)} ·{" "}
             {tournament.mode.toUpperCase()}
@@ -91,71 +97,73 @@ export default async function TournamentDetailPage({ params, searchParams }: Pag
         )}
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
+          {/* Schedule Card */}
           <Card>
             <CardHeader>
               <CardTitle>Schedule</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-3 text-sm text-gray-700 sm:grid-cols-2">
+            <CardContent className="grid gap-3 text-body-sm text-muted-foreground sm:grid-cols-2">
               <p>
-                <span className="font-medium">Registration opens:</span>{" "}
+                <span className="font-medium text-foreground">Registration opens:</span>{" "}
                 {formatDate(tournament.registration_starts_at)}
               </p>
               <p>
-                <span className="font-medium">Registration closes:</span>{" "}
+                <span className="font-medium text-foreground">Registration closes:</span>{" "}
                 {formatDate(tournament.registration_ends_at)}
               </p>
               <p>
-                <span className="font-medium">Tournament starts:</span>{" "}
+                <span className="font-medium text-foreground">Tournament starts:</span>{" "}
                 {formatDate(tournament.tournament_starts_at)}
               </p>
               <p>
-                <span className="font-medium">Tournament ends:</span>{" "}
+                <span className="font-medium text-foreground">Tournament ends:</span>{" "}
                 {formatDate(tournament.tournament_ends_at)}
               </p>
               <p>
-                <span className="font-medium">Withdrawal deadline:</span>{" "}
+                <span className="font-medium text-foreground">Withdrawal deadline:</span>{" "}
                 {formatDate(tournament.withdrawal_deadline ?? tournament.registration_ends_at)}
               </p>
               <p>
-                <span className="font-medium">Map:</span> {tournament.map ?? "TBA"}
+                <span className="font-medium text-foreground">Map:</span> {tournament.map ?? "TBA"}
               </p>
             </CardContent>
           </Card>
 
+          {/* Rules & Eligibility Card */}
           <Card>
             <CardHeader>
-              <CardTitle>Rules &amp; eligibility</CardTitle>
+              <CardTitle>Rules & eligibility</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-gray-700">
+            <CardContent className="space-y-3 text-body-sm text-muted-foreground">
               {tournament.description && <p>{tournament.description}</p>}
               <p>
-                <span className="font-medium">Roster size:</span> {tournament.team_size}{" "}
+                <span className="font-medium text-foreground">Roster size:</span> {tournament.team_size}{" "}
                 {requiresTeam ? "players per team" : "player per entry"}
               </p>
               <p>
-                <span className="font-medium">Capacity:</span> {tournament.max_teams} entries
+                <span className="font-medium text-foreground">Capacity:</span> {tournament.max_teams} entries
               </p>
               <p>
-                <span className="font-medium">Waitlist:</span>{" "}
+                <span className="font-medium text-foreground">Waitlist:</span>{" "}
                 {tournament.waitlist_enabled
                   ? "Enabled — filled entries join a FIFO waitlist that promotes automatically."
                   : "Disabled — registration closes when capacity is reached."}
               </p>
               <p>
-                <span className="font-medium">In-game UID required:</span>{" "}
+                <span className="font-medium text-foreground">In-game UID required:</span>{" "}
                 {Boolean((tournament.eligibility as Record<string, unknown>)?.requires_ingame_id)
                   ? "Yes — every roster member must add their Free Fire UID to their profile."
                   : "No"}
               </p>
               {tournament.prize_pool && (
                 <p>
-                  <span className="font-medium">Prize description:</span> {tournament.prize_pool}
+                  <span className="font-medium text-foreground">Prize description:</span> {tournament.prize_pool}
                 </p>
               )}
               {tournament.rules_text && (
-                <div className="whitespace-pre-wrap rounded-md border bg-gray-50 p-3">
+                <div className="whitespace-pre-wrap rounded-lg border bg-muted p-4 text-body-sm text-muted-foreground">
                   {tournament.rules_text}
                 </div>
               )}
@@ -165,7 +173,7 @@ export default async function TournamentDetailPage({ params, searchParams }: Pag
                     href={tournament.rules_url}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="font-medium text-indigo-600 hover:underline"
+                    className="font-medium text-primary hover:underline"
                   >
                     External rules document
                   </a>
@@ -173,7 +181,7 @@ export default async function TournamentDetailPage({ params, searchParams }: Pag
               )}
               {tournament.contact_info && (
                 <p>
-                  <span className="font-medium">Contact:</span> {tournament.contact_info}
+                  <span className="font-medium text-foreground">Contact:</span> {tournament.contact_info}
                 </p>
               )}
             </CardContent>
@@ -181,15 +189,16 @@ export default async function TournamentDetailPage({ params, searchParams }: Pag
         </div>
 
         <div className="space-y-6">
+          {/* Registration Card */}
           <Card>
             <CardHeader>
               <CardTitle>Registration</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-sm">
-              <p className="text-gray-700">
+            <CardContent className="space-y-4 text-body-sm">
+              <p className="text-muted-foreground">
                 {tournament.confirmed_entries}/{tournament.max_teams} entries confirmed
                 {tournament.waitlisted_entries > 0 && (
-                  <span className="block text-amber-700">
+                  <span className="block text-warning">
                     {tournament.waitlisted_entries} on the waitlist
                   </span>
                 )}
@@ -203,11 +212,11 @@ export default async function TournamentDetailPage({ params, searchParams }: Pag
                 </Button>
               ) : hasActiveEntry ? (
                 <div className="space-y-3">
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-foreground">
                     Your entry: {STATUS_LABELS[registration.status] ?? registration.status}
                   </p>
                   {registration.status === "waitlisted" && (
-                    <p className="text-amber-700">
+                    <p className="text-warning">
                       You will be confirmed automatically when a spot opens.
                     </p>
                   )}
@@ -223,17 +232,17 @@ export default async function TournamentDetailPage({ params, searchParams }: Pag
                       <input type="hidden" name="tournamentId" value={id} />
                     </ActionForm>
                   ) : (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       Withdrawals are closed for this tournament.
                     </p>
                   )}
                 </div>
               ) : tournament.status !== "registration_open" ? (
-                <p className="text-gray-600">Registration is not open.</p>
+                <p className="text-muted-foreground">Registration is not open.</p>
               ) : (
                 <>
                   {registration?.status === "cancelled" && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       Your previous entry was withdrawn. You can register again while
                       registration is open.
                     </p>
@@ -250,11 +259,12 @@ export default async function TournamentDetailPage({ params, searchParams }: Pag
             </CardContent>
           </Card>
 
+          {/* Fair Play Card */}
           <Card>
             <CardHeader>
               <CardTitle>Fair play</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-xs text-gray-600">
+            <CardContent className="space-y-2 text-xs text-muted-foreground">
               <p>One entry per player per tournament is enforced by the database.</p>
               <p>Capacity is transactional: simultaneous registrations cannot oversell.</p>
               <p>

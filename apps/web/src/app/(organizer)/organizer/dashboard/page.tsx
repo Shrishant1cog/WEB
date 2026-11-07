@@ -4,6 +4,7 @@ import { getOrganizerTournaments } from "@/lib/data/tournaments";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge, formatDate, formatFormat } from "@/components/tournament/status-badge";
+import { EmptyState, EmptyStates } from "@/components/ui/empty-error";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,8 @@ export default async function OrganizerDashboardPage() {
     <div className="space-y-8">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Organizer dashboard</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <h1 className="text-headline-lg font-bold text-foreground">Organizer dashboard</h1>
+          <p className="mt-1 text-body-md text-muted-foreground">
             Create tournaments, publish them and manage registrations. All times are UTC.
           </p>
         </div>
@@ -31,61 +32,50 @@ export default async function OrganizerDashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
+        <Card className="border-primary/20">
           <CardHeader className="pb-2">
             <CardDescription>Tournaments</CardDescription>
-            <CardTitle className="text-3xl">{tournaments.length}</CardTitle>
+            <CardTitle className="text-4xl font-bold text-primary">{tournaments.length}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="border-emerald-500/20">
           <CardHeader className="pb-2">
             <CardDescription>Open for registration</CardDescription>
-            <CardTitle className="text-3xl">{openForRegistration}</CardTitle>
+            <CardTitle className="text-4xl font-bold text-emerald-500">{openForRegistration}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="border-slate-500/20">
           <CardHeader className="pb-2">
             <CardDescription>Drafts</CardDescription>
-            <CardTitle className="text-3xl">{drafts}</CardTitle>
+            <CardTitle className="text-4xl font-bold text-slate-500">{drafts}</CardTitle>
           </CardHeader>
         </Card>
       </div>
 
       {tournaments.length === 0 ? (
-        <Card>
-          <CardContent className="p-10 text-center text-sm text-gray-600">
-            You have not created a tournament yet.{" "}
-            <Link
-              href="/organizer/tournaments/create"
-              className="font-medium text-indigo-600 hover:underline"
-            >
-              Create your first tournament
-            </Link>
-            .
-          </CardContent>
-        </Card>
+        EmptyStates.noTournaments
       ) : (
         <div className="space-y-4">
           {tournaments.map((tournament) => (
-            <Card key={tournament.id}>
-              <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
-                <div>
-                  <CardTitle className="text-lg">
+            <Card key={tournament.id} className="border-border/50 hover:border-primary/30 transition-colors">
+              <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-3">
+                <div className="flex-1 min-w-0">
+                  <CardTitle className="text-title-md">
                     <Link
                       href={`/organizer/tournaments/${tournament.id}`}
-                      className="hover:text-indigo-700"
+                      className="hover:text-primary transition-colors"
                     >
                       {tournament.title}
                     </Link>
                   </CardTitle>
-                  <p className="mt-1 text-sm text-gray-600">
+                  <p className="mt-1 text-body-sm text-muted-foreground">
                     {formatFormat(tournament.format, tournament.team_size)} ·{" "}
                     {tournament.mode.toUpperCase()} · Capacity {tournament.max_teams} entries
                   </p>
                 </div>
-                <StatusBadge status={tournament.status} />
+                <StatusBadge status={tournament.status as any} />
               </CardHeader>
-              <CardContent className="flex flex-col justify-between gap-3 text-sm text-gray-600 sm:flex-row sm:items-center">
+              <CardContent className="flex flex-col justify-between gap-3 text-body-sm text-muted-foreground sm:flex-row sm:items-center">
                 <div className="space-y-1">
                   <p>
                     Registration: {formatDate(tournament.registration_starts_at)} →{" "}
@@ -93,7 +83,7 @@ export default async function OrganizerDashboardPage() {
                   </p>
                   <p>Starts: {formatDate(tournament.tournament_starts_at)}</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button asChild variant="outline" size="sm">
                     <Link href={`/organizer/tournaments/${tournament.id}`}>Manage</Link>
                   </Button>

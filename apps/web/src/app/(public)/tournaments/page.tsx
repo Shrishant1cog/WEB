@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { getPublicTournaments } from "@/lib/data/tournaments";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { FormInput } from "@/components/ui/input";
+import { SkeletonCard, SkeletonList } from "@/components/ui/skeleton";
+import { EmptyState, EmptyStates, ErrorState } from "@/components/ui/empty-error";
 import { StatusBadge, formatDate, formatFormat } from "@/components/tournament/status-badge";
+import { TournamentCard, TournamentCardList } from "@/components/tournament/tournament-card";
 
 export const dynamic = "force-dynamic";
-
-interface PageProps {
-  searchParams: Promise<{ q?: string; status?: string; mode?: string }>;
-}
 
 const STATUS_OPTIONS = [
   { value: "all", label: "All statuses" },
@@ -23,11 +23,13 @@ const MODE_OPTIONS = [
   { value: "all", label: "All modes" },
   { value: "br", label: "Battle Royale" },
   { value: "cs", label: "Clash Squad" },
-  { value: "tdm", label: "Team Deathmatch" },
-  { value: "custom", label: "Custom" },
 ];
 
-export default async function TournamentsPage({ searchParams }: PageProps) {
+export default async function TournamentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string; mode?: string }>;
+}) {
   const params = await searchParams;
   const tournaments = await getPublicTournaments({
     query: params.q,
@@ -37,58 +39,51 @@ export default async function TournamentsPage({ searchParams }: PageProps) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      {/* Header */}
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Tournaments</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Tournaments</h1>
+          <p className="mt-1 text-body-md text-muted-foreground">
             Public tournaments. Times are shown in UTC.
           </p>
         </div>
-        <Button asChild variant="outline">
+        <Button asChild variant="outline" size="sm">
           <Link href="/organizer/tournaments/create">Host a tournament</Link>
         </Button>
       </div>
 
-      <form method="get" className="mt-6 grid gap-3 rounded-lg border bg-white p-4 sm:grid-cols-4">
-        <div className="sm:col-span-2">
-          <label htmlFor="q" className="text-xs font-medium text-gray-600">
-            Search
+      {/* Search & Filters */}
+      <form method="get" className="mb-8 space-y-4 rounded-xl border bg-card p-6">
+        {/* Search field */}
+        <div>
+          <label htmlFor="q" className="mb-1.5 block text-label-md font-medium text-foreground">
+            Search tournaments
           </label>
-          <input
+          <FormInput
             id="q"
             name="q"
+            placeholder="Search by name..."
             defaultValue={params.q ?? ""}
-            placeholder="Tournament title"
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            leadingIcon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            }
           />
         </div>
-        <div>
-          <label htmlFor="status" className="text-xs font-medium text-gray-600">
-            Status
-          </label>
-          <select
-            id="status"
-            name="status"
-            defaultValue={params.status ?? "all"}
-            className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
-          >
-            {STATUS_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="mode" className="text-xs font-medium text-gray-600">
-            Mode
-          </label>
-          <div className="mt-1 flex gap-2">
+
+        {/* Filters */}
+        <div className="grid gap-3 sm:grid-cols-2">
+          {/* Mode filter */}
+          <div>
+            <label htmlFor="mode" className="mb-1.5 block text-label-md font-medium text-foreground">
+              Mode
+            </label>
             <select
               id="mode"
               name="mode"
               defaultValue={params.mode ?? "all"}
-              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-body-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {MODE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -96,59 +91,54 @@ export default async function TournamentsPage({ searchParams }: PageProps) {
                 </option>
               ))}
             </select>
-            <Button type="submit" size="sm">
-              Filter
-            </Button>
           </div>
+
+          {/* Status filter */}
+          <div>
+            <label htmlFor="status" className="mb-1.5 block text-label-md font-medium text-foreground">
+              Status
+            </label>
+            <select
+              id="status"
+              name="status"
+              defaultValue={params.status ?? "all"}
+              className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-body-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Filter actions */}
+        <div className="pt-2 flex items-center justify-end gap-2">
+          <Button type="button" variant="outline" onClick={() => window.location.href = '/tournaments'}>
+            Reset
+          </Button>
+          <Button type="submit" variant="default">
+            Filter
+          </Button>
         </div>
       </form>
 
-      {tournaments.length === 0 ? (
-        <Card className="mt-8">
-          <CardContent className="p-10 text-center text-sm text-gray-600">
-            No tournaments match these filters yet.
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          {tournaments.map((tournament) => (
-            <Card key={tournament.id}>
-              <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
-                <div>
-                  <CardTitle className="text-lg">
-                    <Link href={`/tournaments/${tournament.id}`} className="hover:text-indigo-700">
-                      {tournament.title}
-                    </Link>
-                  </CardTitle>
-                  <p className="mt-1 text-sm text-gray-600">
-                    {formatFormat(tournament.format, tournament.team_size)} ·{" "}
-                    {tournament.mode.toUpperCase()} · {tournament.map ?? "Map TBA"}
-                  </p>
-                </div>
-                <StatusBadge status={tournament.status} />
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm text-gray-600">
-                <p>
-                  Starts {formatDate(tournament.tournament_starts_at)} · Hosted by{" "}
-                  {tournament.organizer_name}
-                </p>
-                <p>
-                  {tournament.confirmed_entries}/{tournament.max_teams} entries confirmed
-                  {tournament.waitlisted_entries > 0
-                    ? ` · ${tournament.waitlisted_entries} waitlisted`
-                    : ""}
-                </p>
-                <Link
-                  href={`/tournaments/${tournament.id}`}
-                  className="inline-block font-medium text-indigo-600 hover:underline"
-                >
-                  View details
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      {/* Tournament List */}
+      <div className="space-y-6">
+        {tournaments.length === 0 ? (
+          EmptyStates.noTournaments
+        ) : (
+          <TournamentCardList
+            tournaments={tournaments.map((t) => ({
+              ...t,
+              is_full: t.confirmed_entries >= t.max_teams,
+              status: t.status as any,
+            }))}
+            onCardClick={(t) => window.location.href = `/tournaments/${t.id}`}
+          />
+        )}
+      </div>
     </div>
   );
 }

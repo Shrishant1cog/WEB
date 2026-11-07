@@ -23,8 +23,8 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <h1 className="text-headline-lg font-bold text-foreground">Dashboard</h1>
+        <p className="mt-1 text-body-md text-muted-foreground">
           Signed in as {user.email}. {permissions.platformRole === "organizer"
             ? "Your account also organizes tournaments."
             : "Any account can host a tournament."}
@@ -32,22 +32,22 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
+        <Card className="border-primary/20">
           <CardHeader className="pb-2">
             <CardDescription>Active entries</CardDescription>
-            <CardTitle className="text-3xl">{activeEntries}</CardTitle>
+            <CardTitle className="text-4xl font-bold text-primary">{activeEntries}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="border-teal/20">
           <CardHeader className="pb-2">
             <CardDescription>Teams</CardDescription>
-            <CardTitle className="text-3xl">{teams.length}</CardTitle>
+            <CardTitle className="text-4xl font-bold text-teal-500">{teams.length}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="border-secondary/20">
           <CardHeader className="pb-2">
             <CardDescription>Tournaments hosted</CardDescription>
-            <CardTitle className="text-3xl">{organized.length}</CardTitle>
+            <CardTitle className="text-4xl font-bold text-secondary">{organized.length}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -57,7 +57,7 @@ export default async function DashboardPage() {
           <CardHeader>
             <CardTitle>Find a tournament</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-gray-600">
+          <CardContent className="space-y-3 text-body-sm text-muted-foreground">
             <p>Browse public tournaments and register solo or with your squad.</p>
             <Button asChild>
               <Link href="/tournaments">Browse tournaments</Link>
@@ -68,7 +68,7 @@ export default async function DashboardPage() {
           <CardHeader>
             <CardTitle>Build a squad</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-gray-600">
+          <CardContent className="space-y-3 text-body-sm text-muted-foreground">
             <p>
               Create a team, invite players by email and complete the roster before
               registering for a squad tournament.

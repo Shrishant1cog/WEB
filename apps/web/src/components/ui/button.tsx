@@ -1,5 +1,5 @@
 /// Button Component
-/// Polymorphic button with multiple variants and sizes
+/// Polymorphic button with multiple variants and sizes - FFT Tactical Slate / Competitive Amber
 
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
@@ -11,20 +11,20 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary-600 text-primary-foreground hover:bg-primary-700 shadow-sm',
-        destructive: 'bg-error-600 text-error-foreground hover:bg-error-700 shadow-sm',
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm',
+        destructive: 'bg-error text-error-foreground hover:bg-error/90 shadow-sm',
         outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground shadow-sm',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary-600 hover:text-primary-700 underline-offset-4 hover:underline',
-        success: 'bg-success-600 text-white hover:bg-success-700 shadow-sm',
+        link: 'text-primary underline-offset-4 hover:underline',
+        success: 'bg-success text-success-foreground hover:bg-success/90 shadow-sm',
       },
       size: {
-        default: 'h-10 px-4 py-2',
+        default: 'h-11 px-4 py-2.5',
         sm: 'h-9 rounded-md px-3 text-label-md',
-        lg: 'h-11 rounded-lg px-8 text-label-lg',
-        xl: 'h-12 rounded-xl px-10 text-body-lg',
-        icon: 'h-10 w-10',
+        lg: 'h-12 rounded-lg px-8 text-label-lg',
+        xl: 'h-14 rounded-xl px-10 text-body-lg',
+        icon: 'h-11 w-11',
       },
     },
     defaultVariants: {
@@ -43,10 +43,11 @@ export interface ButtonProps
   loading?: boolean;
   variant?: ButtonVariant;
   size?: ButtonSize;
+  icon?: React.ReactNode;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, loading, disabled, children, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, loading, disabled, children, icon, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
     return (
       <Comp
@@ -82,7 +83,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <span>Loading...</span>
           </>
         ) : (
-          children
+          <>
+            {icon && <span className="mr-2">{icon}</span>}
+            {children}
+          </>
         )}
       </Comp>
     );
