@@ -5,6 +5,7 @@ on:
     branches: [agent/fft-development]
   pull_request:
     branches: [agent/fft-development]
+  workflow_dispatch:
 
 jobs:
   flutter:
