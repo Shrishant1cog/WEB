@@ -807,7 +807,7 @@ class _AdminSettingsPage extends StatelessWidget {
 /// Auth Callback Page
 /// Handles deep link callbacks from Supabase (email verification, password reset)
 class _AuthCallbackPage extends StatelessWidget {
-  const _AuthCallbackPage({super.key});
+  const _AuthCallbackPage();
 
   @override
   Widget build(BuildContext context) {

@@ -4,7 +4,6 @@
 /// PostgreSQL SECURITY DEFINER functions; this data source only calls them.
 
 import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/errors/error_mapper.dart';
@@ -59,12 +58,6 @@ class TournamentRemoteDataSourceImpl implements TournamentRemoteDataSource {
   final SupabaseClient _client;
 
   TournamentRemoteDataSourceImpl(this._client);
-
-  String get _uid {
-    final user = _client.auth.currentUser;
-    if (user == null) throw const AuthException("Not authenticated");
-    return user.id;
-  }
 
   Failure _failure(Object error) => ServerFailure(
         message: humanizeError(error),

@@ -4,8 +4,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../domain/repositories/profile_repository.dart'
-    hide Profile;
 import '../../../data/models/profile_models.dart';
 import '../../../core/errors/failures.dart';
 
@@ -88,7 +86,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           .update({'display_name': displayName.trim()})
           .eq('id', user.id);
 
-      return getProfile();
+      return await getProfile();
     } on PostgrestException catch (e) {
       return Left(ServerFailure(
         message: 'Failed to update display name: ${e.message}',
@@ -137,7 +135,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           .update({'username': username.trim().toLowerCase()})
           .eq('id', user.id);
 
-      return getProfile();
+      return await getProfile();
     } on PostgrestException catch (e) {
       return Left(ServerFailure(
         message: 'Failed to update username: ${e.message}',
@@ -178,7 +176,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
             .eq('id', user.id);
       }
 
-      return getProfile();
+      return await getProfile();
     } on PostgrestException catch (e) {
       return Left(ServerFailure(
         message: 'Failed to update in-game info: ${e.message}',
@@ -216,7 +214,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           })
           .eq('id', user.id);
 
-      return getProfile();
+      return await getProfile();
     } on PostgrestException catch (e) {
       return Left(ServerFailure(
         message: 'Failed to update privacy settings: ${e.message}',
@@ -250,7 +248,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           .update({'notification_prefs': prefs})
           .eq('id', user.id);
 
-      return getProfile();
+      return await getProfile();
     } on PostgrestException catch (e) {
       return Left(ServerFailure(
         message: 'Failed to update notification preferences: ${e.message}',
@@ -284,7 +282,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           .update({'avatar_url': avatarUrl})
           .eq('id', user.id);
 
-      return getProfile();
+      return await getProfile();
     } on PostgrestException catch (e) {
       return Left(ServerFailure(
         message: 'Failed to update avatar: ${e.message}',

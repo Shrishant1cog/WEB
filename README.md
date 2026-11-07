@@ -20,7 +20,7 @@ FFT is an independent tournament management platform for community Free Fire Ind
 ## Prerequisites
 
 - Flutter 3.47+ (stable) and Android SDK (API 36)
-- Node.js 24+ (project declares >= 26) and pnpm 12+
+- Node.js 26+ and pnpm 12+
 - Supabase CLI 3+ and Docker Desktop
 - GitHub CLI (for releases)
 

@@ -4,7 +4,6 @@
 /// Initialization is graceful - if Supabase is not configured, the app
 /// can still run in a degraded mode (e.g., showing configuration error screen).
 
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gotrue/gotrue.dart';
 import '../config/app_config.dart';

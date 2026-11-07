@@ -5,7 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide AuthResponse;
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../domain/repositories/auth_repository.dart';
 import '../../../data/models/auth_models.dart';
 import '../../../core/errors/failures.dart';
 

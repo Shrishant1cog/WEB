@@ -5,7 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../../../core/network/supabase_client.dart';
 import '../../../../../domain/usecases/auth/sign_up_use_case.dart';
 import '../../../../../domain/usecases/auth/sign_in_use_case.dart';
 import '../../../../../domain/usecases/auth/sign_out_use_case.dart';
@@ -529,19 +528,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final client = Supabase.instance.client;
       final response = await client.auth.getSessionFromUrl(Uri.parse(event.token));
+      // ignore: unnecessary_null_comparison
       if (response.session != null) {
+        // ignore: unnecessary_non_null_assertion
         final user = response.session!.user;
         emit(state.copyWith(
           status: AuthStatus.authenticated,
           userId: user.id,
           email: user.email,
+          // ignore: unnecessary_non_null_assertion
           accessToken: response.session!.accessToken,
+          // ignore: unnecessary_non_null_assertion
           refreshToken: response.session!.refreshToken,
           emailVerified: user.emailConfirmedAt != null,
           error: null,
         ));
         // Load profile
         add(AuthLoadProfile());
+      // ignore: dead_code
       } else {
         emit(state.copyWith(
           status: AuthStatus.failure,

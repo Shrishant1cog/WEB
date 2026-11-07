@@ -9,8 +9,6 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
-import '../../../../../../core/network/supabase_client.dart';
-import '../../../../../../core/utils/validators.dart';
 import '../../../../../../presentation/shared/widgets/fft_button.dart';
 import '../../../../../../presentation/shared/widgets/fft_text_field.dart';
 import '../bloc/auth_bloc.dart';

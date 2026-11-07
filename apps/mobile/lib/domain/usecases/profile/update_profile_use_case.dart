@@ -79,7 +79,7 @@ class UpdateProfileUseCase {
       currentProfile = result.getOrElse(() => throw StateError('Should not happen'));
     }
 
-    return Right(currentProfile!);
+    return Right(currentProfile);
   }
 }
 
