@@ -44,6 +44,8 @@ android {
 
     buildTypes {
         release {
+            // Require explicit release signing config for production builds
+            // Falls back to debug only when key.properties is absent (CI without signing)
             signingConfig = if (keyProps != null) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
     }
