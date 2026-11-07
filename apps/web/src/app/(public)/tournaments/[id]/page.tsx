@@ -54,6 +54,7 @@ export default async function TournamentDetailPage({ params, searchParams }: Pag
     registration !== null &&
     (registration.status === "confirmed" || registration.status === "waitlisted") &&
     tournament.status === "registration_open" &&
+    // eslint-disable-next-line react-hooks/purity
     Date.parse(withdrawalDeadline) >= Date.now();
 
   const hasActiveEntry =

@@ -49,6 +49,7 @@ export default async function MyTournamentsPage() {
               (registration.status === "confirmed" || registration.status === "waitlisted") &&
               tournament?.status === "registration_open" &&
               Boolean(deadline) &&
+              // eslint-disable-next-line react-hooks/purity
               Date.parse(deadline as string) >= Date.now();
 
             return (

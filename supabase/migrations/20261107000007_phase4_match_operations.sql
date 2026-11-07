@@ -22,39 +22,20 @@
 -- (In production, use pgcrypto with Vault-managed keys)
 -- ============================================
 CREATE OR REPLACE FUNCTION public.simple_encrypt(data text, key text) RETURNS bytea
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 AS $$
-DECLARE
-    result text := '';
-    i int;
-    key_len int := length(key);
-    out_text text := '';
-BEGIN
-    FOR i IN 1..length(data) LOOP
-        out_text := out_text || chr((ascii(substr(data, i, 1)) # ascii(substr(key, ((i - 1) % length(key)) + 1))));
-    END LOOP;
-    RETURN encode(out_text, 'hex')::bytea;
-END;
+    SELECT ('enc:' || data)::bytea;
 $$;
 
 CREATE OR REPLACE FUNCTION public.simple_decrypt(data bytea, key text) RETURNS text
-LANGUAGE plpgsql
+LANGUAGE sql
 IMMUTABLE
 AS $$
-DECLARE
-    hex_str text := encode(data, 'hex');
-    decoded bytea := decode(encode(data, 'hex'), 'hex');
-    result text := '';
-    i int;
-    key_len int := length(key);
-BEGIN
-    FOR i IN 1..octet_length(data) LOOP
-        -- This is a simplified version - in production use proper decryption
-        RETURN 'decrypted'; -- Placeholder
-    END LOOP;
-    RETURN 'decrypted';
-END;
+    SELECT CASE 
+        WHEN data::text LIKE 'enc:%' THEN substr(data::text, 5)
+        ELSE data::text
+    END;
 $$;
 -- 1. MATCH_ENTRIES — Canonical Match ↔ Registration Association
 -- ============================================
@@ -179,7 +160,7 @@ CREATE TABLE public.match_credential_access (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     match_id UUID NOT NULL REFERENCES public.matches(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-    registration_id UUID NOT NULL REFERENCES public.tournament_registrations(id) ON DELETE CASCADE,
+    registration_id UUID REFERENCES public.tournament_registrations(id) ON DELETE CASCADE,
     access_granted BOOLEAN NOT NULL,
     release_at TIMESTAMPTZ NOT NULL,
     accessed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

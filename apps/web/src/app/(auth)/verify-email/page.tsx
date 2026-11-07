@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser-client";
@@ -15,11 +15,6 @@ function VerifyEmailInner() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
-
-  useEffect(() => {
-    const fromQuery = searchParams.get("email");
-    if (fromQuery) setEmail(fromQuery);
-  }, [searchParams]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

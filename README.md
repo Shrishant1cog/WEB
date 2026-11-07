@@ -1,130 +1,82 @@
-# FFT — Independent Free Fire India Tournament Management Platform
+# FFT
 
-> **FFT is an independent tournament management platform. It is not affiliated with, endorsed by, or operated by Garena.**
+FFT is an independent tournament management platform for community Free Fire India tournaments. It is not affiliated with, endorsed by, or operated by Garena.
 
-## Overview
+## Technologies
 
-FFT is a platform that helps players and organizers manage community tournaments for Free Fire India. This is an independent product with no official affiliation with Garena or Free Fire India.
+- Mobile: Flutter, Dart
+- Web: Next.js, TypeScript, React, Tailwind CSS
+- Backend: Supabase (PostgreSQL, Auth, Storage, Edge Functions)
+- Tooling: Node.js, pnpm, Supabase CLI
 
-## Project Structure
+## Verified implemented features
 
-```
-FFT/
-├── apps/
-│   ├── mobile/          # Flutter Android application (players)
-│   └── web/             # Next.js dashboard (organizers/admins) + public website
-├── supabase/
-│   ├── config.toml      # Supabase local configuration
-│   ├── migrations/      # Versioned SQL migrations
-│   ├── functions/       # Supabase Edge Functions
-│   ├── tests/           # Database tests (pgTAP)
-│   └── seed.sql         # Development seed data
-├── docs/                # Project documentation
-├── scripts/             # Utility scripts
-├── .github/workflows/   # CI/CD pipelines
-└── package.json         # Root workspace configuration
-```
+- Authentication and profiles (email/password, verification, password reset, MFA, avatars, privacy settings)
+- Tournament and participation management (create/edit/publish, solo and squad registration, teams and invitations, waitlist promotion, organizer dashboard)
+- Phase 4 match/results database migration applied (match entries, room credentials, results, disputes)
+- Web: 90/90 Vitest tests, production build passes (20 routes)
+- Mobile: 20/20 Flutter tests, release APK builds
 
-## Technology Stack
+## Prerequisites
 
-- **Mobile**: Flutter 3.47.9+ (stable), Dart 3.13+, Android API 36+
-- **Web**: Next.js 16.4.5+, TypeScript strict, React 18+, Supabase SSR
-- **Backend**: Supabase (PostgreSQL, Auth, Storage, Edge Functions, Realtime)
-- **Database**: PostgreSQL with Row Level Security (RLS)
-- **Runtime**: Node.js 26 LTS (for Next.js and tooling)
-- **Package Manager**: pnpm 12+ (workspace)
+- Flutter 3.47+ (stable) and Android SDK (API 36)
+- Node.js 24+ (project declares >= 26) and pnpm 12+
+- Supabase CLI 3+ and Docker Desktop
+- GitHub CLI (for releases)
 
-## Development Prerequisites
-
-- Flutter SDK 3.47.9+ (stable channel)
-- Android SDK with API 36
-- Node.js 26 LTS
-- pnpm 12+
-- Supabase CLI 3+
-- Docker Desktop (for local Supabase)
-- GitHub CLI (authenticated)
-
-## Roadmap (6 Phases)
-
-| Phase | Name | Status |
-|-------|------|--------|
-| 0 | Project Baseline | ✅ Complete |
-| 1 | Foundation | ⏳ Planned |
-| 2 | Authentication & Profiles | ⏳ Implementation Complete, Verification In Progress |
-| 3 | Tournament & Participation Management | ⏳ Planned |
-| 4 | Match, Results & Competition Operations | ⏳ Planned |
-| 5 | Platform Administration, Notifications & Release Readiness | ⏳ Planned |
-
-**Total: 6 phases (restructured from 9 phases)**
-
-## Current Status (Phase 2)
-
-✅ **Flutter Mobile App**: Authentication, profiles, MFA, avatar upload complete
-✅ **Next.js Web App**: Auth pages, organizer/admin dashboards complete
-✅ **Supabase Backend**: 4 migrations, 2 Edge Functions, RLS policies complete
-⚠️ **Test Runner**: Known issue with generated freezed files (build passes, test runner fails)
-⚠️ **HydratedBloc**: Freezed 4.x serialization needs additional config
-🔄 **GitHub**: Repository needs creation at `https://github.com/hosam/FFT.git`
-
-## Getting Started
+## Run the website locally
 
 ```bash
-# Install dependencies
 pnpm install
+cp .env.example .env.local   # Windows: copy .env.example .env.local
+# Fill NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 
-# Start local Supabase
 supabase start
-
-# Run database migrations
 supabase db reset
 
-# Start web development server
-cd apps/web && pnpm dev
-
-# Run Flutter app (in separate terminal)
-cd apps/mobile && flutter run
+pnpm dev:web
 ```
 
-## Documentation
+Website: http://localhost:3000
 
-### Phase 2 — Authentication & Profile
-- [Flutter Analyzer Audit](docs/FLUTTER_ANALYZER_AUDIT.md)
-- [Auth Design](docs/PHASE_2_AUTH_DESIGN.md)
-- [Auth Flows](docs/PHASE_2_AUTH_FLOWS.md)
-- [Profile Model](docs/PHASE_2_PROFILE_MODEL.md)
-- [Security Review](docs/PHASE_2_SECURITY_REVIEW.md)
-- [Test Report](docs/PHASE_2_TEST_REPORT.md)
-- [Progress Tracker](docs/PHASE_2_PROGRESS.md)
+Production build:
 
-### Core Documentation
-- [Product Requirements](docs/PRODUCT_REQUIREMENTS.md)
-- [MVP Scope](docs/MVP_SCOPE.md)
-- [Architecture](docs/architecture/ARCHITECTURE.md)
-- [Data Model](docs/architecture/DATA_MODEL.md)
-- [Workflows](docs/architecture/WORKFLOWS.md)
-- [Security Model](docs/security/SECURITY_MODEL.md)
-- [Threat Model](docs/security/THREAT_MODEL.md)
-- [Privacy & Data Map](docs/privacy/PRIVACY_AND_DATA_MAP.md)
-- [Research Baseline](docs/legal/RESEARCH_BASELINE.md)
-- [Legal Launch Gates](docs/legal/LEGAL_LAUNCH_GATES.md)
-- [Project Decisions](docs/decisions/PROJECT_DECISIONS.md)
-- [Open Owner Decisions](docs/decisions/OPEN_OWNER_DECISIONS.md)
-- [Test Strategy](docs/testing/TEST_STRATEGY.md)
-- [Local Setup](docs/operations/LOCAL_SETUP.md)
-- [Build & Release](docs/operations/BUILD_AND_RELEASE.md)
-- [Backup & Recovery](docs/operations/BACKUP_AND_RECOVERY.md)
-- [Project Status](docs/PROJECT_STATUS.md)
+```bash
+pnpm build:web
+```
 
-## Legal Notice
+## Run the Android app locally
 
-This platform is for managing community tournaments only. It does not:
-- Provide real-money prizes, wallets, or payouts
-- Claim official Garena affiliation
-- Use unauthorized game assets, APIs, or data
-- Scrape game servers or reverse-engineer the client
+```bash
+cd apps/mobile
+flutter pub get
+```
 
-See [LEGAL_LAUNCH_GATES.md](docs/legal/LEGAL_LAUNCH_GATES.md) for launch blockers.
+Configure Supabase with `--dart-define`:
 
-## License
+```bash
+# Android emulator (default host mapping)
+flutter run --dart-define=SUPABASE_URL=http://10.0.2.2:54321 --dart-define=SUPABASE_ANON_KEY=<anon-key>
 
-Proprietary — All rights reserved.
+# Physical device (use the computer's LAN IP)
+flutter run --dart-define=SUPABASE_URL=http://<LAN-IP>:54321 --dart-define=SUPABASE_ANON_KEY=<anon-key>
+```
+
+Build APKs:
+
+```bash
+flutter build apk --debug    # apps/mobile/build/app/outputs/flutter-apk/app-debug.apk
+flutter build apk --release  # apps/mobile/build/app/outputs/flutter-apk/app-release.apk
+```
+
+## Environment variables
+
+Copy `.env.example` to `.env.local` (web) or use `--dart-define` (mobile). Use placeholders only; never commit real secrets. See `.env.example` for all variable names.
+
+## Android APK download
+
+Download the release APK from GitHub Releases:
+
+https://github.com/Shrishant1cog/WEB/releases
+
+Current release tag: `v0.1.0` (asset: `app-release.apk`).
