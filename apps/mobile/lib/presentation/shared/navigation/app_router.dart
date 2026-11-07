@@ -2,6 +2,7 @@
 /// Uses GoRouter for declarative routing with auth guards
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 // Feature imports
@@ -17,6 +18,9 @@ import 'package:fft_mobile/presentation/features/auth/presentation/pages/mfa_cha
 import 'package:fft_mobile/presentation/features/auth/presentation/pages/security_settings_page.dart';
 import 'package:fft_mobile/presentation/features/auth/presentation/pages/change_password_page.dart';
 import 'package:fft_mobile/presentation/features/auth/presentation/pages/account_deletion_page.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/bloc/auth_event.dart';
+import 'package:fft_mobile/presentation/features/auth/presentation/bloc/auth_state.dart';
 import 'package:fft_mobile/core/network/supabase_client.dart';
 import 'package:fft_mobile/presentation/features/organizer/presentation/pages/create_tournament_page.dart';
 import 'package:fft_mobile/presentation/features/organizer/presentation/pages/organizer_dashboard_page.dart';
@@ -800,23 +804,125 @@ class _AdminSettingsPage extends StatelessWidget {
   }
 }
 
+/// Auth Callback Page
+/// Handles deep link callbacks from Supabase (email verification, password reset)
 class _AuthCallbackPage extends StatelessWidget {
-  const _AuthCallbackPage();
+  const _AuthCallbackPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text(
-              'Completing sign in...',
-              style: Theme.of(context).textTheme.titleMedium,
+    // Get token and type from GoRouter state extra
+    final extra = GoRouterState.of(context).extra as Map<String, String>?;
+    final token = extra?['token'] ?? '';
+    final type = extra?['type'] ?? 'signup';
+
+    // If no token, show error
+    if (token.isEmpty) {
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
+                const SizedBox(height: 16),
+                Text('Invalid Callback', style: Theme.of(context).textTheme.headlineSmall),
+                const SizedBox(height: 8),
+                Text('No verification token found. Please try signing in again.', 
+                     style: TextStyle(color: Theme.of(context).colorScheme.error), textAlign: TextAlign.center),
+                const SizedBox(height: 24),
+                FilledButton(
+                  onPressed: () => context.go(AppRoutes.login),
+                  child: const Text('Go to Login'),
+                ),
+              ],
             ),
-          ],
+          ),
+        ),
+      );
+    }
+
+    // Use a stateful wrapper to process the callback
+    return _AuthCallbackProcessor(token: token, type: type);
+  }
+}
+
+class _AuthCallbackProcessor extends StatefulWidget {
+  final String token;
+  final String type;
+
+  const _AuthCallbackProcessor({required this.token, required this.type});
+
+  @override
+  State<_AuthCallbackProcessor> createState() => _AuthCallbackProcessorState();
+}
+
+class _AuthCallbackProcessorState extends State<_AuthCallbackProcessor> {
+  bool _processed = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _processCallback();
+  }
+
+  Future<void> _processCallback() async {
+    if (_processed) return;
+    _processed = true;
+
+    try {
+      // Dispatch to AuthBloc for processing
+      context.read<AuthBloc>().add(AuthAuthCallback(token: widget.token, type: widget.type));
+      
+      // Wait for auth state to update - the BlocListener will handle navigation
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = 'Failed to process callback: $e');
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state.status == AuthStatus.authenticated) {
+          context.go(AppRoutes.profile);
+        } else if (state.status == AuthStatus.failure && state.error != null) {
+          setState(() => _error = state.error);
+        }
+      },
+      child: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (_error != null) ...[
+                  Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
+                  const SizedBox(height: 16),
+                  Text('Verification Failed', style: Theme.of(context).textTheme.headlineSmall),
+                  const SizedBox(height: 8),
+                  Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error), textAlign: TextAlign.center),
+                  const SizedBox(height: 24),
+                  FilledButton(
+                    onPressed: () => context.go(AppRoutes.login),
+                    child: const Text('Go to Login'),
+                  ),
+                ] else ...[
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Completing sign in...',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );

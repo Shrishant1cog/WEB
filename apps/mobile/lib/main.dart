@@ -1,9 +1,13 @@
 /// FFT Mobile Application Entry Point
 /// Independent Free Fire India Tournament Management Platform
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:app_links/app_links.dart';
 
 import 'core/config/app_config.dart';
 import 'core/network/supabase_client.dart';
@@ -65,6 +69,7 @@ class AppInitializer extends StatefulWidget {
 class _AppInitializerState extends State<AppInitializer> {
   bool _initialized = false;
   String? _error;
+  StreamSubscription<Uri>? _linkSubscription;
 
   @override
   void initState() {
@@ -88,6 +93,11 @@ class _AppInitializerState extends State<AppInitializer> {
         await di.init();
       }
 
+      // Set up deep link listener for auth callbacks (email verification, password reset)
+      if (SupabaseClientManager.isInitialized) {
+        _setupDeepLinkListener();
+      }
+
       if (mounted) {
         setState(() => _initialized = true);
       }
@@ -96,6 +106,44 @@ class _AppInitializerState extends State<AppInitializer> {
         setState(() => _error = 'Failed to initialize app: $e');
       }
     }
+  }
+
+  void _setupDeepLinkListener() {
+    final appLinks = AppLinks();
+    
+    // Handle initial link (cold start)
+    appLinks.getInitialLink().then((Uri? uri) {
+      if (uri != null && mounted) {
+        _handleDeepLink(uri);
+      }
+    });
+
+    // Handle subsequent links (app running in background/foreground)
+    _linkSubscription = appLinks.uriLinkStream.listen((Uri uri) {
+      if (mounted) {
+        _handleDeepLink(uri);
+      }
+    }, onError: (err) {
+      debugPrint('Deep link error: $err');
+    });
+  }
+
+  void _handleDeepLink(Uri uri) {
+    // Check if this is an auth callback
+    if (uri.path == '/auth/callback' || uri.queryParameters.containsKey('token')) {
+      final token = uri.toString();
+      final type = uri.queryParameters['type'] ?? 'signup';
+
+      // Navigate to auth callback page which will process the token
+      // Use go_router's GoRouter instance directly
+      AppRouter.router.go('/auth/callback', extra: {'token': token, 'type': type});
+    }
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
   }
 
   @override
