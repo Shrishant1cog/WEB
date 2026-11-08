@@ -14,6 +14,11 @@ jobs:
   flutter:
     name: Flutter - Analyze, Test, Build (debug)
     runs-on: ubuntu-latest
+    env:
+      # Explicitly limit Gradle heap for CI runner (7 GB total)
+      GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=2g -XX:ReservedCodeCacheSize=512m"
+      # Disable Gradle daemon to avoid memory accumulation across steps
+      GRADLE_DAEMON: "false"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,7 +43,7 @@ jobs:
         working-directory: ./apps/mobile
 
       - name: Build debug APK (QA signing)
-        run: flutter build apk --debug
+        run: flutter build apk --debug --no-pub
         working-directory: ./apps/mobile
 
       - name: Upload debug APK artifact (QA)
