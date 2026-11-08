@@ -1,22 +1,22 @@
 -- Migration: 20261108000017_phase5_scheduled_jobs
 --
--- Phase 5 — Scheduled background processing via pg_cron
+-- Phase 5 — Scheduled background processing via pg_cron + pg_net
 --
--- This migration enables pg_cron extension and sets up scheduled jobs for:
---   1. process_scheduled_notifications - processes future notifications (e.g. credential release)
---   2. claim_notification_delivery - claims and processes FCM push delivery queue
+-- This migration:
+--   1. Enables pg_net extension for HTTP calls from the database
+--   2. Creates a cron job to process scheduled notifications (every minute)
+--   2. Creates a cron job to invoke the FCM Edge Function via pg_net (every minute)
+--   3. Creates cleanup jobs for old processed deliveries and scheduled notifications
 --
--- Both jobs run every minute. They use FOR UPDATE SKIP LOCKED to avoid
--- duplicate processing and are safe to run concurrently.
+-- NOTE: pg_net requires superuser to create the extension. On Supabase:
+--   supabase extensions enable pg_net
+-- Then run this migration.
+--
+-- The FCM Edge Function is invoked via pg_net HTTP POST with a service_role JWT.
+-- The function URL and auth token are stored in Vault/secrets, not in this migration.
 
--- Enable pg_cron extension (requires superuser, run once per project)
--- CREATE EXTENSION IF NOT EXISTS pg_cron;
--- CREATE EXTENSION IF NOT EXISTS pg_net; -- for HTTP requests if needed
-
--- NOTE: The extension creation is commented out because it requires superuser
--- privileges. On Supabase, enable pg_cron via the Dashboard or CLI:
---   supabase extensions enable pg_cron
--- Then uncomment and run the cron job definitions below.
+-- Enable pg_net extension (requires superuser, run once per project)
+-- CREATE EXTENSION IF NOT EXISTS pg_net;
 
 -- ============================================
 -- 1. Scheduled notifications processor (runs every minute)
@@ -28,12 +28,24 @@
 -- );
 
 -- ============================================
--- 2. FCM delivery queue processor (runs every minute)
+-- 2. FCM delivery processor via Edge Function (runs every minute)
 -- ============================================
+-- The Edge Function is called via pg_net with a service_role JWT.
+-- The function handles claiming deliveries, sending to FCM, and completing.
+--
 -- SELECT cron.schedule(
---     'process-fcm-delivery-queue',
+--     'process-fcm-delivery',
 --     '* * * * *', -- every minute
---     $$ SELECT public.claim_notification_delivery(50); $$
+--     $$
+--     SELECT net.http_post(
+--         url := 'https://<project-ref>.supabase.co/functions/v1/fcm-delivery',
+--         headers := jsonb_build_object(
+--             'Authorization', 'Bearer ' || current_setting('app.settings.fcm_worker_jwt', true),
+--             'Content-Type', 'application/json'
+--         ),
+--         body := '{}'::jsonb
+--     ) AS response;
+--     $$
 -- );
 
 -- ============================================
@@ -66,7 +78,7 @@
 -- Helper: Unschedule all Phase 5 cron jobs (for removal)
 -- ============================================
 -- SELECT cron.unschedule('process-scheduled-notifications');
--- SELECT cron.unschedule('process-fcm-delivery-queue');
+-- SELECT cron.unschedule('process-fcm-delivery');
 -- SELECT cron.unschedule('cleanup-notification-delivery-queue');
 -- SELECT cron.unschedule('cleanup-scheduled-notifications');
 

@@ -321,6 +321,15 @@ async function main() {
   const bRowsAfterPromotion = await notificationsFor(playerBClient);
   check("notifications: waitlist promotion sent", hasType(bRowsAfterPromotion, "waitlist_promoted"));
 
+  // -------------------------------------------------------- device token registration (before push notifications)
+  const token = `phase5-device-${run}-${"x".repeat(20)}`;
+  const register = await playerAClient.rpc("register_device_token", {
+    p_token: token,
+    p_platform: "android",
+    p_device_name: "Phase 5 test device",
+  });
+  check("push: device token registered", !register.error && Boolean(register.data), register.error?.message);
+
   // -------------------------------------------------------- match + credentials
   const { data: matchId, error: matchError } = await organizerClient.rpc("create_match", {
     p_tournament_id: tournamentId,
@@ -446,15 +455,7 @@ async function main() {
   const dedupeRows = (await notificationsFor(playerAClient)).filter((r) => r.type === "organizer_status_changed");
   check("notifications: duplicate event deduplicated", dedupeRows.length === 1, `${dedupeRows.length} rows`);
 
-  // -------------------------------------------------------- device tokens + queue
-  const token = `phase5-device-${run}-${"x".repeat(20)}`;
-  const register = await playerAClient.rpc("register_device_token", {
-    p_token: token,
-    p_platform: "android",
-    p_device_name: "Phase 5 test device",
-  });
-  check("push: device token registered", !register.error && Boolean(register.data), register.error?.message);
-
+  // -------------------------------------------------------- device tokens + queue (token already registered earlier)
   const otherToken = await playerAClient.rpc("remove_device_token", { p_token: "not-my-token" });
   check("push: removing another token reports false", otherToken.data === false, otherToken.error?.message);
 
@@ -471,11 +472,12 @@ async function main() {
     ["permission denied", "42501"]
   );
 
+  // With per-device queue, there should be one row per device token
   const queued = await admin
     .from("notification_delivery_queue")
-    .select("id, notification_id, status, attempts")
+    .select("id, notification_id, device_token, status, attempts")
     .in("notification_id", (await notificationsFor(playerAClient)).map((r) => r.id));
-  check("push: notifications enqueue durable push rows", (queued.data ?? []).length > 0, JSON.stringify(queued.error?.message ?? queued.data?.length));
+  check("push: notifications enqueue durable push rows (one per device)", (queued.data ?? []).length >= 1, JSON.stringify(queued.error?.message ?? queued.data?.length));
 
   const claim = await admin.rpc("claim_notification_delivery", { p_limit: 500 });
   check("push: delivery claim runs", !claim.error && Array.isArray(claim.data), claim.error?.message);
@@ -502,6 +504,15 @@ async function main() {
   const revoked = await admin.from("device_tokens").select("revoked_at").eq("token", token).single();
   check("push: removed token is revoked, not deleted", Boolean(revoked.data?.revoked_at));
 
+  // Register a new device token for retry probe test (since previous token was revoked)
+  const retryToken = `phase5-retry-${run}-${"x".repeat(20)}`;
+  const retryReg = await playerAClient.rpc("register_device_token", {
+    p_token: retryToken,
+    p_platform: "android",
+    p_device_name: "Retry probe device",
+  });
+  check("push: retry probe device token registered", !retryReg.error && Boolean(retryReg.data), retryReg.error?.message);
+
   // Retry/dead-letter semantics are exercised directly on a synthetic queue row.
   const { data: retryNotification } = await admin
     .from("notifications")
@@ -515,11 +526,13 @@ async function main() {
     })
     .select("id")
     .single();
-  const { data: retryQueue } = await admin
+  // With per-device queue, pick the first queue row for this notification
+  const { data: retryQueues } = await admin
     .from("notification_delivery_queue")
     .select("id")
     .eq("notification_id", retryNotification.id)
-    .single();
+    .limit(1);
+  const retryQueue = (retryQueues ?? [])[0];
   if (retryQueue) {
     await admin.from("notification_delivery_queue").update({ attempts: 2 }).eq("id", retryQueue.id);
     await admin.rpc("complete_notification_delivery", {
@@ -552,6 +565,9 @@ async function main() {
   } else {
     check("push: retry probe queue row exists", false);
   }
+
+  // Clean up retry token
+  await playerAClient.rpc("remove_device_token", { p_token: retryToken });
 
   // -------------------------------------------------------- admin authorization
   await expectFailure(

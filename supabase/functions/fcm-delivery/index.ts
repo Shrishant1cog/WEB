@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createRemoteJWKSet, jwtVerify } from 'https://esm.sh/jose@5.2.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -50,8 +51,38 @@ interface FCMMessage {
   }
 }
 
+// JWKS for Supabase JWT verification (cached)
+let jwks: ReturnType<typeof createRemoteJWKSet> | null = null
+
+function getJWKS(): ReturnType<typeof createRemoteJWKSet> {
+  if (!jwks) {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    jwks = createRemoteJWKSet(new URL(`${supabaseUrl}/auth/v1/.well-known/jwks.json`))
+  }
+  return jwks
+}
+
+async function verifyWorkerJWT(authHeader: string): Promise<boolean> {
+  const expectedAudience = 'fcm-worker'
+  const token = authHeader?.replace('Bearer ', '')
+  
+  if (!token) return false
+  
+  try {
+    const { payload } = await jwtVerify(token, getJWKS(), {
+      issuer: `${Deno.env.get('SUPABASE_URL')}/auth/v1`,
+      audience: expectedAudience,
+    })
+    
+    // Verify this is a service_role token with the correct role claim
+    return payload.role === 'service_role'
+  } catch (err) {
+    console.error('JWT verification failed:', err)
+    return false
+  }
+}
+
 async function getFCMAccessToken(): Promise<string | null> {
-  // Use Firebase Admin SDK service account credentials from secrets
   const projectId = Deno.env.get('FIREBASE_PROJECT_ID')
   const clientEmail = Deno.env.get('FIREBASE_CLIENT_EMAIL')
   const privateKey = Deno.env.get('FIREBASE_PRIVATE_KEY')
@@ -76,7 +107,6 @@ async function getFCMAccessToken(): Promise<string | null> {
   const claimB64 = btoa(JSON.stringify(claim)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
   const signingInput = `${headerB64}.${claimB64}`
 
-  // Import private key for signing
   const pkcs8 = privateKey
     .replace('-----BEGIN PRIVATE KEY-----', '')
     .replace('-----END PRIVATE KEY-----', '')
@@ -97,7 +127,6 @@ async function getFCMAccessToken(): Promise<string | null> {
   
   const jwt = `${signingInput}.${signatureB64}`
 
-  // Exchange JWT for access token
   const tokenResp = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -169,7 +198,6 @@ async function sendFCMMessage(accessToken: string, item: DeliveryItem): Promise<
     const err = await resp.json()
     const errorMsg = err.error?.message || `HTTP ${resp.status}`
     
-    // Check for permanently invalid token
     if (resp.status === 404 || 
         errorMsg.includes('UNREGISTERED') || 
         errorMsg.includes('INVALID_ARGUMENT')) {
@@ -187,13 +215,11 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Verify this is a legitimate cron/internal call
+  // Verify Supabase gateway JWT (service_role with fcm-worker audience)
   const authHeader = req.headers.get('Authorization')
-  const cronSecret = Deno.env.get('FCM_WORKER_CRON_SECRET')
-  
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  if (!(await verifyWorkerJWT(authHeader))) {
     return new Response(
-      JSON.stringify({ error: 'Unauthorized' }),
+      JSON.stringify({ error: 'Unauthorized: invalid or missing worker JWT' }),
       { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
@@ -206,7 +232,6 @@ serve(async (req) => {
   })
 
   try {
-    // Get FCM access token once per batch
     const accessToken = await getFCMAccessToken()
     if (!accessToken) {
       return new Response(
@@ -215,7 +240,7 @@ serve(async (req) => {
       )
     }
 
-    // Claim up to 50 deliveries
+    // Claim up to 50 deliveries (one row per device)
     const { data: claimed, error: claimError } = await supabase.rpc(
       'claim_notification_delivery',
       { p_limit: 50 }
@@ -251,7 +276,6 @@ serve(async (req) => {
         })
         sent++
       } else if (result.error?.startsWith('PERMANENT:')) {
-        // Mark as dead immediately for permanent failures (invalid token, etc.)
         await supabase.rpc('complete_notification_delivery', {
           p_queue_id: item.queue_id,
           p_success: false,
@@ -260,7 +284,6 @@ serve(async (req) => {
         failed++
         permanentFail++
       } else {
-        // Transient failure - will be retried with backoff
         await supabase.rpc('complete_notification_delivery', {
           p_queue_id: item.queue_id,
           p_success: false,
