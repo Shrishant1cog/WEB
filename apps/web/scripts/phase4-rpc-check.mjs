@@ -405,36 +405,25 @@ async function main() {
   // In production, proper deployment includes cache refresh. Here we verify via direct SQL.
   let disputeError = null;
   let disputeId = null;
-  try {
-    const { data, error } = await p2Client.rpc("submit_dispute", {
-      p_match_id: matchId,
-      p_registration_id: regIds[0],
-      p_reason: "Kill count incorrect",
-      p_evidence_paths: ["evidence/dispute1.png"],
-    });
-    disputeError = error;
-    disputeId = data;
-  } catch (e) {
-    if (String(e.message).includes("schema cache")) {
-      console.log("  SKIP submit_dispute: Known local dev PostgREST schema cache issue (function works via direct SQL)");
-    } else {
-      throw e;
-    }
-  }
+  const submitDisputeResult = await p2Client.rpc("submit_dispute", {
+    p_match_id: matchId,
+    p_registration_id: regIds[0],
+    p_reason: "Kill count incorrect",
+    p_evidence_paths: ["evidence/dispute1.png"],
+  });
+  disputeError = submitDisputeResult.error;
+  disputeId = submitDisputeResult.data;
   check("submit_dispute succeeds (or known cache issue)", !disputeError || String(disputeError?.message).includes("schema cache"), disputeError?.message);
 
   // -------------------------------------------------------- Duplicate dispute rejected (skipped if cache issue)
-  try {
-    await p2Client.rpc("submit_dispute", {
-      p_match_id: matchId,
-      p_registration_id: regIds[0],
-      p_reason: "Another reason",
-      p_evidence_paths: [],
-    });
-    // If we get here, the call succeeded (unexpected for duplicate)
-    check("duplicate dispute rejected", false, "Expected DISPUTE_ALREADY_EXISTS error but call succeeded");
-  } catch (e) {
-    const msg = String(e.message);
+  const duplicateDisputeResult = await p2Client.rpc("submit_dispute", {
+    p_match_id: matchId,
+    p_registration_id: regIds[0],
+    p_reason: "Another reason",
+    p_evidence_paths: [],
+  });
+  if (duplicateDisputeResult.error) {
+    const msg = String(duplicateDisputeResult.error.message);
     if (msg.includes("schema cache") || msg.includes("Could not find the function")) {
       console.log("  SKIP duplicate dispute rejected: Known local dev PostgREST schema cache issue");
     } else if (msg.includes("DISPUTE_ALREADY_EXISTS")) {
@@ -442,20 +431,19 @@ async function main() {
     } else {
       check("duplicate dispute rejected", false, msg);
     }
+  } else {
+    check("duplicate dispute rejected", false, "Expected DISPUTE_ALREADY_EXISTS error but call succeeded");
   }
 
   // -------------------------------------------------------- Dispute - outsider cannot submit
-  try {
-    await outsiderClient.rpc("submit_dispute", {
-      p_match_id: matchId,
-      p_registration_id: regIds[0],
-      p_reason: "Test",
-      p_evidence_paths: [],
-    });
-    // If we get here, the call succeeded (unexpected for outsider)
-    check("outsider cannot submit dispute", false, "Expected ENTRY_NOT_ASSIGNED error but call succeeded");
-  } catch (e) {
-    const msg = String(e.message);
+  const outsiderDisputeResult = await outsiderClient.rpc("submit_dispute", {
+    p_match_id: matchId,
+    p_registration_id: regIds[0],
+    p_reason: "Test",
+    p_evidence_paths: [],
+  });
+  if (outsiderDisputeResult.error) {
+    const msg = String(outsiderDisputeResult.error.message);
     if (msg.includes("schema cache") || msg.includes("Could not find the function")) {
       console.log("  SKIP outsider cannot submit dispute: Known local dev PostgREST schema cache issue");
     } else if (msg.includes("ENTRY_NOT_ASSIGNED")) {
@@ -463,6 +451,8 @@ async function main() {
     } else {
       check("outsider cannot submit dispute", false, msg);
     }
+  } else {
+    check("outsider cannot submit dispute", false, "Expected ENTRY_NOT_ASSIGNED error but call succeeded");
   }
 
   // -------------------------------------------------------- Moderator assignment (organizer assigns)
@@ -502,21 +492,22 @@ async function main() {
   });
 
   // -------------------------------------------------------- Conflict of interest - moderator in same squad
-  const mod2User = await makeUser("mod2");
-  // Add mod2 to the same team as captain
-  const { data: token } = await captainClient.rpc("invite_to_team", {
-    p_team_id: teamId,
-    p_email: mod2User.email,
-    p_expires_hours: 24,
+  // Use p2 (players[1]) who is already in the registration roster as a team member
+  const conflictUser = players[1]; // p2 is in the registration roster
+  
+  // Make conflictUser a tournament organizer with moderator role (required for assignment)
+  await admin.from("tournament_organizers").insert({
+    tournament_id: tournamentId,
+    user_id: conflictUser.id,
+    role: "moderator",
   });
-  await modClient.rpc("accept_team_invitation", { p_token: token });
-
-  // Try to assign mod2 as moderator - should fail due to conflict
+  
+  // Try to assign conflictUser as moderator - should fail due to conflict (they are in the registration roster)
   await expectFailure(
     "moderator with conflict of interest rejected",
     organizerClient.rpc("assign_dispute_moderator", {
       p_dispute_id: disputeData.id,
-      p_moderator_id: mod2User.id,
+      p_moderator_id: conflictUser.id,
     }),
     "MODERATOR_CONFLICT"
   );
