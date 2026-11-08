@@ -44,9 +44,10 @@ playwright-report/
 test-results/
 
 # Android
-apps/mobile/android/app/key.properties
-apps/mobile/android/app/*.jks
-apps/mobile/android/app/*.keystore
+apps/mobile/android/build/
+apps/mobile/android/key.properties
+apps/mobile/android/**/*.jks
+apps/mobile/android/**/*.keystore
 apps/mobile/android/local.properties
 apps/mobile/android/gradle.properties
 

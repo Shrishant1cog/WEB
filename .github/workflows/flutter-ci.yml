@@ -1,13 +1,18 @@
 name: Flutter CI
 
+# Development CI only. This workflow never touches production signing
+# secrets, so a missing keystore can never fail ordinary development tests.
+# Production signing lives in flutter-release.yml (manual dispatch).
+
 on:
   push:
     branches: [agent/fft-development]
+  pull_request:
   workflow_dispatch:
 
 jobs:
   flutter:
-    name: Flutter - Analyze, Test, Build
+    name: Flutter - Analyze, Test, Build (debug)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -33,62 +38,7 @@ jobs:
         working-directory: ./apps/mobile
 
       - name: Build debug APK (QA signing)
-        run: flutter build apk --debug --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
-        working-directory: ./apps/mobile
-
-      - name: Create key.properties from secrets (production release)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/agent/fft-development'
-        run: |
-          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ] && [ -n "${{ secrets.KEYSTORE_PASSWORD }}" ] && [ -n "${{ secrets.KEY_ALIAS }}" ] && [ -n "${{ secrets.KEY_PASSWORD }}" ]; then
-            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ../android/app/keystore/release.keystore
-            cat > ../android/key.properties <<EOF
-storeFile=../android/app/keystore/release.keystore
-storePassword=${{ secrets.KEYSTORE_PASSWORD }}
-keyAlias=${{ secrets.KEY_ALIAS }}
-keyPassword=${{ secrets.KEY_PASSWORD }}
-EOF
-            echo "key.properties created for production release signing"
-          else
-            echo "PRODUCTION SIGNING SECRETS NOT CONFIGURED - release build will fail as expected"
-            echo "Required secrets: KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD"
-          fi
-        working-directory: ./apps/mobile
-
-      - name: Build release APK (production signing required)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/agent/fft-development'
-        run: flutter build apk --release --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
-        working-directory: ./apps/mobile
-
-      - name: Verify APK signing certificate
-        if: github.event_name == 'push' && github.ref == 'refs/heads/agent/fft-development'
-        run: |
-          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
-          if [ -f "$APK_PATH" ]; then
-            echo "=== APK Signing Verification ==="
-            jarsigner -verify -verbose -certs "$APK_PATH" 2>&1 | head -50
-            echo ""
-            echo "=== Certificate SHA-256 Fingerprint ==="
-            keytool -list -printcert -jarfile "$APK_PATH" 2>&1 | grep -A5 "SHA256:"
-          else
-            echo "APK not found at $APK_PATH"
-            exit 1
-          fi
-        working-directory: ./apps/mobile
-
-      - name: Fail if debug signing detected on release APK
-        if: github.event_name == 'push' && github.ref == 'refs/heads/agent/fft-development'
-        run: |
-          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
-          if [ -f "$APK_PATH" ]; then
-            CERT_OUTPUT=$(keytool -list -printcert -jarfile "$APK_PATH" 2>&1)
-            if echo "$CERT_OUTPUT" | grep -qi "CN=Android Debug"; then
-              echo "FAIL: Release APK is signed with DEBUG certificate!"
-              echo "$CERT_OUTPUT"
-              exit 1
-            else
-              echo "PASS: Release APK is NOT signed with debug certificate"
-            fi
-          fi
+        run: flutter build apk --debug
         working-directory: ./apps/mobile
 
       - name: Upload debug APK artifact (QA)
@@ -96,12 +46,4 @@ EOF
         with:
           name: app-debug.apk
           path: apps/mobile/build/app/outputs/flutter-apk/app-debug.apk
-          retention-days: 7
-
-      - name: Upload release APK artifact (production signed)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/agent/fft-development'
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release.apk
-          path: apps/mobile/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 7

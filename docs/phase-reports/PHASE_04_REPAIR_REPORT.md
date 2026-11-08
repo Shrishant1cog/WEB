@@ -1,5 +1,10 @@
 # Phase 4 Repair Report
 
+> **Final status:** see `PHASE_04_FINAL_VERIFICATION_V5.md`. The remaining
+> items listed at the end of this historical report were subsequently fixed in
+> migration `20261108000014_phase4_final_repair.sql`. The original sections are
+> kept for history.
+
 ## Overview
 This document details the fixes applied to resolve the 6 Phase 4 blockers identified in the baseline audit, along with remaining issues discovered during final verification.
 
@@ -146,6 +151,47 @@ $$;
 | Web Build | - | PASS | - |
 
 **Total Critical Tests**: 188 passed, 0 failed
+
+---
+
+## Final Repair Round (V5) — Migration 20261108000014
+
+The following previously outstanding issues were fixed after this historical
+summary was written:
+
+1. `assign_match_entries` capacity is computed once from committed entries plus
+   the complete batch; NULL/empty arrays, NULL elements, duplicate batch ids,
+   already-assigned registrations and foreign registrations are rejected; the
+   match row is locked so concurrent batches cannot exceed capacity.
+2. `save_result_draft` locks the result and rejects any transition away from
+   `draft`, including provisional and finalized results, without modifying data.
+3. `is_team_staff` no longer accepts a caller-supplied user id, derives identity
+   from `auth.uid()`, drops the old overload, and revokes EXECUTE from
+   `PUBLIC` and `anon`.
+4. `finalize_match_results` scope bug (`v_assigned_count` declared in a nested
+   block) was fixed; finalization now succeeds.
+5. `phase4-rpc-check.mjs` no longer treats schema-cache errors or skipped tests
+   as PASS and no longer falls back to a service-role INSERT to “prove” the
+   dispute RPC. It verifies RPC availability against the live OpenAPI document
+   and covers capacity, concurrency, result state and the full dispute matrix.
+6. Development CI and production signing were split. Paths now point at
+   `apps/mobile/android/key.properties` and
+   `apps/mobile/android/app/keystore/release.keystore`, and release signature
+   verification uses `apksigner`.
+
+### Final local verification counts
+
+| Test Suite | Tests | Passed | Failed | Blocked |
+|---|---|---|---|---|
+| Phase 4 RPC / RLS / capacity / results / disputes | 73 | 73 | 0 | 0 |
+| Phase 3 RPC | 19 | 19 | 0 | 0 |
+| Phase 3 Security | 31 | 31 | 0 | 0 |
+| Web Unit Tests (Vitest) | 90 | 90 | 0 | 0 |
+| Flutter Unit Tests | 20 | 20 | 0 | 0 |
+
+Web typecheck, lint (0 errors), production build, Flutter analyze (0 errors,
+0 warnings), debug APK build, fail-closed release build and path-corrected
+production-signed release build were all executed successfully.
 
 ---
 

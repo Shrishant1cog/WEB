@@ -1,5 +1,10 @@
 # Phase 4 Final Verification Report (V4)
 
+> **Superseded by `PHASE_04_FINAL_VERIFICATION_V5.md`.**
+> The two HIGH defects recorded below (`save_result_draft` state revert and
+> `is_team_staff` arbitrary user id) have since been fixed in migration
+> `20261108000014_phase4_final_repair.sql` and verified by the V5 test run.
+
 ## Executive Summary
 
 **Verdict: PHASE 4 CODE COMPLETE — PRODUCTION VERIFICATION PENDING**
