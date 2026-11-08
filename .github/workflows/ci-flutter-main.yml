@@ -3,6 +3,7 @@ name: CI - Flutter Main
 on:
   push:
     branches: [agent/fft-development]
+  workflow_dispatch:
 
 jobs:
   flutter:
