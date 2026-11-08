@@ -578,6 +578,8 @@ $$;
 
 REVOKE ALL ON FUNCTION public.claim_notification_delivery(INTEGER) FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.complete_notification_delivery(UUID, BOOLEAN, TEXT) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.claim_notification_delivery(INTEGER) TO service_role;
+GRANT EXECUTE ON FUNCTION public.complete_notification_delivery(UUID, BOOLEAN, TEXT) TO service_role;
 
 -- ============================================
 -- 6. Scheduled notifications (e.g. credential release)
@@ -644,6 +646,7 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.process_scheduled_notifications(INTEGER) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.process_scheduled_notifications(INTEGER) TO service_role;
 
 -- ============================================
 -- 7. Recipient helpers
