@@ -6,10 +6,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/network/supabase_client.dart';
 import 'core/security/secure_storage.dart';
+import 'data/datasources/remote/notification_remote_data_source.dart';
 import 'data/datasources/remote/team_remote_data_source.dart';
 import 'data/datasources/remote/tournament_remote_data_source.dart';
+import 'data/repositories/notification_repository_impl.dart';
 import 'data/repositories/team_repository_impl.dart';
 import 'data/repositories/tournament_repository_impl.dart';
+import 'domain/repositories/notification_repository.dart';
 import 'domain/repositories/team_repository.dart';
 import 'domain/repositories/tournament_repository.dart';
 
@@ -22,6 +25,10 @@ final getIt = GetIt.instance;
 TournamentRepository get tournamentRepository => getIt<TournamentRepository>();
 
 TeamRepository get teamRepository => getIt<TeamRepository>();
+
+/// Lazily resolve the Phase 5 notification repository.
+NotificationRepository get notificationRepository =>
+    getIt<NotificationRepository>();
 
 /// Initialize all dependencies
 /// Run this once at app startup before runApp()
@@ -63,6 +70,9 @@ void _registerDataSources() {
   getIt.registerLazySingleton<TeamRemoteDataSource>(
     () => TeamRemoteDataSourceImpl(getIt<SupabaseClient>()),
   );
+  getIt.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(getIt<SupabaseClient>()),
+  );
 }
 
 void _registerRepositories() {
@@ -71,6 +81,9 @@ void _registerRepositories() {
   );
   getIt.registerLazySingleton<TeamRepository>(
     () => TeamRepositoryImpl(getIt<TeamRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(getIt<NotificationRemoteDataSource>()),
   );
 }
 

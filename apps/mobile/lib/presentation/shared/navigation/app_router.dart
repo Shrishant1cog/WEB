@@ -5,6 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:fft_mobile/data/models/notification_models.dart';
+import 'package:fft_mobile/injection_container.dart';
+import 'package:fft_mobile/presentation/features/tournaments/presentation/tournament_helpers.dart';
+import 'package:fft_mobile/presentation/shared/themes/design_tokens.dart';
+
 // Feature imports
 import 'package:fft_mobile/presentation/features/auth/presentation/pages/login_page.dart';
 import 'package:fft_mobile/presentation/features/auth/presentation/pages/register_page.dart';
@@ -599,17 +604,295 @@ class _ResultsPage extends StatelessWidget {
   }
 }
 
-class _NotificationsPage extends StatelessWidget {
+class _NotificationsPage extends StatefulWidget {
   const _NotificationsPage();
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Notifications')),
-      body: const Center(child: Text('Notifications - Phase 7')),
+  State<_NotificationsPage> createState() => _NotificationsPageState();
+}
+
+class _NotificationsPageState extends State<_NotificationsPage> {
+  late Future<void> _loadFuture;
+  List<NotificationItem> _notifications = [];
+  List<NotificationPreference> _preferences = [];
+  bool _prefsLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFuture = _load();
+  }
+
+  Future<void> _load() async {
+    final notificationsResult = await notificationRepository.getNotifications();
+    notificationsResult.fold(
+      (failure) => debugPrint('Notifications load failed: ${failure.message}'),
+      (items) => setState(() => _notifications = items),
+    );
+
+    final prefsResult = await notificationRepository.getNotificationPreferences();
+    prefsResult.fold(
+      (failure) => debugPrint('Preferences load failed: ${failure.message}'),
+      (prefs) => setState(() {
+        _preferences = prefs;
+        _prefsLoaded = true;
+      }),
     );
   }
+
+  bool _prefFor(String category, bool Function(NotificationPreference) getter) {
+    if (!_prefsLoaded) return true;
+    final pref = _preferences.where((p) => p.category == category).firstOrNull;
+    return pref != null ? getter(pref) : true;
+  }
+
+  Future<void> _markRead(String id) async {
+    final result = await notificationRepository.markNotificationRead(id);
+    result.fold(
+      (failure) => showMessage(context, failure.message, error: true),
+      (_) => setState(() {
+        _notifications = _notifications.map((n) {
+          if (n.id == id) {
+            return NotificationItem(
+              id: n.id,
+              type: n.type,
+              title: n.title,
+              body: n.body,
+              category: n.category,
+              read: true,
+              createdAt: n.createdAt,
+              data: n.data,
+            );
+          }
+          return n;
+        }).toList(growable: false);
+      }),
+    );
+  }
+
+  Future<void> _markAllRead() async {
+    final result = await notificationRepository.markAllNotificationsRead();
+    result.fold(
+      (failure) => showMessage(context, failure.message, error: true),
+      (count) {
+        showMessage(context, '$count notifications marked as read');
+        setState(() {
+          _notifications = _notifications.map((n) {
+            return NotificationItem(
+              id: n.id,
+              type: n.type,
+              title: n.title,
+              body: n.body,
+              category: n.category,
+              read: true,
+              createdAt: n.createdAt,
+              data: n.data,
+            );
+          }).toList(growable: false);
+        });
+      },
+    );
+  }
+
+  Future<void> _togglePref(String category, String channel, bool value) async {
+    final pref = _preferences.where((p) => p.category == category).firstOrNull;
+    final inApp = pref != null ? pref.inApp : true;
+    final push = pref != null ? pref.push : true;
+    final email = pref != null ? pref.email : false;
+
+    final result = await notificationRepository.setNotificationPreference(
+      category: category,
+      inApp: channel == 'in_app' ? value : inApp,
+      push: channel == 'push' ? value : push,
+      email: channel == 'email' ? value : email,
+    );
+    result.fold(
+      (failure) => showMessage(context, failure.message, error: true),
+      (_) {
+        _load(); // refresh preferences
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final unreadCount = _notifications.where((n) => !n.read).length;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Notifications'),
+        actions: [
+          if (_notifications.isNotEmpty && unreadCount > 0)
+            TextButton.icon(
+              icon: const Icon(Icons.mark_email_read, size: 20),
+              label: const Text('Mark all read'),
+              onPressed: _markAllRead,
+            ),
+        ],
+      ),
+      body: FutureBuilder<void>(
+        future: _loadFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const LoadingView();
+          }
+          if (_notifications.isEmpty) {
+            return EmptyView(
+              icon: Icons.notifications_none,
+              title: 'No notifications yet',
+              message:
+                  'Registration confirmations, match updates, results and announcements will appear here.',
+              action: FilledButton.tonal(
+                onPressed: () => GoRouter.of(context).go(AppRoutes.myTournaments),
+                child: const Text('Browse tournaments'),
+              ),
+            );
+          }
+          return RefreshIndicator(
+            onRefresh: _load,
+            child: ListView.separated(
+              itemCount: _notifications.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final notification = _notifications[index];
+                final isUnread = !notification.read;
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor:
+                        isUnread ? Brand.primaryAmber.withValues(alpha: 0.15) : null,
+                    child: Icon(
+                      _iconForType(notification.type),
+                      color: isUnread ? Brand.primaryAmber : null,
+                      size: 24,
+                    ),
+                  ),
+                  title: Text(
+                    notification.title,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: isUnread ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 4),
+                      Text(
+                        notification.category.replaceAll('_', ' '),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      if (notification.body != null &&
+                          notification.body!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          notification.body!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                  trailing: isUnread
+                      ? Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Brand.primaryAmber,
+                            shape: BoxShape.circle,
+                          ),
+                        )
+                      : null,
+                  onTap: () => _markRead(notification.id),
+                );
+              },
+            ),
+          );
+        },
+      ),
+      bottomNavigationBar: _prefsLoaded
+          ? Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                border: Border(top: BorderSide(color: theme.dividerColor)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Default preferences',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 8,
+                    children: ['registration', 'match', 'result', 'announcement']
+                        .map((category) {
+                      return FilterChip(
+                        label: Text(category.replaceAll('_', ' ')),
+                        selected: _prefFor(
+                          category,
+                          (p) => p.inApp,
+                        ),
+                        onSelected: (selected) => _togglePref(
+                          category,
+                          'in_app',
+                          selected,
+                        ),
+                        selectedColor: Brand.primaryAmber.withValues(alpha: 0.15),
+                        checkmarkColor: Brand.primaryAmber,
+                      );
+                    }).toList(growable: false),
+                  ),
+                ],
+              ),
+            )
+          : null,
+    );
+  }
+
+  IconData _iconForType(String type) {
+    switch (type) {
+      case 'registration_confirmed':
+      case 'registration_waitlisted':
+      case 'waitlist_promoted':
+        return Icons.event;
+      case 'match_scheduled':
+        return Icons.sports_esports;
+      case 'credentials_released':
+        return Icons.videogame_asset;
+      case 'result_published':
+      case 'result_finalized':
+        return Icons.flag;
+      case 'dispute_updated':
+        return Icons.gavel;
+      case 'announcement_published':
+        return Icons.announcement;
+      case 'account_suspended':
+      case 'account_restored':
+        return Icons.person_off;
+      case 'organizer_status_changed':
+        return Icons.business;
+      case 'moderator_assigned':
+        return Icons.shield;
+      case 'abuse_report_received':
+      case 'abuse_report_updated':
+      case 'abuse_report_resolved':
+        return Icons.report;
+      default:
+        return Icons.notifications;
+    }
+  }
 }
+
 
 class _SettingsPage extends StatelessWidget {
   const _SettingsPage();
