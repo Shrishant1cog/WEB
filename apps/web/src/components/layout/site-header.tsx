@@ -1,13 +1,25 @@
 import Link from "next/link";
-import { getServerUser } from "@/lib/supabase/client";
+import { getServerUser, createServerSupabaseClient } from "@/lib/supabase/client";
 import { getUserPermissions } from "@/lib/auth/permissions";
 import { signOutAction } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
+
+async function getUnreadCount(): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+  const { count } = await supabase
+    .from("notifications")
+    .select("*", { count: "exact", head: true })
+    .is("read_at", null)
+    .eq("in_app_visible", true);
+  return count ?? 0;
+}
 
 export async function SiteHeader() {
   const user = await getServerUser();
   const permissions = user ? await getUserPermissions(user.id) : null;
   const isOrganizer = permissions?.platformRole === "organizer";
+  const isAdmin = Boolean(permissions?.platformAdminRole);
+  const unread = user ? await getUnreadCount() : 0;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
@@ -34,6 +46,14 @@ export async function SiteHeader() {
                 <Link href="/organizer/dashboard" className="rounded-lg px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
                   {isOrganizer ? "Organizer" : "Host a tournament"}
                 </Link>
+                <Link href="/abuse" className="rounded-lg px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+                  Report abuse
+                </Link>
+                {isAdmin && (
+                  <Link href="/admin" className="rounded-lg px-3 py-2 font-medium text-primary hover:bg-accent hover:text-foreground transition-colors">
+                    Admin
+                  </Link>
+                )}
               </>
             )}
           </nav>
@@ -42,6 +62,31 @@ export async function SiteHeader() {
         <div className="flex items-center gap-2">
           {user ? (
             <>
+              <Link
+                href="/notifications"
+                aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
+                className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  />
+                </svg>
+                {unread > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                    {unread > 99 ? "99+" : unread}
+                  </span>
+                )}
+              </Link>
               <span className="hidden text-body-sm text-muted-foreground sm:inline-flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
                   {user.email?.charAt(0).toUpperCase() ?? "U"}

@@ -165,6 +165,24 @@
   background-size: 200% 100%;
 }
 
+/* Respect the user's reduced-motion preference everywhere. Animations are
+   decorative only; disabling them must never hide content or block actions. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-shimmer {
+    animation: none !important;
+    background: hsl(var(--muted)) !important;
+  }
+}
+
 /* Tournament status badge utilities */
 @layer utilities {
   .tournament-status-draft {

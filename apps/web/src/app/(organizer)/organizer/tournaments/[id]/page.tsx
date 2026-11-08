@@ -93,6 +93,9 @@ export default async function ManageTournamentPage({ params, searchParams }: Pag
             <Link href={`/tournaments/${id}`}>Public view</Link>
           </Button>
           <Button asChild variant="ghost" size="sm">
+            <Link href={`/organizer/tournaments/${id}/announcements`}>Announcements</Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
             <Link href="/organizer/dashboard">All tournaments</Link>
           </Button>
         </div>
