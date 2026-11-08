@@ -407,6 +407,11 @@ export interface Database {
           data: Json;
           read_at: string | null;
           created_at: string;
+          category: string;
+          dedupe_key: string | null;
+          in_app_visible: boolean;
+          push_requested: boolean;
+          updated_at: string;
         },
         {
           id?: string;
@@ -417,6 +422,11 @@ export interface Database {
           data?: Json;
           read_at?: string | null;
           created_at?: string;
+          category?: string;
+          dedupe_key?: string | null;
+          in_app_visible?: boolean;
+          push_requested?: boolean;
+          updated_at?: string;
         },
         {
           read_at?: string | null;
@@ -567,6 +577,335 @@ export interface Database {
         };
         Relationships: [];
       };
+      notification_preferences: Table<
+        {
+          user_id: string;
+          category: string;
+          in_app: boolean;
+          push: boolean;
+          email: boolean;
+          updated_at: string;
+        },
+        {
+          user_id: string;
+          category: string;
+          in_app?: boolean;
+          push?: boolean;
+          email?: boolean;
+          updated_at?: string;
+        },
+        {
+          in_app?: boolean;
+          push?: boolean;
+          email?: boolean;
+          updated_at?: string;
+        }
+      >;
+      device_tokens: Table<
+        {
+          id: string;
+          user_id: string;
+          token: string;
+          platform: string;
+          device_name: string | null;
+          created_at: string;
+          updated_at: string;
+          last_seen_at: string;
+          revoked_at: string | null;
+        },
+        {
+          id?: string;
+          user_id: string;
+          token: string;
+          platform?: string;
+          device_name?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          last_seen_at?: string;
+          revoked_at?: string | null;
+        },
+        {
+          revoked_at?: string | null;
+          last_seen_at?: string;
+          updated_at?: string;
+        }
+      >;
+      notification_delivery_queue: Table<
+        {
+          id: string;
+          notification_id: string;
+          channel: string;
+          status: string;
+          attempts: number;
+          last_error: string | null;
+          next_attempt_at: string;
+          locked_at: string | null;
+          sent_at: string | null;
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          id?: string;
+          notification_id: string;
+          channel?: string;
+          status?: string;
+          attempts?: number;
+          last_error?: string | null;
+          next_attempt_at?: string;
+          locked_at?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        },
+        {
+          status?: string;
+          attempts?: number;
+          last_error?: string | null;
+          next_attempt_at?: string;
+          locked_at?: string | null;
+          sent_at?: string | null;
+          updated_at?: string;
+        }
+      >;
+      scheduled_notifications: Table<
+        {
+          id: string;
+          user_id: string;
+          category: string;
+          type: string;
+          title: string;
+          body: string | null;
+          data: Json;
+          dedupe_key: string | null;
+          scheduled_at: string;
+          processed_at: string | null;
+          created_at: string;
+        },
+        {
+          id?: string;
+          user_id: string;
+          category?: string;
+          type: string;
+          title: string;
+          body?: string | null;
+          data?: Json;
+          dedupe_key?: string | null;
+          scheduled_at: string;
+          processed_at?: string | null;
+          created_at?: string;
+        },
+        {
+          scheduled_at?: string;
+          processed_at?: string | null;
+        }
+      >;
+      tournament_announcements: Table<
+        {
+          id: string;
+          tournament_id: string;
+          author_id: string;
+          title: string;
+          body: string;
+          pinned: boolean;
+          published_at: string;
+          created_at: string;
+        },
+        {
+          id?: string;
+          tournament_id: string;
+          author_id: string;
+          title: string;
+          body: string;
+          pinned?: boolean;
+          published_at?: string;
+          created_at?: string;
+        },
+        {
+          title?: string;
+          body?: string;
+          pinned?: boolean;
+        }
+      >;
+      platform_admins: Table<
+        {
+          user_id: string;
+          role: "super_admin" | "admin" | "support";
+          granted_by: string | null;
+          granted_at: string;
+          revoked_at: string | null;
+          notes: string | null;
+        },
+        {
+          user_id: string;
+          role?: "super_admin" | "admin" | "support";
+          granted_by?: string | null;
+          granted_at?: string;
+          revoked_at?: string | null;
+          notes?: string | null;
+        },
+        {
+          role?: "super_admin" | "admin" | "support";
+          granted_by?: string | null;
+          granted_at?: string;
+          revoked_at?: string | null;
+          notes?: string | null;
+        }
+      >;
+      account_suspensions: Table<
+        {
+          user_id: string;
+          status: "active" | "suspended" | "banned";
+          suspended_at: string | null;
+          suspended_by: string | null;
+          reason: string | null;
+          updated_at: string;
+        },
+        {
+          user_id: string;
+          status?: "active" | "suspended" | "banned";
+          suspended_at?: string | null;
+          suspended_by?: string | null;
+          reason?: string | null;
+          updated_at?: string;
+        },
+        {
+          status?: "active" | "suspended" | "banned";
+          suspended_at?: string | null;
+          suspended_by?: string | null;
+          reason?: string | null;
+          updated_at?: string;
+        }
+      >;
+      organizer_accounts: Table<
+        {
+          user_id: string;
+          status: "pending" | "approved" | "suspended";
+          organization_name: string | null;
+          contact_note: string | null;
+          approved_by: string | null;
+          approved_at: string | null;
+          suspended_at: string | null;
+          suspension_reason: string | null;
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          user_id: string;
+          status?: "pending" | "approved" | "suspended";
+          organization_name?: string | null;
+          contact_note?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          suspended_at?: string | null;
+          suspension_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        },
+        {
+          status?: "pending" | "approved" | "suspended";
+          organization_name?: string | null;
+          contact_note?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          suspended_at?: string | null;
+          suspension_reason?: string | null;
+          updated_at?: string;
+        }
+      >;
+      platform_settings: Table<
+        {
+          key: string;
+          value: Json;
+          description: string | null;
+          is_public: boolean;
+          updated_by: string | null;
+          updated_at: string;
+        },
+        {
+          key: string;
+          value: Json;
+          description?: string | null;
+          is_public?: boolean;
+          updated_by?: string | null;
+          updated_at?: string;
+        },
+        {
+          value?: Json;
+          description?: string | null;
+          is_public?: boolean;
+          updated_by?: string | null;
+          updated_at?: string;
+        }
+      >;
+      abuse_reports: Table<
+        {
+          id: string;
+          reporter_id: string;
+          category: string;
+          subject_type: string;
+          subject_id: string | null;
+          tournament_id: string | null;
+          description: string;
+          evidence_paths: string[];
+          status: string;
+          severity: string;
+          assigned_admin_id: string | null;
+          resolution: string | null;
+          resolved_at: string | null;
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          id?: string;
+          reporter_id: string;
+          category: string;
+          subject_type: string;
+          subject_id?: string | null;
+          tournament_id?: string | null;
+          description: string;
+          evidence_paths?: string[];
+          status?: string;
+          severity?: string;
+          assigned_admin_id?: string | null;
+          resolution?: string | null;
+          resolved_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        },
+        {
+          status?: string;
+          severity?: string;
+          assigned_admin_id?: string | null;
+          resolution?: string | null;
+          resolved_at?: string | null;
+          updated_at?: string;
+        }
+      >;
+      abuse_report_events: Table<
+        {
+          id: string;
+          report_id: string;
+          actor_id: string | null;
+          event_type: string;
+          from_status: string | null;
+          to_status: string | null;
+          note: string | null;
+          created_at: string;
+        },
+        {
+          id?: string;
+          report_id: string;
+          actor_id?: string | null;
+          event_type: string;
+          from_status?: string | null;
+          to_status?: string | null;
+          note?: string | null;
+          created_at?: string;
+        },
+        {
+          note?: string | null;
+        }
+      >;
     };
     Functions: {
       create_tournament: {
@@ -641,6 +980,206 @@ export interface Database {
       dissolve_team: {
         Args: { p_team_id: string };
         Returns: undefined;
+      };
+      platform_admin_role: {
+        Args: { p_user_id?: string };
+        Returns: string | null;
+      };
+      is_platform_admin: {
+        Args: { p_user_id?: string };
+        Returns: boolean;
+      };
+      account_status: {
+        Args: { p_user_id?: string };
+        Returns: string;
+      };
+      is_account_active: {
+        Args: { p_user_id?: string };
+        Returns: boolean;
+      };
+      mark_notification_read: {
+        Args: { p_notification_id: string };
+        Returns: boolean;
+      };
+      mark_all_notifications_read: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      set_notification_preference: {
+        Args: { p_category: string; p_in_app: boolean; p_push: boolean; p_email?: boolean };
+        Returns: undefined;
+      };
+      register_device_token: {
+        Args: { p_token: string; p_platform?: string; p_device_name?: string | null };
+        Returns: string;
+      };
+      remove_device_token: {
+        Args: { p_token: string };
+        Returns: boolean;
+      };
+      process_scheduled_notifications: {
+        Args: { p_limit?: number };
+        Returns: number;
+      };
+      create_tournament_announcement: {
+        Args: { p_tournament_id: string; p_title: string; p_body: string; p_pinned?: boolean };
+        Returns: string;
+      };
+      request_organizer_account: {
+        Args: { p_organization_name?: string | null; p_contact_note?: string | null };
+        Returns: string;
+      };
+      submit_abuse_report: {
+        Args: {
+          p_category: string;
+          p_subject_type: string;
+          p_description: string;
+          p_subject_id?: string | null;
+          p_tournament_id?: string | null;
+          p_evidence_paths?: string[];
+        };
+        Returns: string;
+      };
+      admin_search_users: {
+        Args: { p_query?: string | null; p_limit?: number; p_offset?: number };
+        Returns: {
+          user_id: string;
+          display_name: string;
+          username: string | null;
+          email: string | null;
+          account_status: string;
+          created_at: string;
+          is_platform_admin: boolean;
+          organizer_status: string | null;
+        }[];
+      };
+      admin_get_user: {
+        Args: { p_user_id: string };
+        Returns: Json;
+      };
+      admin_suspend_user: {
+        Args: { p_user_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      admin_restore_user: {
+        Args: { p_user_id: string; p_note?: string | null };
+        Returns: undefined;
+      };
+      admin_list_organizers: {
+        Args: { p_status?: string | null; p_limit?: number; p_offset?: number };
+        Returns: {
+          user_id: string;
+          display_name: string;
+          email: string | null;
+          status: string;
+          organization_name: string | null;
+          contact_note: string | null;
+          approved_at: string | null;
+          suspended_at: string | null;
+          suspension_reason: string | null;
+          created_at: string;
+        }[];
+      };
+      admin_set_organizer_status: {
+        Args: {
+          p_user_id: string;
+          p_status: string;
+          p_reason?: string | null;
+          p_organization_name?: string | null;
+        };
+        Returns: undefined;
+      };
+      admin_list_tournaments: {
+        Args: { p_query?: string | null; p_status?: string | null; p_limit?: number; p_offset?: number };
+        Returns: {
+          tournament_id: string;
+          title: string;
+          organizer_id: string;
+          organizer_name: string;
+          status: string;
+          visibility: string;
+          format: string;
+          max_teams: number;
+          registered_count: number;
+          created_at: string;
+        }[];
+      };
+      admin_assign_moderator: {
+        Args: { p_tournament_id: string; p_user_id: string };
+        Returns: undefined;
+      };
+      admin_remove_moderator: {
+        Args: { p_tournament_id: string; p_user_id: string };
+        Returns: boolean;
+      };
+      admin_list_moderators: {
+        Args: { p_tournament_id: string };
+        Returns: {
+          user_id: string;
+          display_name: string;
+          email: string | null;
+          assigned_at: string;
+        }[];
+      };
+      admin_search_audit_logs: {
+        Args: { p_query?: string | null; p_action?: string | null; p_limit?: number; p_offset?: number };
+        Returns: {
+          id: string;
+          user_id: string | null;
+          action: string;
+          resource_type: string;
+          resource_id: string | null;
+          old_data: Json | null;
+          new_data: Json | null;
+          created_at: string;
+        }[];
+      };
+      admin_platform_metrics: {
+        Args: Record<string, never>;
+        Returns: Json;
+      };
+      admin_set_platform_setting: {
+        Args: {
+          p_key: string;
+          p_value: Json;
+          p_is_public?: boolean;
+          p_description?: string | null;
+        };
+        Returns: undefined;
+      };
+      admin_grant_platform_admin: {
+        Args: { p_user_id: string; p_role: string; p_notes?: string | null };
+        Returns: undefined;
+      };
+      admin_revoke_platform_admin: {
+        Args: { p_user_id: string; p_note?: string | null };
+        Returns: undefined;
+      };
+      admin_triage_abuse_report: {
+        Args: {
+          p_report_id: string;
+          p_status: string;
+          p_severity?: string | null;
+          p_assigned_admin_id?: string | null;
+          p_note?: string | null;
+        };
+        Returns: undefined;
+      };
+      admin_resolve_abuse_report: {
+        Args: { p_report_id: string; p_resolution: string; p_dismiss?: boolean };
+        Returns: undefined;
+      };
+      create_notification: {
+        Args: {
+          p_user_id: string;
+          p_type: string;
+          p_title: string;
+          p_body: string | null;
+          p_data: Json;
+          p_category: string | null;
+          p_dedupe_key: string | null;
+        };
+        Returns: string | null;
       };
     };
     Enums: {
