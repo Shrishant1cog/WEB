@@ -4,21 +4,22 @@
 --
 -- This migration:
 --   1. Creates a helper function to retrieve the FCM worker JWT from Vault
---   2. The JWT is stored as a secret in Vault (not in this migration)
+--   2. The JWT is the Supabase service_role key (stored as 'fcm_worker_jwt' in Vault)
 --   3. The cron job fetches the JWT via the helper function
 --
--- DEPLOYMENT: After running this migration, store the JWT in Vault:
---   SELECT vault.create_secret('fcm_worker_jwt', '<jwt-token>');
+-- DEPLOYMENT: After running this migration, store the service_role key in Vault:
+--   SELECT vault.create_secret('fcm_worker_jwt', '<service_role_key>');
 --
 -- JWT REQUIREMENTS:
---   - role: 'service_role'
---   - aud: 'fcm-worker'
---   - iss: '{SUPABASE_URL}/auth/v1'
---   - exp: far future (e.g., 10 years) or rotate periodically
---   - Generate using Supabase service_role key (not exposed to cron)
+--   - The JWT is the Supabase service_role key (from Dashboard > Settings > API)
+--   - role: 'service_role' (verified by Edge Function)
+--   - iss: '{SUPABASE_URL}/auth/v1' (verified by Edge Function via JWKS)
+--   - aud: typically 'authenticated' or project ref (accepted by Edge Function)
+--   - exp: far future (service_role keys don't expire)
+--   - The service_role key IS a valid JWT issued by Supabase Auth
 
 -- ============================================
--- 1. Vault helper function
+-- 1. Vault helper function to retrieve JWT
 -- ============================================
 CREATE OR REPLACE FUNCTION public.get_fcm_worker_jwt()
 RETURNS TEXT
@@ -30,11 +31,11 @@ DECLARE
     v_jwt TEXT;
 BEGIN
     -- Retrieve the JWT from Vault
-    -- The secret must be created separately: SELECT vault.create_secret('fcm_worker_jwt', '<jwt>');
+    -- The secret must be created separately: SELECT vault.create_secret('fcm_worker_jwt', '<service_role_key>');
     SELECT vault.decrypt_secret('fcm_worker_jwt') INTO v_jwt;
     
     IF v_jwt IS NULL THEN
-        RAISE EXCEPTION 'FCM worker JWT not configured in Vault'
+        RAISE EXCEPTION 'FCM worker JWT not configured in Vault. Run: SELECT vault.create_secret(''fcm_worker_jwt'', ''<service_role_key>'');'
             USING ERRCODE = '55000';
     END IF;
     

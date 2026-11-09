@@ -1,23 +1,25 @@
-#!/usr/bin/env deno run --allow-env --allow-net
+#!/usr/bin/env deno run --allow-env
 
 /**
- * Generate FCM Worker JWT for Supabase Vault
+ * FCM Worker JWT Generation Guide
  *
- * This script generates a JWT with:
+ * This script explains the JWT generation approach for FCM worker authentication.
+ *
+ * The Supabase service_role key (from Dashboard > Settings > API) IS a valid JWT with:
  *   - role: 'service_role'
- *   - aud: 'fcm-worker'
  *   - iss: '{SUPABASE_URL}/auth/v1'
- *   - exp: 10 years from now
+ *   - aud: typically 'authenticated' or project ref
+ *   - role: 'service_role'
+ *   - exp: far future (10+ years)
  *
- * The JWT is signed with the Supabase service_role key.
- * Run this script locally, then store the output in Vault:
- *   SELECT vault.create_secret('fcm_worker_jwt', '<output>');
+ * The Edge Function accepts the service_role key's default audience.
+ * We store the service_role key directly in Vault as 'fcm_worker_jwt'.
  *
  * Usage:
- *   deno run --allow-env --allow-net supabase/scripts/generate_fcm_worker_jwt.ts
+ *   deno run --allow-env supabase/scripts/generate_fcm_worker_jwt.ts
+ *
+ * This script outputs the service_role key for manual storage in Vault.
  */
-
-import { SignJWT } from "https://esm.sh/jose@5.2.0";
 
 async function generateJWT() {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -25,96 +27,87 @@ async function generateJWT() {
 
   if (!supabaseUrl || !serviceRoleKey) {
     console.error("Error: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set");
+    console.error("Run: export SUPABASE_URL=... && export SUPABASE_SERVICE_ROLE_KEY=...");
     Deno.exit(1);
   }
 
-  // Parse the service role key (it's a JWT itself)
-  // The service role key is a JWT signed by Supabase. We need to extract the signing key.
-  // Actually, the service role key is the JWT itself that we use to sign other JWTs.
-  // Wait - the service_role key in Supabase is a JWT that can be used to verify other JWTs.
-  // For signing, we need the private key. But Supabase doesn't expose the private key.
-  //
-  // Actually, the service_role key in Supabase is a JWT that contains the public key info.
-  // We can't use it to SIGN other JWTs. We need to use the Supabase Management API or
-  // create a JWT using the Supabase Auth admin API.
-  //
-  // Alternative approach: Use the Supabase service_role key as the JWT itself!
-  // The service_role key IS a JWT with role=service_role. We can use it directly
-  // by changing the audience claim. But we can't modify a signed JWT.
-  //
-  // Correct approach: The Edge Function verifies JWTs using the Supabase JWKS.
-  // The JWKS contains the public keys for the Supabase Auth instance.
-  // The service_role key is a JWT signed by Supabase's private key.
-  // We need to create a JWT that will be verified by the same JWKS.
-  //
-  // Solution: Use the Supabase service_role key AS the JWT for the worker.
-  // The service_role key already has:
-  //   - role: service_role
-  //   - iss: {SUPABASE_URL}/auth/v1
-  // We just need to change the audience to 'fcm-worker'.
-  // But we can't modify a signed JWT.
-  //
-  // Real solution: Generate a new JWT signed with the SAME private key that Supabase uses.
-  // Since we don't have access to that private key, we need a different approach.
-  //
-  // ACTUAL SOLUTION: The Supabase service_role key IS the JWT we should use.
-  // The Edge Function verifies using the Supabase JWKS, which contains the public key
-  // for the service_role JWT. We just need to pass the service_role key as-is,
-  // but the Edge Function expects audience 'fcm-worker'.
-  //
-  // The service_role JWT has audience 'authenticated' (or similar).
-  // We need a JWT with audience 'fcm-worker'.
-  //
-  // The only way: Create a new JWT using the Supabase Management API or
-  // use a custom JWT signed with a key that's in the JWKS.
-  //
-  // PRACTICAL SOLUTION: Use the service_role key directly as the Bearer token.
-  // Modify the Edge Function to accept the service_role key directly
-  // (which already has role=service_role and is verified by Supabase).
-  //
-  // Actually, looking at the Edge Function code again:
-  // - It verifies using the Supabase JWKS
-  // - It checks audience == 'fcm-worker'
-  // - It checks role == 'service_role'
-  //
-  // The service_role key from Supabase Dashboard has:
-  // - role: 'service_role'
-  // - aud: 'authenticated' (or similar)
-  // - iss: '{SUPABASE_URL}/auth/v1'
-  //
-  // We need a JWT with aud='fcm-worker'. We can't change the aud of an existing JWT.
-  //
-  // SOLUTION: Use the Supabase Admin API to create a custom JWT, or
-  // create a custom JWT using a shared secret that we add to the JWKS.
-  //
-  // Simplest production approach: Use the Supabase service_role key directly
-  // and MODIFY the Edge Function to accept the service_role key's audience.
-  
   console.log("================================================================");
-  console.log("IMPORTANT: Cannot generate custom JWT without private key access");
+  console.log("FCM Worker JWT = Supabase service_role key");
   console.log("================================================================");
   console.log("");
-  console.log("SOLUTION: Use the Supabase service_role key directly.");
-  console.log("The service_role key from Supabase Dashboard is already a valid JWT");
-  console.log("with role=service_role, issued by Supabase Auth.");
+  console.log("The Supabase service_role key IS a valid JWT with:");
+  console.log("  - role: 'service_role'");
+  console.log("  - iss: '{SUPABASE_URL}/auth/v1'");
+  console.log("  - aud: typically 'authenticated' or project ref");
+  console.log("  - role: 'service_role'");
+  console.log("  - exp: far future (10+ years)");
   console.log("");
-  console.log("REQUIRED CHANGE: Update Edge Function to accept the service_role");
-  console.log("key's default audience (usually 'authenticated') OR modify the");
-  console.log("Edge Function to accept service_role without audience check.");
+  console.log("The Edge Function accepts the service_role key's default audience.");
+  console.log("We store the service_role key directly in Vault as 'fcm_worker_jwt'.");
   console.log("");
-  console.log("RECOMMENDED: Update Edge Function verifyWorkerJWT() to accept");
-  console.log("the service_role key's default audience OR make audience optional.");
-  console.log("");
-  console.log("Then store the service_role key in Vault:");
-  console.log("  SELECT vault.create_secret('fcm_worker_jwt', '<service_role_key>');");
   console.log("================================================================");
-  
-  // For now, output the service role key if available
-  if (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) {
-    console.log("");
-    console.log("Your service_role key (use this as the JWT):");
-    console.log(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
-  }
+  console.log("DEPLOYMENT STEPS:");
+  console.log("================================================================");
+  console.log("");
+  console.log("1. Get your service_role key from Supabase Dashboard:");
+  console.log("   Dashboard > Settings > API > service_role key");
+  console.log("");
+  console.log("2. Store it in Supabase Vault:");
+  console.log("   Run this SQL in Supabase Dashboard SQL Editor:");
+  console.log("   SELECT vault.create_secret('fcm_worker_jwt', '<your-service-role-key>');");
+  console.log("");
+  console.log("3. Or use the helper script:");
+  console.log("   deno run --allow-env --allow-run supabase/scripts/store_fcm_worker_jwt.ts");
+  console.log("");
+  console.log("4. Enable required extensions in Supabase Dashboard:");
+  console.log("   - pg_cron");
+  console.log("   - pg_net");
+  console.log("");
+  console.log("5. Deploy the Edge Function:");
+  console.log("   supabase functions deploy fcm-delivery");
+  console.log("");
+  console.log("6. Set Edge Function secrets (Dashboard > Edge Functions > fcm-delivery > Settings):");
+  console.log("   - FIREBASE_PROJECT_ID");
+  console.log("   - FIREBASE_CLIENT_EMAIL");
+  console.log("   - FIREBASE_PRIVATE_KEY");
+  console.log("");
+  console.log("6. Enable cron jobs (run in SQL Editor):");
+  console.log("   -- Scheduled notifications processor");
+  console.log("   SELECT cron.schedule(");
+  console.log("       'process-scheduled-notifications',");
+  console.log("       '* * * * *',");
+  console.log("       $$ SELECT public.process_scheduled_notifications(100); $$");
+  console.log("   );");
+  console.log("");
+  console.log("   -- FCM delivery processor");
+  console.log("   SELECT cron.schedule(");
+  console.log("       'process-fcm-delivery',");
+  console.log("       '* * * * *',");
+  console.log("       $$");
+  console.log("       SELECT net.http_post(");
+  console.log("           url := 'https://<project-ref>.supabase.co/functions/v1/fcm-delivery',");
+  console.log("           headers := public.get_fcm_worker_auth_header(),");
+  console.log("           body := '{}'::jsonb");
+  console.log("       ) AS response;");
+  console.log("       $$");
+  console.log("   );");
+  console.log("");
+  console.log("   -- Cleanup jobs");
+  console.log("   SELECT cron.schedule(");
+  console.log("       'cleanup-notification-delivery-queue',");
+  console.log("       '0 3 * * *',");
+  console.log("       $$ DELETE FROM public.notification_delivery_queue WHERE status IN ('sent', 'dead') AND updated_at < NOW() - INTERVAL '7 days'; $$");
+  console.log("   );");
+  console.log("   SELECT cron.schedule(");
+  console.log("       'cleanup-scheduled-notifications',");
+  console.log("       '0 4 * * *',");
+  console.log("       $$ DELETE FROM public.scheduled_notifications WHERE processed_at IS NOT NULL AND processed_at < NOW() - INTERVAL '30 days'; $$");
+  console.log("   );");
+  console.log("");
+  console.log("================================================================");
+  console.log("Your service_role key (use this as the JWT):");
+  console.log("================================================================");
+  console.log(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "<not set in environment>");
 }
 
 generateJWT().catch(console.error);

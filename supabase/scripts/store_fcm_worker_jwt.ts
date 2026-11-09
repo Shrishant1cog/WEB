@@ -1,4 +1,4 @@
-#!/usr/bin/env deno run --allow-env
+#!/usr/bin/env deno run --allow-env --allow-run
 
 /**
  * Store FCM Worker JWT in Supabase Vault
@@ -7,12 +7,14 @@
  *   - role: 'service_role'
  *   - iss: '{SUPABASE_URL}/auth/v1'
  *   - aud: typically 'authenticated' or project ref
+ *   - role: 'service_role'
+ *   - exp: far future (10+ years)
  *
- * The Edge Function now accepts the service_role key's default audience.
+ * The Edge Function accepts the service_role key's default audience.
  * We store the service_role key directly in Vault as 'fcm_worker_jwt'.
  *
  * Usage:
- *   deno run --allow-env supabase/scripts/store_fcm_worker_jwt.ts
+ *   deno run --allow-env --allow-run supabase/scripts/store_fcm_worker_jwt.ts
  *
  * Prerequisites:
  *   - SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in environment
@@ -33,16 +35,10 @@ async function storeJWT() {
 
   // Use Supabase CLI to call the vault.create_secret function
   // This requires the Supabase CLI to be linked to the project
-  const cmd = [
-    "supabase",
-    "db",
-    "exec",
-    "--project-ref", // will be auto-detected if linked
-    `SELECT vault.create_secret('fcm_worker_jwt', '${serviceRoleKey.replace(/'/g, "''")}');`
-  ];
-
+  const sql = `SELECT vault.create_secret('fcm_worker_jwt', '${serviceRoleKey.replace(/'/g, "''")}');`;
+  
   const proc = new Deno.Command("supabase", {
-    args: ["db", "exec", `SELECT vault.create_secret('fcm_worker_jwt', '${serviceRoleKey.replace(/'/g, "''")}');`],
+    args: ["db", "exec", sql],
     stdout: "piped",
     stderr: "piped",
   });

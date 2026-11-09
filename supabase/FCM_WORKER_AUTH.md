@@ -19,9 +19,9 @@ The Edge Function (`supabase/functions/fcm-delivery/index.ts`) verifies JWTs usi
 The Supabase **service_role key** (from Dashboard → Settings → API) is already a valid JWT that:
 - Has `role = 'service_role'`
 - Is signed by Supabase's private key
-- Is verifiable via Supabase's JWKS
+- Is verifiable via Supabase's JWKS (`{SUPABASE_URL}/auth/v1/.well-known/jwks.json`)
 
-The Edge Function accepts the service_role key's default audience (typically `authenticated` or project reference).
+The Edge Function accepts the service_role key's default audience (typically `authenticated` or project ref). **No custom audience is required.**
 
 ## Deployment Steps
 
@@ -53,13 +53,18 @@ export SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
 supabase db exec "SELECT vault.create_secret('fcm_worker_jwt', '<your-service-role-key>');"
 ```
 
+Or use the helper script:
+```bash
+deno run --allow-env --allow-run supabase/scripts/store_fcm_worker_jwt.ts
+```
+
 ### 4. Deploy Edge Function
 
 ```bash
 supabase functions deploy fcm-delivery
 ```
 
-### 4. Set Edge Function Secrets
+### 5. Set Edge Function Secrets
 
 In Supabase Dashboard → Edge Functions → `fcm-delivery` → Settings → Secrets:
 - `FIREBASE_PROJECT_ID`
@@ -74,14 +79,14 @@ Run the following SQL in Supabase Dashboard → SQL Editor:
 -- 1. Process scheduled notifications (every minute)
 SELECT cron.schedule(
     'process-scheduled-notifications',
-    '* * * * *',
+    '* * * * *', -- every minute
     $$ SELECT public.process_scheduled_notifications(100); $$
 );
 
 -- 2. Process FCM delivery via Edge Function (every minute)
 SELECT cron.schedule(
     'process-fcm-delivery',
-    '* * * * *',
+    '* * * * *', -- every minute
     $$
     SELECT net.http_post(
         url := 'https://<project-ref>.supabase.co/functions/v1/fcm-delivery',
@@ -94,7 +99,7 @@ SELECT cron.schedule(
 -- 3. Cleanup old processed deliveries (daily at 3 AM)
 SELECT cron.schedule(
     'cleanup-notification-delivery-queue',
-    '0 3 * * *',
+    '0 3 * * *', -- daily at 3 AM
     $$
     DELETE FROM public.notification_delivery_queue
     WHERE status IN ('sent', 'dead')
@@ -105,7 +110,7 @@ SELECT cron.schedule(
 -- 4. Cleanup old scheduled notifications (daily at 4 AM)
 SELECT cron.schedule(
     'cleanup-scheduled-notifications',
-    '0 4 * * *',
+    '0 4 * * *', -- daily at 4 AM
     $$
     DELETE FROM public.scheduled_notifications
     WHERE processed_at IS NOT NULL
@@ -142,6 +147,13 @@ Expected response: `{"processed":0,"message":"No pending deliveries"}` (if queue
 - The Edge Function validates every request using Supabase's JWKS
 - The service_role key is never exposed to the client or cron job directly (retrieved via SECURITY DEFINER function)
 
+## Files
+
+- `supabase/migrations/20261109000001_phase5_fcm_worker_auth.sql` — Vault helper functions
+- `supabase/migrations/20261108000017_phase5_scheduled_jobs.sql` — Cron job definitions
+- `supabase/functions/fcm-delivery/index.ts` — Edge Function
+- `supabase/scripts/store_fcm_worker_jwt.ts` — Helper script to store JWT in Vault
+
 ## Troubleshooting
 
 | Issue | Solution |
@@ -151,10 +163,45 @@ Expected response: `{"processed":0,"message":"No pending deliveries"}` (if queue
 | "FCM credentials not configured" | Set Firebase secrets in Edge Function settings |
 | Cron job not running | Check `pg_cron` and `pg_net` extensions are enabled |
 | Edge Function returns 500 | Check Edge Function logs: `supabase functions logs fcm-delivery` |
+| JWT verification fails | Ensure service_role key is valid and not expired |
 
-## Files
+## Architecture
 
-- `supabase/migrations/20261109000001_phase5_fcm_worker_auth.sql` — Vault helper functions
-- `supabase/migrations/20261108000017_phase5_scheduled_jobs.sql` — Cron job definitions
-- `supabase/functions/fcm-delivery/index.ts` — Edge Function
-- `supabase/scripts/store_fcm_worker_jwt.ts` — Helper script to store JWT in Vault
+```
+┌─────────────────┐     pg_cron      ┌──────────────────┐
+│  pg_cron job    │ ───────────────▶ │  pg_net HTTP     │
+│  (every minute) │                   │  POST to Edge    │
+└─────────────────┘                   │  Function        │
+                                      └────────┬─────────┘
+                                               │
+                                               ▼
+                                    ┌──────────────────┐
+                                    │  Supabase Vault  │
+                                    │  (get JWT)       │
+                                    └────────┬─────────┘
+                                               │
+                                    ┌──────────▼──────────┐
+                                    │  get_fcm_worker_    │
+                                    │  auth_header()      │
+                                    └──────────┬──────────┘
+                                               │
+                                               ▼
+                                    ┌──────────────────┐
+                                    │  Authorization:  │
+                                    │  Bearer <JWT>    │
+                                    └────────┬─────────┘
+                                               │
+                                               ▼
+                                    ┌──────────────────┐
+                                    │  Edge Function   │
+                                    │  (JWT Verify)    │
+                                    └──────────────────┘
+```
+
+## Key Security Properties
+
+1. **No hardcoded secrets** - JWT stored in Vault, retrieved at runtime
+2. **Least privilege** - Only `service_role` can execute Vault helper functions
+3. **Standard JWT verification** - Uses Supabase's standard JWKS endpoint
+4. **Short-lived cron execution** - Runs every minute, minimal attack surface
+5. **Audit trail** - All cron executions logged in `cron.job_run_details`
