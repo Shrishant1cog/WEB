@@ -2,6 +2,8 @@ name: Flutter Production Release
 
 # Manual production release only. Requires repository secrets:
 #   KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+#   SUPABASE_URL, SUPABASE_ANON_KEY
+#   GOOGLE_SERVICES_JSON (base64-encoded google-services.json)
 # This workflow is never triggered by ordinary pushes, so development CI does
 # not depend on production signing material.
 
@@ -18,25 +20,35 @@ jobs:
     name: Flutter - Release APK (production signing)
     runs-on: ubuntu-latest
     if: github.event.inputs.confirm_release == 'RELEASE'
+    env:
+      # These are passed to Flutter via --dart-define
+      # SUPABASE_SERVICE_ROLE_KEY is intentionally NOT passed to Flutter
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      FLUTTER_DEBUG: "false"
+      FFT_ENABLE_PUSH: "false"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify signing secrets are configured
+      - name: Verify required secrets are configured
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
           missing=""
-          for name in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+          for name in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD SUPABASE_URL SUPABASE_ANON_KEY GOOGLE_SERVICES_JSON; do
             if [ -z "${!name}" ]; then
               missing="$missing $name"
             fi
           done
           if [ -n "$missing" ]; then
-            echo "BLOCKED: production signing secrets are not configured:$missing"
+            echo "BLOCKED: required secrets are not configured:$missing"
             exit 1
           fi
 
@@ -70,8 +82,24 @@ jobs:
           test -s app/keystore/release.keystore
           test -s key.properties
 
+      - name: Decode google-services.json
+        working-directory: ./apps/mobile/android/app
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          printf '%s' "$GOOGLE_SERVICES_JSON" | base64 -d > google-services.json
+          test -s google-services.json
+          # Verify it's valid JSON and has expected structure
+          cat google-services.json | jq -e '.project_info.project_id' > /dev/null
+          echo "google-services.json decoded and validated"
+
       - name: Build release APK (production signing required)
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release \
+            --dart-define=SUPABASE_URL="${SUPABASE_URL}" \
+            --dart-define=SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY}" \
+            --dart-define=FLUTTER_DEBUG=false \
+            --dart-define=FFT_ENABLE_PUSH=false
         working-directory: ./apps/mobile
 
       - name: Verify release APK signing certificate
@@ -106,8 +134,9 @@ jobs:
           path: apps/mobile/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 14
 
-      - name: Remove signing material
+      - name: Remove signing material and google-services.json
         if: always()
         working-directory: ./apps/mobile/android
         run: |
           rm -f key.properties app/keystore/release.keystore
+          rm -f app/google-services.json
