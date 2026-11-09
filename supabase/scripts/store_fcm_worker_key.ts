@@ -46,7 +46,7 @@ async function storeKey() {
   }
 
   console.log("Success! API key stored in Vault as 'fcm_worker_key'");
-  console.log(new TextDecoder().decode(stdout));
+  // Do not log the secret
 }
 
 storeKey().catch(console.error);

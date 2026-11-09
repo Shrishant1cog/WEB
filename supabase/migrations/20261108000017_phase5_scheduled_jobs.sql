@@ -13,7 +13,7 @@
 -- Then run this migration.
 --
 -- The FCM Edge Function is invoked via pg_net with a service_role API key.
--- The key is retrieved from Vault via get_fcm_worker_auth_header().
+-- The key is retrieved from Vault via fcm_internal.get_fcm_worker_auth_header().
 -- The key is the Supabase service_role key (stored in Vault as 'fcm_worker_key').
 
 -- Enable pg_net extension (requires superuser, run once per project)
@@ -32,8 +32,8 @@
 -- 2. FCM delivery processor via Edge Function (runs every minute)
 -- ============================================
 -- The Edge Function is called via pg_net with a service_role API key.
--- The key is retrieved from Vault via get_fcm_worker_auth_header().
--- The key is the Supabase service_role key (stored in Vault as 'fcm_worker_key').
+-- The key is retrieved from Vault via fcm_internal.get_fcm_worker_auth_header().
+-- The key is passed as the `apikey` header (not Authorization: Bearer).
 --
 -- SELECT cron.schedule(
 --     'process-fcm-delivery',
@@ -41,7 +41,7 @@
 --     $$
 --     SELECT net.http_post(
 --         url := 'https://<project-ref>.supabase.co/functions/v1/fcm-delivery',
---         headers := public.get_fcm_worker_auth_header(),
+--         headers := fcm_internal.get_fcm_worker_auth_header(),
 --         body := '{}'::jsonb
 --     ) AS response;
 --     $$

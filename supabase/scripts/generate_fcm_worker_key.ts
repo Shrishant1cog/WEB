@@ -9,7 +9,7 @@
  * Usage:
  *   deno run --allow-env supabase/scripts/generate_fcm_worker_key.ts
  *
- * This script outputs the service_role key for manual storage in Vault.
+ * This script outputs the deployment steps.
  */
 
 async function guide() {
@@ -27,7 +27,7 @@ async function guide() {
   console.log("================================================================");
   console.log("");
   console.log("The Supabase service_role key is an opaque API key (not a JWT).");
-  console.log("The Edge Function validates it by using it for a Supabase admin call.");
+  console.log("The Edge Function validates it by comparing against the Vault secret.");
   console.log("We store it directly in Vault as 'fcm_worker_key'.");
   console.log("");
   console.log("================================================================");
@@ -56,7 +56,10 @@ async function guide() {
   console.log("   - FIREBASE_CLIENT_EMAIL");
   console.log("   - FIREBASE_PRIVATE_KEY");
   console.log("");
-  console.log("6. Enable cron jobs (run in SQL Editor):");
+  console.log("7. Set FCM_WORKER_API_KEY in Edge Function secrets (Dashboard > Edge Functions > fcm-delivery > Settings):");
+  console.log("   - FCM_WORKER_API_KEY = <your-service-role-key>");
+  console.log("");
+  console.log("7. Enable cron jobs (run in SQL Editor):");
   console.log("   -- Scheduled notifications processor");
   console.log("   SELECT cron.schedule(");
   console.log("       'process-scheduled-notifications',");
@@ -71,7 +74,7 @@ async function guide() {
   console.log("       $$");
   console.log("       SELECT net.http_post(");
   console.log("           url := 'https://<project-ref>.supabase.co/functions/v1/fcm-delivery',");
-  console.log("           headers := public.get_fcm_worker_auth_header(),");
+  console.log("           headers := fcm_internal.get_fcm_worker_auth_header(),");
   console.log("           body := '{}'::jsonb");
   console.log("       ) AS response;");
   console.log("       $$");
@@ -90,9 +93,8 @@ async function guide() {
   console.log("   );");
   console.log("");
   console.log("================================================================");
-  console.log("Your service_role key (use this as the API key):");
+  console.log("Configuration complete. Do not print the service role key in logs.");
   console.log("================================================================");
-  console.log(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "<not set in environment>");
 }
 
 guide().catch(console.error);

@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'apikey, authorization, x-client-info, content-type',
 }
 
 interface DeliveryItem {
@@ -47,35 +47,6 @@ interface FCMMessage {
         Urgency: string
       }
     }
-  }
-}
-
-async function verifyWorkerApiKey(authHeader: string): Promise<boolean> {
-  const token = authHeader?.replace('Bearer ', '')
-  
-  if (!token) return false
-  
-  // Validate by attempting to use the key as a Supabase service_role key
-  // A valid service_role key will allow admin operations
-  try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const testClient = createClient(supabaseUrl, token, {
-      auth: { persistSession: false },
-    })
-    
-    // Test the key by attempting an admin operation
-    // This validates the key without exposing sensitive data
-    const { error } = await testClient.auth.admin.listUsers({ page: 1, perPage: 1 })
-    
-    if (error) {
-      console.error('API key validation failed:', error.message)
-      return false
-    }
-    
-    return true
-  } catch (err) {
-    console.error('API key validation failed:', err)
-    return false
   }
 }
 
@@ -212,9 +183,13 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Verify Supabase service_role API key
-  const authHeader = req.headers.get('Authorization')
-  if (!(await verifyWorkerApiKey(authHeader))) {
+  // Validate the secret API key from the apikey header
+  // The secret key is the Supabase service_role key, passed as `apikey` header
+  const apiKey = req.headers.get('apikey') || req.headers.get('x-api-key')
+  const expectedKey = Deno.env.get('FCM_WORKER_API_KEY')
+  
+  if (!apiKey || !expectedKey || apiKey !== expectedKey) {
+    console.error('Invalid or missing API key')
     return new Response(
       JSON.stringify({ error: 'Unauthorized: invalid or missing worker API key' }),
       { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

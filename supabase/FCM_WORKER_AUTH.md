@@ -8,18 +8,19 @@ The FCM delivery Edge Function is invoked by a pg_cron job every minute. It requ
 
 ### API Key-Based Authentication
 
-The Edge Function (`supabase/functions/fcm-delivery/index.ts`) validates the API key by using it to make a Supabase admin API call. The API key must:
+The Edge Function (`supabase/functions/fcm-delivery/index.ts`) validates the API key by comparing it against a secret stored in Supabase Vault. The API key must:
 
 1. **Be the Supabase service_role key** (from Dashboard → Settings → API)
-2. **Be valid** - able to perform admin operations (tested via `auth.admin.listUsers`)
+2. **Match the Vault secret** `fcm_worker_key` exactly
 
-The service_role key is an **opaque API key** (not a JWT). The Edge Function validates it by using it to make a test admin API call to Supabase.
+The service_role key is an **opaque API key** (not a JWT). The Edge Function validates it by simple string comparison against the Vault secret.
 
-### Why Not JWT?
+### Why This Approach?
 
-- **Legacy service_role JWTs** use a shared secret (not asymmetric keys), so JWKS verification doesn't work
-- **New `sb_` secret keys** are opaque API keys, not JWTs
-- The Edge Function validates the key by **using it** for an admin operation - this is the only reliable way to verify both legacy and new key formats
+- **No JWT complexity** - The service_role key is an opaque API key, not a JWT
+- **No JWT verification complexity** - No JWKS, no audience/issuer checks needed
+- **Works for all key formats** - Works for both legacy JWT and new `sb_` prefixed keys
+- **Simple and auditable** - Direct string comparison is transparent and auditable
 
 ## Deployment Steps
 
@@ -68,8 +69,9 @@ In Supabase Dashboard → Edge Functions → `fcm-delivery` → Settings → Sec
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_CLIENT_EMAIL` (from Firebase service account)
 - `FIREBASE_PRIVATE_KEY` (from Firebase service account, PKCS#8 format)
+- `FCM_WORKER_API_KEY` = `<your-service-role-key>`
 
-### 6. Enable Cron Jobs
+### 5. Enable Cron Jobs
 
 Run the following SQL in Supabase Dashboard → SQL Editor:
 
@@ -88,7 +90,7 @@ SELECT cron.schedule(
     $$
     SELECT net.http_post(
         url := 'https://<project-ref>.supabase.co/functions/v1/fcm-delivery',
-        headers := public.get_fcm_worker_auth_header(),
+        headers := fcm_internal.get_fcm_worker_auth_header(),
         body := '{}'::jsonb
     ) AS response;
     $$
@@ -119,7 +121,7 @@ SELECT cron.schedule(
 
 Replace `<project-ref>` with your Supabase project reference (e.g., `zjwgqjjgqbkunzhghdtb`).
 
-### 7. Verify Deployment
+### 6. Verify Deployment
 
 **Check cron jobs:**
 ```sql
@@ -130,7 +132,7 @@ SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10;
 **Test Edge Function:**
 ```bash
 curl -X POST \
-  -H "Authorization: Bearer <your-service-role-key>" \
+  -H "apikey: <your-service-role-key>" \
   -H "Content-Type: application/json" \
   https://<project-ref>.supabase.co/functions/v1/fcm-delivery
 ```
@@ -141,27 +143,27 @@ Expected response: `{"processed":0,"message":"No pending deliveries"}` (if queue
 
 - **Never hardcode** the service_role key in migrations or code
 - The API key is stored in **Supabase Vault** (encrypted at rest)
-- Only the `service_role` can read the Vault secret (via `SECURITY DEFINER` functions)
-- The Edge Function validates the key by **using it** for an admin operation
+- Only the `service_role` can read the Vault secret (via `SECURITY DEFINER` functions in `fcm_internal` schema)
+- The Edge Function validates the key by **exact string comparison** against the Vault secret
 - The service_role key is never exposed to the client or cron job directly (retrieved via SECURITY DEFINER function)
 
 ## Files
 
-- `supabase/migrations/20261109000001_phase5_fcm_worker_auth.sql` — Vault helper functions
+- `supabase/migrations/20261109000001_phase5_fcm_worker_auth.sql` — Vault helper functions in `fcm_internal` schema
 - `supabase/migrations/20261108000017_phase5_scheduled_jobs.sql` — Cron job definitions
 - `supabase/functions/fcm-delivery/index.ts` — Edge Function
 - `supabase/scripts/store_fcm_worker_key.ts` — Helper script to store key in Vault
+- `supabase/config.toml` — Edge Function config with `verify_jwt = false`
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
 | "FCM worker key not configured in Vault" | Run the Vault secret creation SQL |
-| "Unauthorized: invalid or missing worker API key" | Check Authorization header format: `Bearer <service_role_key>` |
+| "Unauthorized: invalid or missing worker API key" | Check `apikey` header format; ensure `FCM_WORKER_API_KEY` matches Vault secret |
 | "FCM credentials not configured" | Set Firebase secrets in Edge Function settings |
 | Cron job not running | Check `pg_cron` and `pg_net` extensions are enabled |
 | Edge Function returns 500 | Check Edge Function logs: `supabase functions logs fcm-delivery` |
-| Key validation fails | Ensure service_role key is valid and not expired |
 
 ## Architecture
 
@@ -179,20 +181,22 @@ Expected response: `{"processed":0,"message":"No pending deliveries"}` (if queue
                                     └────────┬─────────┘
                                                │
                                     ┌──────────▼──────────┐
-                                    │  get_fcm_worker_    │
+                                    │  fcm_internal.get_  │
+                                    │  fcm_worker_        │
                                     │  auth_header()      │
                                     └──────────┬──────────┘
                                                │
                                                ▼
                                     ┌──────────────────┐
-                                    │  Authorization:  │
-                                    │  Bearer <API key>│
+                                    │  apikey: <key>   │
+                                    │  Content-Type:   │
+                                    │  application/json│
                                     └────────┬─────────┘
                                                │
                                                ▼
                                     ┌──────────────────┐
                                     │  Edge Function   │
-                                    │  (API key valid) │
+                                    │  (key compare)   │
                                     └──────────────────┘
 ```
 
@@ -200,16 +204,18 @@ Expected response: `{"processed":0,"message":"No pending deliveries"}` (if queue
 
 1. **No hardcoded secrets** - API key stored in Vault, retrieved at runtime
 2. **Least privilege** - Only `service_role` can execute Vault helper functions
-3. **Standard key validation** - Uses Supabase's own admin API for validation
+3. **Simple validation** - Exact string comparison, no complex JWT logic
+5. **Schema isolation** - Helper functions in `fcm_internal` schema, not public
 6. **Short-lived cron execution** - Runs every minute, minimal attack surface
 7. **Audit trail** - All cron executions logged in `cron.job_run_details`
 
-## Key Differences from JWT Approach
+## Migration from JWT Approach
 
 | Aspect | JWT Approach (Previous) | API Key Approach (Current) |
 |--------|------------------------|---------------------------|
 | Key Format | JWT (legacy) or opaque API key (new) | Opaque API key (both legacy & new) |
-| Verification | JWKS + asymmetric keys | Admin API call (`auth.admin.listUsers`) |
+| Verification | JWKS + asymmetric keys | Exact string comparison |
 | Audience Check | Required (`fcm-worker`) | Not needed |
 | Key Storage | Vault (as JWT) | Vault (as opaque key) |
 | Compatibility | Legacy JWT only | Both legacy & new keys |
+| Complexity | High (JWT parsing, JWKS) | Low (string compare) |
