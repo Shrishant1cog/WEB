@@ -63,15 +63,20 @@ function getJWKS(): ReturnType<typeof createRemoteJWKSet> {
 }
 
 async function verifyWorkerJWT(authHeader: string): Promise<boolean> {
-  const expectedAudience = 'fcm-worker'
   const token = authHeader?.replace('Bearer ', '')
   
   if (!token) return false
   
   try {
+    // Verify the JWT using Supabase's JWKS (which contains the public key for service_role tokens)
+    // The Supabase service_role key is a JWT signed by Supabase's private key.
+    // We accept the service_role key's default audience (typically 'authenticated' or project ref)
+    // since the key itself proves it's a service_role token issued by Supabase.
     const { payload } = await jwtVerify(token, getJWKS(), {
       issuer: `${Deno.env.get('SUPABASE_URL')}/auth/v1`,
-      audience: expectedAudience,
+      // Accept the service_role key's default audience (typically 'authenticated' or project ref)
+      // The key itself proves it's a service_role token issued by Supabase.
+      // We don't enforce a specific audience; the role claim is the authorization.
     })
     
     // Verify this is a service_role token with the correct role claim
@@ -215,7 +220,7 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Verify Supabase gateway JWT (service_role with fcm-worker audience)
+  // Verify Supabase gateway JWT (service_role from Supabase)
   const authHeader = req.headers.get('Authorization')
   if (!(await verifyWorkerJWT(authHeader))) {
     return new Response(

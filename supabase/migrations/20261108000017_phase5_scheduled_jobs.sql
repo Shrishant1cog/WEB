@@ -13,7 +13,7 @@
 -- Then run this migration.
 --
 -- The FCM Edge Function is invoked via pg_net HTTP POST with a service_role JWT.
--- The function URL and auth token are stored in Vault/secrets, not in this migration.
+-- The JWT is retrieved from Vault via get_fcm_worker_auth_header().
 
 -- Enable pg_net extension (requires superuser, run once per project)
 -- CREATE EXTENSION IF NOT EXISTS pg_net;
@@ -31,7 +31,7 @@
 -- 2. FCM delivery processor via Edge Function (runs every minute)
 -- ============================================
 -- The Edge Function is called via pg_net with a service_role JWT.
--- The function handles claiming deliveries, sending to FCM, and completing.
+-- The JWT is retrieved from Vault via get_fcm_worker_auth_header().
 --
 -- SELECT cron.schedule(
 --     'process-fcm-delivery',
@@ -39,10 +39,7 @@
 --     $$
 --     SELECT net.http_post(
 --         url := 'https://<project-ref>.supabase.co/functions/v1/fcm-delivery',
---         headers := jsonb_build_object(
---             'Authorization', 'Bearer ' || current_setting('app.settings.fcm_worker_jwt', true),
---             'Content-Type', 'application/json'
---         ),
+--         headers := public.get_fcm_worker_auth_header(),
 --         body := '{}'::jsonb
 --     ) AS response;
 --     $$
