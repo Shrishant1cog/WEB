@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.fft_mobile"
+    namespace = "com.EsportSpace"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -16,7 +16,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.fft_mobile"
+        applicationId = "com.EsportSpace"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
