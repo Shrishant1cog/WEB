@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { createRemoteJWKSet, jwtVerify } from 'https://esm.sh/jose@5.2.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -51,38 +50,31 @@ interface FCMMessage {
   }
 }
 
-// JWKS for Supabase JWT verification (cached)
-let jwks: ReturnType<typeof createRemoteJWKSet> | null = null
-
-function getJWKS(): ReturnType<typeof createRemoteJWKSet> {
-  if (!jwks) {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    jwks = createRemoteJWKSet(new URL(`${supabaseUrl}/auth/v1/.well-known/jwks.json`))
-  }
-  return jwks
-}
-
-async function verifyWorkerJWT(authHeader: string): Promise<boolean> {
+async function verifyWorkerApiKey(authHeader: string): Promise<boolean> {
   const token = authHeader?.replace('Bearer ', '')
   
   if (!token) return false
   
+  // Validate by attempting to use the key as a Supabase service_role key
+  // A valid service_role key will allow admin operations
   try {
-    // Verify the JWT using Supabase's JWKS (which contains the public key for service_role tokens)
-    // The Supabase service_role key is a JWT signed by Supabase's private key.
-    // We accept the service_role key's default audience (typically 'authenticated' or project ref)
-    // since the key itself proves it's a service_role token issued by Supabase.
-    const { payload } = await jwtVerify(token, getJWKS(), {
-      issuer: `${Deno.env.get('SUPABASE_URL')}/auth/v1`,
-      // Accept the service_role key's default audience (typically 'authenticated' or project ref)
-      // The key itself proves it's a service_role token issued by Supabase.
-      // We don't enforce a specific audience; the role claim is the authorization.
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const testClient = createClient(supabaseUrl, token, {
+      auth: { persistSession: false },
     })
     
-    // Verify this is a service_role token with the correct role claim
-    return payload.role === 'service_role'
+    // Test the key by attempting an admin operation
+    // This validates the key without exposing sensitive data
+    const { error } = await testClient.auth.admin.listUsers({ page: 1, perPage: 1 })
+    
+    if (error) {
+      console.error('API key validation failed:', error.message)
+      return false
+    }
+    
+    return true
   } catch (err) {
-    console.error('JWT verification failed:', err)
+    console.error('API key validation failed:', err)
     return false
   }
 }
@@ -220,11 +212,11 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Verify Supabase gateway JWT (service_role from Supabase)
+  // Verify Supabase service_role API key
   const authHeader = req.headers.get('Authorization')
-  if (!(await verifyWorkerJWT(authHeader))) {
+  if (!(await verifyWorkerApiKey(authHeader))) {
     return new Response(
-      JSON.stringify({ error: 'Unauthorized: invalid or missing worker JWT' }),
+      JSON.stringify({ error: 'Unauthorized: invalid or missing worker API key' }),
       { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
